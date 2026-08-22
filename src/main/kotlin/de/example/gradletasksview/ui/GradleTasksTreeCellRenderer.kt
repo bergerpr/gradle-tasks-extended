@@ -9,8 +9,9 @@ import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
- * Rendert Modulknoten (bei eingeschalteter Modulgliederung), Gruppenzeilen (Default/Sort),
- * virtuelle Ordner (Nested) und Task-Blaetter.
+ * Rendert Modulknoten (in `Default` immer, sonst bei eingeschalteter Modulgliederung), den
+ * `Tasks`-Strukturknoten (`Default`), Gruppenzeilen (`Sort`), virtuelle Ordner
+ * (`Default`/`Nested`) und Task-Blaetter.
  *
  * Die Icons stammen aus den plugin-eigenen Ressourcen ([GradleTasksIcons]) und nicht mehr
  * aus `AllIcons`/`ExternalSystemIcons`. Damit haengt die Darstellung weder davon ab, unter
@@ -49,11 +50,19 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
                     ?.let { append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES) }
             }
 
-            // Gruppenzeile (Default/Sort) und virtueller Ordner (Nested) teilen sich bewusst
+            // Fester Strukturknoten "Tasks" unter einem Modul im Default-Modus. Er hat bewusst
+            // keinen Konfigurationsschluessel und fragt deshalb - anders als alle uebrigen
+            // Knoten - gar nicht erst nach einem eigenen Icon (siehe REQ-077).
+            TasksNodeData -> {
+                icon = GradleTasksIcons.TaskList
+                append(TasksNodeData.DISPLAY_NAME, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+            }
+
+            // Gruppenzeile (Sort) und virtueller Ordner (Default/Nested) teilen sich bewusst
             // dasselbe Ordner-Icon: Es ist in allen drei Modi derselbe Knotentyp aus Sicht des
             // Benutzers - ein aufklappbarer Container fuer Tasks - und soll deshalb ueberall
             // gleich aussehen. Nur die Beschriftung unterscheidet sich (voller Gruppenpfad in
-            // Default/Sort, einzelnes Pfadsegment in Nested).
+            // Sort, zusammengefasster Pfad in Default/Nested).
             is GroupHeaderNodeData -> {
                 icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.groupPath, modulePath))
                     ?: folderIcon(expanded)

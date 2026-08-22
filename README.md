@@ -1,8 +1,10 @@
 # Gradle Tasks Extended
 
 IntelliJ IDEA Ultimate Plugin, das die Gradle-Task-Ansicht um eine eigene
-ToolWindow-Ansicht mit drei Darstellungsmodi erweitert (`Default`, `Sort`, `Nested`),
-kombinierbar mit einer zuschaltbaren Modulgliederung.
+ToolWindow-Ansicht mit drei Darstellungsmodi erweitert: `Default` (Nachbau der originalen
+Gradle-Ansicht, aber mit Ordnerbaum statt flacher Gruppenzeilen), `Sort` (flach, alphabetisch)
+und `Nested` (Ordnerbaum). `Sort` und `Nested` sind zusaetzlich mit einer zuschaltbaren
+Modulgliederung kombinierbar; in `Default` ist sie fest eingebaut.
 Spezifikation, verifizierte Plattform-APIs und Entscheidungen sind in eine durchsuchbare
 Wissensbasis aufgeloest (siehe unten).
 

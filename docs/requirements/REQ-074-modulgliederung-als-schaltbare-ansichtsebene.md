@@ -11,13 +11,18 @@ betrifft:
   - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
   - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
   - src/main/kotlin/de/example/gradletasksview/util/GradleModulePathUtil.kt
-quelle: OPEN-005, Abschnitte "Baumform" und "Geforderter Funktionsumfang"
+quelle: OPEN-005, Abschnitte "Baumform" und "Geforderter Funktionsumfang"; OPEN-007
 ---
 
 Ein Feststellbutton in der Toolbar, neben dem Modus-Dropdown, schaltet eine Modulebene ein
-und aus. Er ist **orthogonal** zu den drei Modi: Es gibt sechs Kombinationen
-(Default/Sort/Nested jeweils mit und ohne Modulebene), keinen vierten Modus. Standard ist
+und aus. Er ist **orthogonal** zu `Sort` und `Nested`, aber kein vierter Modus. Standard ist
 **aus**, damit sich fuer bestehende Projekte ohne Konfiguration nichts aendert.
+
+In `Default` wirkt er **nicht**: Dort ist die Modulebene fester Bestandteil der Ansicht
+(REQ-077), und der Button wird ausgegraut und angehakt dargestellt. Es gibt also fuenf
+Kombinationen, nicht sechs - `Sort` und `Nested` je mit und ohne Modulebene, dazu `Default`.
+Der **gespeicherte** Zustand des Buttons bleibt in `Default` unberuehrt, sodass er beim
+Zurueckwechseln nach `Sort`/`Nested` unveraendert weitergilt.
 
 ## Baumform
 
@@ -42,10 +47,9 @@ Struktur nicht zerreisst.
 
 Innerhalb eines Moduls kommt erst dessen eigener Inhalt, dann die Untermodule - dieselbe
 Reihenfolge wie "Tasks vor Unterordnern" (REQ-004). Der Modus bestimmt nur diesen Inhalt: in
-`Default` bleibt die Originalreihenfolge, in `Sort` wird sortiert, in `Nested` haengt der
-Ordnerbaum unter dem Modulknoten. Geschwistermodule sind immer alphabetisch sortiert, auch in
-`Default`: Die Modulebene ist Projektstruktur und keine von Gradle gelieferte Reihenfolge, die
-sich bewahren liesse.
+`Sort` die sortierte Gruppenliste, in `Nested` der Ordnerbaum, in `Default` ein `Tasks`-Knoten
+mit dem Ordnerbaum darunter (REQ-077). Geschwistermodule sind in allen Modi alphabetisch
+sortiert: Die Modulebene ist Projektstruktur und keine von Gradle gelieferte Reihenfolge.
 
 ## Modulidentitaet
 

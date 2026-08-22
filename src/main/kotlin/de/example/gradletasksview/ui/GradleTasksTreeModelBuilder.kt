@@ -15,9 +15,12 @@ import javax.swing.tree.DefaultTreeModel
  * den jeweils aktiven [GradleTaskViewMode]. Reine In-Memory-Transformation ohne
  * PSI-Zugriff - unabhaengig von der Codebasengroesse, nur von der Task-Anzahl.
  *
- * Die Modulgliederung (`showModules`) ist **orthogonal** zum Modus: Sie schiebt lediglich eine
- * Modulebene nach aussen, waehrend die Gliederung darunter unveraendert die des jeweiligen
- * Modus bleibt. Es entstehen also sechs Kombinationen, kein vierter Modus (siehe REQ-074).
+ * Die Modulgliederung (`showModules`) ist **orthogonal** zu `Sort` und `Nested`: Sie schiebt
+ * lediglich eine Modulebene nach aussen, waehrend die Gliederung darunter unveraendert die des
+ * jeweiligen Modus bleibt. In `Default` ist die Modulebene dagegen fester Bestandteil der
+ * Ansicht und der Parameter wird ignoriert - dort bildet sie zusammen mit dem `Tasks`-Knoten
+ * die originale Gradle-Ansicht nach (siehe REQ-077). Es entstehen also fuenf Kombinationen,
+ * kein vierter Modus (siehe REQ-074).
  */
 object GradleTasksTreeModelBuilder {
 
@@ -28,7 +31,7 @@ object GradleTasksTreeModelBuilder {
     ): DefaultTreeModel {
         val root = DefaultMutableTreeNode("root")
 
-        if (showModules) {
+        if (showModules || mode == GradleTaskViewMode.DEFAULT) {
             addModuleNodes(root, buildModuleTree(tasks), mode)
         } else {
             addModeContent(root, mode, tasks)
@@ -43,9 +46,30 @@ object GradleTasksTreeModelBuilder {
      */
     private fun addModuleNodes(parent: DefaultMutableTreeNode, module: ModuleTreeNode, mode: GradleTaskViewMode) {
         val moduleNode = DefaultMutableTreeNode(ModuleNodeData(module.gradlePath, module.moduleName))
-        addModeContent(moduleNode, mode, module.tasks)
+        addModuleContent(moduleNode, mode, module.tasks)
         module.childrenModules.values.forEach { child -> addModuleNodes(moduleNode, child, mode) }
         parent.add(moduleNode)
+    }
+
+    /**
+     * In `Default` steht zwischen Modulknoten und Ordnerbaum der feste Knoten `Tasks`, wie im
+     * Original. Ein Modul ohne eigene Tasks bekommt **keinen** - dort stuenden sonst eine leere
+     * Zeile und ein Klick ins Nichts (siehe REQ-077).
+     */
+    private fun addModuleContent(
+        moduleNode: DefaultMutableTreeNode,
+        mode: GradleTaskViewMode,
+        tasks: List<GradleTaskDescriptor>
+    ) {
+        if (mode != GradleTaskViewMode.DEFAULT) {
+            addModeContent(moduleNode, mode, tasks)
+            return
+        }
+        if (tasks.isEmpty()) return
+
+        val tasksNode = DefaultMutableTreeNode(TasksNodeData)
+        addModeContent(tasksNode, mode, tasks)
+        moduleNode.add(tasksNode)
     }
 
     private fun addModeContent(
@@ -54,23 +78,10 @@ object GradleTasksTreeModelBuilder {
         tasks: List<GradleTaskDescriptor>
     ) {
         when (mode) {
-            GradleTaskViewMode.DEFAULT -> buildDefault(parent, tasks)
+            // Default und Nested teilen sich denselben Ordnerbaum; der Unterschied liegt eine
+            // Ebene hoeher (feste Modulebene und Tasks-Knoten, siehe REQ-077).
+            GradleTaskViewMode.DEFAULT, GradleTaskViewMode.NESTED -> buildNested(parent, tasks)
             GradleTaskViewMode.SORT -> buildSort(parent, tasks)
-            GradleTaskViewMode.NESTED -> buildNested(parent, tasks)
-        }
-    }
-
-    /** Reihenfolge, wie sie von Gradle/External System geliefert wird - keine eigene Sortierung. */
-    private fun buildDefault(root: DefaultMutableTreeNode, tasks: List<GradleTaskDescriptor>) {
-        val groups = LinkedHashMap<String, MutableList<GradleTaskDescriptor>>()
-        tasks.forEach { task ->
-            groups.getOrPut(task.groupName.orEmpty()) { mutableListOf() } += task
-        }
-
-        groups.forEach { (groupPath, groupTasks) ->
-            val groupNode = DefaultMutableTreeNode(GroupHeaderNodeData(groupPath))
-            groupTasks.forEach { task -> groupNode.add(DefaultMutableTreeNode(TaskNodeData(task))) }
-            root.add(groupNode)
         }
     }
 

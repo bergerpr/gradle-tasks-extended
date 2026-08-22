@@ -68,9 +68,13 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
     }
 
     /**
-     * Schaltet die Modulgliederung um (Feststellbutton, siehe REQ-074). Sie ist orthogonal zum
-     * Modus: Der Modus bleibt, nur die Modulebene kommt hinzu oder faellt weg. Auf den Inhalt
-     * wirkt das nicht - Modul-Excludes greifen unabhaengig davon.
+     * Schaltet die Modulgliederung um (Feststellbutton, siehe REQ-074). Sie ist orthogonal zu
+     * `Sort` und `Nested`: Der Modus bleibt, nur die Modulebene kommt hinzu oder faellt weg. Auf
+     * den Inhalt wirkt das nicht - Modul-Excludes greifen unabhaengig davon.
+     *
+     * In `Default` ist die Modulebene fest (REQ-077); der Feststellbutton ist dort ausgegraut
+     * und ruft dies gar nicht erst auf. Der gespeicherte Wert bleibt deshalb erhalten und gilt
+     * beim Zurueckwechseln unveraendert weiter.
      */
     fun setShowModules(showModules: Boolean) {
         project.service<GradleTasksViewConfigStore>().setShowModules(showModules)

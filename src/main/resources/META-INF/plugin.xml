@@ -5,7 +5,8 @@
 
     <description><![CDATA[
         Eigenstaendige ToolWindow-Ansicht fuer Gradle-Tasks mit drei Darstellungsmodi:
-        Default (Originalreihenfolge), Sort (alphabetisch sortiert) und Nested
+        Default (Nachbau der originalen Gradle-Ansicht, mit Ordnerbaum statt flacher
+        Gruppenzeilen), Sort (flache Gruppenliste, alphabetisch sortiert) und Nested
         (hierarchische Ordneransicht aus Slash-getrennten Task-Gruppen).
         Nur fuer den privaten Gebrauch bestimmt, kein Marketplace-Vertrieb.
     ]]></description>

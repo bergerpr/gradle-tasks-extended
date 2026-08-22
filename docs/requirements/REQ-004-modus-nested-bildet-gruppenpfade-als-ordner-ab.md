@@ -12,7 +12,9 @@ quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---
 
 Im Modus `Nested` wird jede Komponente eines slash-getrennten Gruppenpfads zu einem
-virtuellen Ordnerknoten: aus `docker/gui/react` wird `docker` -> `gui` -> `react`.
+virtuellen Ordnerknoten: aus `docker/gui/react` wird `docker` -> `gui` -> `react`. Derselbe
+Ordnerbaum wird auch im Modus `Default` verwendet, dort unterhalb des `Tasks`-Knotens
+(REQ-077); alles auf dieser Seite gilt fuer beide Modi.
 
 Innerhalb eines Ordners stehen **Tasks vor Unterordnern**. Ordner und Tasks werden jeweils
 alphabetisch sortiert (siehe REQ-023).

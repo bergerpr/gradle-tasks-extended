@@ -57,7 +57,10 @@ siehe REQ-075.
 
 Der Modulbezug eines Gruppen-/Ordnerknotens ergibt sich aus seiner Position im Baum, nicht aus
 einer zweiten Ablage im Knoten selbst. Bei ausgeschalteter Modulgliederung gibt es keinen
-Modulknoten ueber ihm, also greift automatisch der modulunabhaengige Schluessel.
+Modulknoten ueber ihm, also greift automatisch der modulunabhaengige Schluessel. Im Modus
+`Default` steht ueber ihm immer einer, weil die Modulebene dort fest ist (REQ-077); der
+dazwischenliegende `Tasks`-Knoten aendert daran nichts, da der Modulbezug ueber beliebige
+Zwischenknoten hinweg gesucht wird.
 
 `showModules` und die Listen liegen in derselben zweistufigen Konfiguration wie alles andere:
 `default.yaml` als Team-Vorgabe, `custom.yaml` als persoenliche Abweichung, die der

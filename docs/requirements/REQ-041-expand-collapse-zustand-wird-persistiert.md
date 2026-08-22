@@ -17,4 +17,8 @@ Umgesetzt ist das nicht wie urspruenglich skizziert ueber Mengen im
 
 Bei eingeschalteter Modulgliederung haben auch Modulknoten einen Zustand, und der Zustand
 eines Gruppen-/Ordnerknotens wird unter seinem Modul abgelegt. Erst damit kann dieselbe Gruppe
-in zwei Modulen unterschiedlich aufgeklappt sein (REQ-076).
+in zwei Modulen unterschiedlich aufgeklappt sein (REQ-076). In `Default` ist die Modulebene
+fest (REQ-077), dort wird also immer modulbezogen geschluesselt.
+
+Keinen eigenen Zustand hat der `Tasks`-Strukturknoten des `Default`-Modus: Er folgt dem seines
+Moduls (REQ-077).

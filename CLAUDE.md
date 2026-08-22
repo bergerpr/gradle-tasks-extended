@@ -4,14 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"Gradle Tasks Extended" is a private IntelliJ IDEA Ultimate plugin (no Marketplace distribution) that adds
-a standalone ToolWindow for browsing/running Gradle tasks, with three view modes: `Default` (original
-order), `Sort` (alphabetical), and `Nested` (folder hierarchy built from slash-separated task groups, e.g.
-`docker/gui/react`). A separate toolbar toggle adds a **module level** on top of any of the three modes
-(six combinations, not a fourth mode), and modules can be excluded/re-included per mode. In the folder
-tree, a folder with no tasks of its own and exactly one child is compacted into one row
-(`docker/server/gui`) the way the IDE's project view compacts middle packages — the config key stays the
-full path, so an entry for a compacted-away intermediate node has no effect (REQ-004).
+"Gradle Tasks Extended" is a private IntelliJ IDEA Ultimate plugin (no Marketplace distribution) that
+adds a standalone ToolWindow for browsing/running Gradle tasks, with three view modes:
+
+- `Default` — a rebuild of the IDE's original Gradle view: module level, a `Tasks` node per module,
+  alphabetically sorted groups below it, except that the groups are a **folder tree** rather than flat
+  rows (REQ-077). The module level is fixed in this mode, so the toolbar toggle is greyed out there.
+- `Sort` — flat group rows carrying the full group path, alphabetical.
+- `Nested` — the folder hierarchy built from slash-separated task groups (e.g. `docker/gui/react`),
+  without a `Tasks` node and without a forced module level.
+
+A separate toolbar toggle adds a **module level** on top of `Sort` and `Nested` (five combinations in
+total, not a fourth mode), and modules can be excluded/re-included per mode. In the folder tree, a folder
+with no tasks of its own and exactly one child is compacted into one row (`docker/server/gui`) the way the
+IDE's project view compacts middle packages — the config key stays the full path, so an entry for a
+compacted-away intermediate node has no effect (REQ-004).
 
 - **Knowledge base — start here for behavioral questions** ("what should happen when..."):
   `docs/requirements/` holds one small file per **implemented** requirement, `docs/decisions/` one per
@@ -180,9 +187,11 @@ printGroup-docker-server-gui:
     expanded: true
 ```
 
-Expand state and icons apply to **all three view modes**, not just `Nested` — group paths
-(`Default`/`Sort`) and folder paths (`Nested`) share the same human-readable, slash-separated key space
-via `GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. Task entries share that key space
+Expand state and icons apply to **all three view modes**, not just `Nested` — group paths (`Sort`) and
+folder paths (`Default`/`Nested`) share the same human-readable, slash-separated key space
+via `GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. The `Tasks` node of the `Default`
+mode is the one exception: it is pure structure, has no key at all (`configKeyOf` returns `null`), and
+follows its module's expand state (REQ-077). Task entries share that key space
 but are keyed by `taskName`, module nodes by their Gradle project path; no ambiguity arises because each
 node type only ever looks up its own key, and module paths are recognisable by the leading `:`.
 Exclude/include are the exception: they are explicitly **per mode** (this amends ADR-003).

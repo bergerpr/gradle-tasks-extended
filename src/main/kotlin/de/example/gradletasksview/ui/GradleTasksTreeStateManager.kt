@@ -17,9 +17,13 @@ import javax.swing.tree.DefaultMutableTreeNode
  * `docker/gui/jsp`) bzw. der Gradle-Projektpfad (`:app`), derselbe von Menschen lesbare Pfad
  * wie in `default.yaml`/`custom.yaml`.
  *
- * Ist die Modulgliederung eingeschaltet, wird der Zustand eines Gruppen-/Ordnerknotens unter
- * dem Modul abgelegt, zu dem er gehoert - erst damit kann dieselbe Gruppe in zwei Modulen
- * unterschiedlich aufgeklappt sein (siehe REQ-076).
+ * Ist die Modulgliederung eingeschaltet - in `Default` immer, siehe REQ-077 -, wird der Zustand
+ * eines Gruppen-/Ordnerknotens unter dem Modul abgelegt, zu dem er gehoert; erst damit kann
+ * dieselbe Gruppe in zwei Modulen unterschiedlich aufgeklappt sein (siehe REQ-076).
+ *
+ * Der `Tasks`-Knoten des `Default`-Modus hat bewusst keinen Schluessel und damit keinen eigenen
+ * Zustand: [configKeyOf] liefert `null`, er gilt also als aufgeklappt und wird nur dann
+ * ueberhaupt erreicht, wenn sein Modul aufgeklappt ist.
  */
 class GradleTasksTreeStateManager(
     private val tree: JTree,

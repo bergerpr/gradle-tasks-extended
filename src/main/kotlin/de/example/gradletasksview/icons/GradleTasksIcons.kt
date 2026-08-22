@@ -46,6 +46,14 @@ object GradleTasksIcons {
     val Module: Icon = load("/icons/taskModule.svg")
 
     /**
+     * Der Strukturknoten `Tasks` unterhalb eines Moduls im `Default`-Modus (REQ-077). Wieder
+     * ein eigenes Symbol: Er ist weder ein Modul noch eine Gruppe, sondern die feste
+     * Ueberschrift ueber allem, was dieses Plugin zeigt - und anders als [Folder] laesst er
+     * sich nicht konfigurieren, kann also nie durch ein eigenes Icon ersetzt werden.
+     */
+    val TaskList: Icon = load("/icons/taskList.svg")
+
+    /**
      * Laedt ein Icon aus den Plugin-Ressourcen. Bewusst `findIcon` (nullable) statt
      * `getIcon`: So faellt ein Tippfehler im Pfad oder eine nicht mitgebuendelte Datei
      * sofort im Log auf, statt sich als unsichtbares Icon zu tarnen.
