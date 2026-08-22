@@ -6,6 +6,8 @@ verifiziert: unit
 betrifft:
   - src/main/kotlin/de/example/gradletasksview/model/TaskTreeBuilder.kt
   - src/main/kotlin/de/example/gradletasksview/model/TaskTreeSorting.kt
+offene_punkte:
+  - OPEN-005
 quelle: Plan.md, Abschnitt "Zielverhalten / Sort"
 ---
 

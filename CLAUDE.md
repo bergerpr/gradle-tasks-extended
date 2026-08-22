@@ -171,6 +171,15 @@ platform version.
 
 ### Manual sandbox runs (`./gradlew runIde`)
 
+The multi-project fixture for manual testing lives **outside this repository**, at
+`../gradle-tasks-extended-testproject` (see its `README.md`). It has a root project with its own
+tasks, a nested subproject `:app:core`, deliberately colliding task names across modules, and
+slash-separated group paths that overlap between modules. Open it once via File > Open in the
+sandbox IDE — the sandbox remembers opened projects. Keeping it out of this repo keeps test
+fixtures distinguishable from this project's own configuration, which matters once documentation
+is generated from `docs/`.
+
+
 The project-local **personal** config may be reset or deleted freely while testing — no need to back it
 up and restore it around a sandbox run; just mention the change in the result. That covers
 `.idea/gradleTasksView.xml` (the persisted view mode, which has to be changed anyway to verify all three

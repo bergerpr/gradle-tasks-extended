@@ -7,6 +7,8 @@ betrifft:
   - src/main/kotlin/de/example/gradletasksview/model/TaskTreeBuilder.kt
   - src/main/kotlin/de/example/gradletasksview/model/NestedFolderNode.kt
   - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
+offene_punkte:
+  - OPEN-005
 quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---
 

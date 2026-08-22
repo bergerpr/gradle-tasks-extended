@@ -46,7 +46,7 @@ private val STARTER_DEFAULT_YAML = """
     # (z. B. smile_dark.svg), wird diese bei dunklen Themes automatisch bevorzugt.
     #
     # Als Schluessel dient bei Gruppen/Ordnern der volle Pfad, bei Tasks der Taskname:
-    #   printGroup-docker-server-gui:
+    #   assembleAll:
     #     icon: smile.svg
     #
     # Nicht aufgefuehrte Eintraege gelten als aufgeklappt und nutzen das eingebaute Icon.

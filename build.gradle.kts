@@ -89,25 +89,6 @@ tasks {
     }
 }
 
-// Test-/Demo-Tasks, um Sort- und Nested-Modus mit dem Gruppenpfad-Beispiel aus
-// REQ-004 (Nested-Modus) gegen ein echtes, importiertes Gradle-Projekt
-// auszuprobieren. Jeder Task gibt beim Ausfuehren lediglich seine eigene Gruppe aus.
-listOf(
-    "docker/gui",
-    "docker/gui/jsp",
-    "docker/gui/react",
-    "docker/server/gui"
-).forEach { groupPath ->
-    tasks.register("printGroup-${groupPath.replace('/', '-')}") {
-        group = groupPath
-        description = "Test-Task fuer Gradle Tasks Extended: gibt die eigene Gruppe aus."
-        doLast {
-            println("Gruppe: $groupPath")
-        }
-    }
-}
-
-
 // ---------------------------------------------------------------------------------------------
 // Versions-Updates fuer gradle/libs.versions.toml
 //

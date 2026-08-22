@@ -6,6 +6,8 @@ verifiziert: visuell
 betrifft:
   - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksSpeedSearch.kt
   - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
+offene_punkte:
+  - OPEN-005
 quelle: Plan.md, Abschnitt "Filterung"
 ---
 
