@@ -1,0 +1,14 @@
+.gradle/
+.intellijPlatform/
+build/
+out/
+.idea/
+*.iml
+
+# Persoenliche Expand/Collapse-Abweichungen von Gradle Tasks Extended (nicht teamweit
+# geteilt - default.yaml im selben Verzeichnis ist hingegen zum Versionieren gedacht).
+gradle/gradle_tasks_extended/custom.yaml
+
+# Lokaler Claude-Knowledge-Graph (MCP memory server) - persoenliches Session-Gedaechtnis,
+# nicht teamweit geteilt.
+.claude/knowledge-graph/

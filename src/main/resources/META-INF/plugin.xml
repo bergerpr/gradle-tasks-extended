@@ -1,0 +1,51 @@
+<idea-plugin>
+    <id>de.example.gradletasksview</id>
+    <name>Gradle Tasks Extended</name>
+    <vendor>Privat</vendor>
+
+    <description><![CDATA[
+        Eigenstaendige ToolWindow-Ansicht fuer Gradle-Tasks mit drei Darstellungsmodi:
+        Default (Originalreihenfolge), Sort (alphabetisch sortiert) und Nested
+        (hierarchische Ordneransicht aus Slash-getrennten Task-Gruppen).
+        Nur fuer den privaten Gebrauch bestimmt, kein Marketplace-Vertrieb.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <!-- "com.intellij.gradle" ist die aktuelle Plugin-ID der Basis-Gradle-Integration
+         (frueher/im Plan als "org.jetbrains.plugins.gradle" bezeichnet - diese ID gehoert
+         inzwischen zum optionalen "Gradle for Java"-Sub-Plugin). Siehe docs/INTEGRATION_STRATEGY.md. -->
+    <depends>com.intellij.gradle</depends>
+
+    <resource-bundle>messages.GradleTasksViewBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="GradleTasksExtended"
+                    factoryClass="de.example.gradletasksview.toolwindow.GradleTasksExtendedToolWindowFactory"
+                    anchor="right"
+                    icon="AllIcons.Nodes.ConfigFolder"/>
+
+        <!-- GradleTaskViewSettings und GradleTaskViewRefresher sind ueber @Service(Service.Level.PROJECT)
+             bereits als "Light Services" registriert und werden hier bewusst NICHT zusaetzlich
+             als projectService deklariert (das wuerde zu einer Doppelregistrierung fuehren). -->
+        <postStartupActivity implementation="de.example.gradletasksview.toolwindow.GradleTasksExtendedStartupActivity"/>
+    </extensions>
+
+    <actions>
+        <group id="GradleTasksExtended.ContextMenu">
+            <action id="GradleTasksExtended.ExecuteTask"
+                    class="de.example.gradletasksview.actions.GradleTaskExecuteAction"/>
+            <separator/>
+            <action id="GradleTasksExtended.CopyTaskName"
+                    class="de.example.gradletasksview.actions.GradleTaskCopyNameAction"/>
+            <action id="GradleTasksExtended.CopyTaskPath"
+                    class="de.example.gradletasksview.actions.GradleTaskCopyPathAction"/>
+            <action id="GradleTasksExtended.CopyFolderPath"
+                    class="de.example.gradletasksview.actions.GradleTaskCopyFolderPathAction"/>
+            <separator/>
+            <action id="GradleTasksExtended.ExpandAll"
+                    class="de.example.gradletasksview.actions.GradleTaskExpandAllAction"/>
+            <action id="GradleTasksExtended.CollapseAll"
+                    class="de.example.gradletasksview.actions.GradleTaskCollapseAllAction"/>
+        </group>
+    </actions>
+</idea-plugin>
