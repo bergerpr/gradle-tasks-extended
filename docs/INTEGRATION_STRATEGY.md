@@ -174,6 +174,32 @@ Expand/Collapse-Zustands ergaenzt (nicht Teil des urspruenglichen Plans):
   `FolderNodeData.folder.fullPath` (Nested) - beides derselbe von Menschen lesbare,
   Slash-getrennte Pfad wie in den YAML-Dateien.
 
+## Manuelles Testen in der Sandbox (`./gradlew runIde`)
+
+Die projektlokale, **persoenliche** Konfiguration darf beim Testen jederzeit zurueckgesetzt
+oder geloescht werden - sie muss vor einem Sandbox-Lauf nicht gesichert und danach nicht
+wiederhergestellt werden. Erwartet wird lediglich, dass eine solche Aenderung im
+Testergebnis erwaehnt wird. Betroffen sind:
+
+- `.idea/gradleTasksView.xml` - der persistierte Ansichtsmodus (`Default`/`Sort`/`Nested`).
+  Muss ohnehin umgestellt werden, um alle drei Modi zu verifizieren, und wird beim Fehlen
+  automatisch auf den Default-Wert `DEFAULT` zurueckgesetzt.
+- `gradle/gradle_tasks_extended/custom.yaml` - die persoenlichen Expand/Collapse-
+  Abweichungen. Wird beim naechsten manuellen Auf-/Zuklappen automatisch neu geschrieben;
+  ohne die Datei gilt `default.yaml`.
+
+Ein Sichern/Wiederherstellen dieser Dateien ist auch technisch nicht verlaesslich: Die
+laufende Sandbox-IDE schreibt bzw. entfernt `.idea/gradleTasksView.xml` beim Beenden selbst.
+
+Ausgenommen ist `gradle/gradle_tasks_extended/default.yaml` - die team-weite, versionierbare
+Vorgabe, die das Plugin bewusst nie ueberschreibt. Sie wird wie jede andere versionierte
+Projektdatei behandelt.
+
+Praktischer Hinweis: Eine noch laufende Sandbox-IDE haelt `snakeyaml-2.6.jar` im Sandbox-
+`plugins/`-Verzeichnis gesperrt und laesst dadurch `prepareSandbox` (und damit `buildPlugin`
+und `runIde`) mit einem Kopierfehler fehlschlagen. Vor einem Rebuild also den vorherigen
+Sandbox-Prozess wirklich beenden.
+
 ## Bekannte Risiken
 
 - `gradleProjectPath`-Herleitung ist ein Platzhalter (siehe oben) und muss gegen ein
@@ -187,38 +213,52 @@ Expand/Collapse-Zustands ergaenzt (nicht Teil des urspruenglichen Plans):
 - IntelliJ Platform Gradle Plugin 2.18.1 benoetigt Gradle >= 9.0.0 (nicht 8.13, wie
   in aelterer Dokumentation vereinzelt kolportiert) - im Projekt-Wrapper auf Gradle 9.7.1
   fixiert.
-- **Ungeklaert: Tree-Row-Icons werden in der Sandbox nicht sichtbar gezeichnet.**
-  In einer ausfuehrlichen manuellen Debugging-Sitzung (mehrere `runIde`-Neustarts mit
-  eingebautem Logging) wurde bestaetigt, dass `GradleTasksTreeCellRenderer` das Icon
-  jeweils korrekt zuweist (gueltiges `Icon`-Objekt, korrekte 16x16-Groesse, per Log
-  verifiziert), es aber in der laufenden Sandbox trotzdem nicht auf dem Bildschirm
-  erscheint - Task-/Gruppennamen selbst werden korrekt angezeigt. Folgende Ursachen
-  wurden dabei ausgeschlossen:
-  - Falsches/fehlerhaftes Icon (getestet mit zwei verschiedenen echten Plattform-SVGs
-    sowie einem manuell mit `Graphics2D.fillRect` gezeichneten Testicon ohne jeden
-    SVG-Bezug - alle drei blieben unsichtbar).
-  - `ColoredTreeCellRenderer`/`SimpleColoredComponent` als Ursache (identisches
-    Verhalten nach Umstieg auf das grundlegende `javax.swing.tree.DefaultTreeCellRenderer`).
-  - Feste vs. automatische Zeilenhoehe (`rowHeight` explizit auf 22px gesetzt - kein Unterschied).
-  - Dark-Theme-/Farbkontrastproblem (das rote Testicon waere auf jedem Hintergrund sichtbar gewesen).
-  - Fehlender Repaint beim ersten Anzeigen (Tab-Wechsel weg und zurueck aendert nichts).
-  - Plattformversion 2026.2 als Ursache einer Rendering-Regression (identisches
-    Verhalten unter IntelliJ IDEA 2026.1).
-  - Eine Exception im Renderer (kein Fehler-Log an den betreffenden Zeitstempeln).
-  - Die eingebaute originale Gradle-Ansicht sowie der Projekt-Explorer zeigen in
-    derselben laufenden Sandbox-Instanz einwandfrei Icons an - das Problem ist also
-    spezifisch auf den eigenen `JTree` begrenzt, kein plattformweiter Rendering-Ausfall.
-  - Als funktionale Verbesserung wurde unabhaengig davon ein Fix ergaenzt: `GradleTasksTree`
-    ruft bei erstem `isShowing()`-Wechsel (`onFirstShown`) einen erneuten Refresh auf und
-    `GradleTaskViewRefresher.doRefresh()` ruft nach dem Modellwechsel explizit
-    `revalidate()`/`repaint()` auf - das behebt zwar nicht das Icon-Problem, aber ein
-    verwandtes Symptom (leere Baumansicht direkt nach IDE-Start, wenn das ToolWindow
-    bereits aus einer vorherigen Sitzung geoeffnet wiederhergestellt wird).
+- **Geloest: Tree-Row-Icons wurden nicht gezeichnet (`updateUI()` nach `setCellRenderer`).**
+  Symptom war ueber mehrere Sitzungen: Task- und Gruppennamen erschienen korrekt, aber ohne
+  jedes Icon - auch nicht mit anderen Plattform-Icons oder einem manuell gemalten Testicon.
+  Die eigentliche Ursache liegt nicht beim Icon, sondern beim Renderer:
 
-  Naechster sinnvoller Schritt waere ein am laufenden Sandbox-Prozess angehaengter
-  Java-Debugger mit Breakpoint in `SimpleColoredComponent.doPaint`/`paintIcon`, um zu
-  pruefen, ob `myIcon` zum tatsaechlichen Zeitpunkt des Zeichnens wirklich `null` ist
-  (was die Beobachtung erklaeren wuerde) oder ob das Zeichnen aus einem anderen Grund
-  ausbleibt. Bis dahin bleibt dies eine offene, dokumentierte Einschraenkung; die
-  Kernfunktionalitaet (Task-Ausfuehrung, Gruppierung, Sortierung, Verschachtelung,
-  Filterung, Persistenz) ist davon nicht betroffen.
+  `com.intellij.ui.treeStructure.Tree` ruft **in seinem eigenen Konstruktor** bereits
+  `setCellRenderer(new NodeRenderer())` auf. Ein spaeteres `setCellRenderer(...)` aus der
+  eigenen Unterklasse aktualisiert zwar `JTree.getCellRenderer()`, aber **nicht** das Feld
+  `currentCellRenderer` in `javax.swing.plaf.basic.BasicTreeUI` - und genau dieses Feld liest
+  `com.intellij.ui.tree.ui.DefaultTreeUI.getRenderer(...)` beim Zeichnen jeder Zeile. Der Baum
+  zeichnete also dauerhaft mit `NodeRenderer` weiter, dessen Ausgabe fuer eigene
+  `DefaultMutableTreeNode`-Nutzdaten genau `toString()` ohne Icon ist. `GradleTasksTreeCellRenderer`
+  wurde nie aufgerufen.
+
+  Nachgewiesen per Reflection auf `BasicTreeUI.currentCellRenderer` in einer laufenden Sandbox:
+
+  ```
+  vor  setCellRenderer(...):  ui.currentCellRenderer = com.intellij.ide.util.treeView.NodeRenderer
+  nach setCellRenderer(...):  ui.currentCellRenderer = com.intellij.ide.util.treeView.NodeRenderer   <- Ursache
+  nach updateUI():            ui.currentCellRenderer = de.example...GradleTasksTreeCellRenderer      <- Fix
+  ```
+
+  Fix: in `GradleTasksTree.init` direkt nach `cellRenderer = GradleTasksTreeCellRenderer()`
+  einmal `updateUI()` aufrufen. Das installiert die TreeUI neu, deren `updateRenderer()` den
+  aktuell gesetzten Renderer uebernimmt.
+
+  Damit sind rueckwirkend auch die frueher als "ausgeschlossen" protokollierten Beobachtungen
+  erklaerbar: Icon-Objekt, Icon-Groesse, Zeilenhoehe, Theme, Repaint und Plattformversion waren
+  tatsaechlich alle unschuldig - der Renderer, in dem das Icon gesetzt wurde, lief schlicht nie.
+  Ein zusaetzliches, gut sichtbares Symptom desselben Fehlers war, dass Gruppen-/Ordnernamen
+  nicht fett und Task-Descriptions gar nicht dargestellt wurden.
+
+- **Ordner-Icon ist modusuebergreifend identisch.** Gruppenzeilen in `Default`/`Sort`
+  (`GroupHeaderNodeData`) und virtuelle Ordner in `Nested` (`FolderNodeData`) verwenden dasselbe
+  Ordner-Icon inklusive Wechsel zwischen zu- und aufgeklappt. Aus Benutzersicht ist beides
+  derselbe Knotentyp - ein aufklappbarer Container fuer Tasks -, lediglich die Beschriftung
+  unterscheidet sich (voller Gruppenpfad vs. einzelnes Pfadsegment). Ein separates
+  Gruppen-Icon gab es kurzzeitig, wurde aber bewusst wieder entfernt.
+
+- **Eigene Icons statt Plattform-Icons.** Die Baum- und ToolWindow-Icons kommen inzwischen aus
+  `src/main/resources/icons/` (siehe `icons/GradleTasksIcons.kt` und
+  `src/main/resources/icons/LICENSE-icons.txt`), abgeleitet von einer Icon-Sammlung unter MIT-Lizenz.
+  Zu jedem Icon existiert eine `_dark`-Variante, die die Plattform bei dunklen Themes
+  automatisch waehlt. Geladen wird bewusst mit `IconLoader.findIcon(path, classLoader)`
+  (nullable) statt `IconLoader.getIcon(...)`: Letzteres liefert bei falschem Pfad still ein
+  leeres, transparentes Platzhalter-Icon zurueck, das in Logs wie ein gueltiges 16x16-Icon
+  aussieht - genau die Art von Fehler, die die Diagnose oben so lange verschleiert hat.
+  Bei `null` wird stattdessen ein auffaelliges magentafarbenes Ersatzquadrat gezeichnet und
+  eine Warnung geloggt.

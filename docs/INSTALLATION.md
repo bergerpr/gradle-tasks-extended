@@ -31,7 +31,7 @@ Bei einer neuen Plugin-Version:
 
 ## Voraussetzungen
 
-- IntelliJ IDEA Ultimate, aktuellste unterstuetzte Version (siehe `gradle.properties`,
-  `platformVersion`).
+- IntelliJ IDEA Ultimate, aktuellste unterstuetzte Version (siehe
+  `gradle/libs.versions.toml`, Eintrag `intellijIdea` unter `[versions]`).
 - Das gebuendelte Gradle-Plugin (`org.jetbrains.plugins.gradle`) muss aktiviert sein
   (Standard in IntelliJ IDEA Ultimate).

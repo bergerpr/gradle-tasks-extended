@@ -1,0 +1,7 @@
+# Gradle Tasks Extended - Standard-Konfiguration fuer den Expand/Collapse-Zustand
+# von Gruppen/Ordnern (gilt in allen drei Ansichtsmodi: Default, Sort und Nested).
+# Jede Zeile ist "<Gruppen-/Ordnerpfad>: true|false". Nicht aufgefuehrte Pfade
+# gelten als aufgeklappt. Diese Datei kann versioniert und im Team geteilt werden.
+#
+# Beispiel:
+# docker/gui/jsp: false

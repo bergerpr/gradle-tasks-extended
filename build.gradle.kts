@@ -1,6 +1,8 @@
+// Alle Versionen stehen zentral in `gradle/libs.versions.toml` (Gradle Version Catalog).
+// In dieser Datei darf deshalb keine Versionsnummer mehr hartkodiert werden.
 plugins {
-    kotlin("jvm") version "2.3.20"
-    id("org.jetbrains.intellij.platform") version "2.18.1"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.intellij.platform)
 }
 
 group = providers.gradleProperty("pluginGroup").get()
@@ -15,9 +17,12 @@ repositories {
 
 dependencies {
     intellijPlatform {
+        // Produktcode weiterhin aus gradle.properties (keine Version), die Version aus dem
+        // Version Catalog - `libs.versions.intellijIdea` liefert einen `Provider<String>` und
+        // bleibt damit konfigurationscache-tauglich.
         create(
             providers.gradleProperty("platformType"),
-            providers.gradleProperty("platformVersion"),
+            libs.versions.intellijIdea,
         )
         // Hinweis: Die im urspruenglichen Plan angenommene ID "org.jetbrains.plugins.gradle"
         // bezeichnet in aktuellen Plattformversionen nur noch das optionale "Gradle for Java"-
@@ -37,12 +42,12 @@ dependencies {
     // (siehe persistence/GroupExpandYaml.kt). IntelliJ-Plugin-Klassenlader sind pro
     // Plugin isoliert, daher ist eine eigene, gebuendelte SnakeYAML-Version hier
     // unproblematisch (keine Kollision mit einer eventuell von der Plattform selbst
-    // verwendeten Version).
-    implementation("org.yaml:snakeyaml:2.6")
+    // verwendeten Version). Version: siehe gradle/libs.versions.toml.
+    implementation(libs.snakeyaml)
 
-    testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 kotlin {

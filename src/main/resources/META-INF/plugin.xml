@@ -22,7 +22,7 @@
         <toolWindow id="GradleTasksExtended"
                     factoryClass="de.example.gradletasksview.toolwindow.GradleTasksExtendedToolWindowFactory"
                     anchor="right"
-                    icon="AllIcons.Nodes.ConfigFolder"/>
+                    icon="/icons/gradleTasksToolWindow.svg"/>
 
         <!-- GradleTaskViewSettings und GradleTaskViewRefresher sind ueber @Service(Service.Level.PROJECT)
              bereits als "Light Services" registriert und werden hier bewusst NICHT zusaetzlich

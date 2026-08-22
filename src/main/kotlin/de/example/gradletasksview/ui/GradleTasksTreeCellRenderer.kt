@@ -1,26 +1,20 @@
 package de.example.gradletasksview.ui
 
-import com.intellij.icons.AllIcons
 import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes
-import icons.ExternalSystemIcons
+import de.example.gradletasksview.icons.GradleTasksIcons
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
- * Rendert Gruppenzeilen (Default/Sort), virtuelle Ordner (Nested) und Task-Blaetter
- * mit denselben Icons wie die originale Gradle-Tool-Window-Ansicht:
- * - Gruppen/Ordner: `AllIcons.Nodes.ConfigFolder` (siehe `TasksNode`/das anonyme
- *   Gruppenknoten-Icon in `com.intellij.openapi.externalSystem.view.TasksNode`).
- * - Tasks: `ExternalSystemIcons.Task` (siehe `DefaultExternalSystemUiAware.getTaskIcon()`,
- *   das Gradle ueber `GradleManager.getTaskIcon()` verwendet).
+ * Rendert Gruppenzeilen (Default/Sort), virtuelle Ordner (Nested) und Task-Blaetter.
  *
- * Bekannte Einschraenkung: In dieser Session wurde ausfuehrlich verifiziert, dass die
- * Icon-Zuweisung selbst korrekt ist (gueltiges Icon-Objekt, korrekte Groesse), die
- * Icons in der laufenden Sandbox aber dennoch nicht sichtbar gezeichnet werden - auch
- * nicht mit einem alternativen `DefaultTreeCellRenderer` oder einem manuell gemalten
- * Test-Icon. Siehe docs/INTEGRATION_STRATEGY.md, Abschnitt "Bekannte Risiken", fuer
- * Details und den aktuellen Stand.
+ * Die Icons stammen aus den plugin-eigenen Ressourcen ([GradleTasksIcons]) und nicht mehr
+ * aus `AllIcons`/`ExternalSystemIcons`. Damit haengt die Darstellung weder davon ab, unter
+ * welchem Plattformmodul ein Icon gerade ausgeliefert wird, noch davon, ob eine
+ * `AllIcons`-Konstante in der jeweiligen IDE-Version noch auf eine existierende Ressource
+ * zeigt - beides hatte sich beim Nachstellen der originalen Gradle-Ansicht als
+ * unzuverlaessig erwiesen (siehe docs/INTEGRATION_STRATEGY.md, "Tree-Row-Icons").
  */
 class GradleTasksTreeCellRenderer : ColoredTreeCellRenderer() {
 
@@ -36,18 +30,23 @@ class GradleTasksTreeCellRenderer : ColoredTreeCellRenderer() {
         val userObject = (value as? DefaultMutableTreeNode)?.userObject
 
         when (userObject) {
+            // Gruppenzeile (Default/Sort) und virtueller Ordner (Nested) teilen sich bewusst
+            // dasselbe Ordner-Icon: Es ist in allen drei Modi derselbe Knotentyp aus Sicht des
+            // Benutzers - ein aufklappbarer Container fuer Tasks - und soll deshalb ueberall
+            // gleich aussehen. Nur die Beschriftung unterscheidet sich (voller Gruppenpfad in
+            // Default/Sort, einzelnes Pfadsegment in Nested).
             is GroupHeaderNodeData -> {
-                icon = AllIcons.Nodes.ConfigFolder
+                icon = folderIcon(expanded)
                 append(userObject.groupPath.ifEmpty { "(default)" }, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is FolderNodeData -> {
-                icon = AllIcons.Nodes.ConfigFolder
+                icon = folderIcon(expanded)
                 append(userObject.folder.displayName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is TaskNodeData -> {
-                icon = ExternalSystemIcons.Task
+                icon = GradleTasksIcons.Task
                 append(userObject.descriptor.taskName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
                 userObject.descriptor.description?.let {
                     append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES)
@@ -58,4 +57,8 @@ class GradleTasksTreeCellRenderer : ColoredTreeCellRenderer() {
             else -> Unit
         }
     }
+
+    /** Ordner-Icon folgt dem Auf-/Zuklappzustand, wie in der Projektansicht der IDE. */
+    private fun folderIcon(expanded: Boolean) =
+        if (expanded) GradleTasksIcons.FolderOpen else GradleTasksIcons.Folder
 }

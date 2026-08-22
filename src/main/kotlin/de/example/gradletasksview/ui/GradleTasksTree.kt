@@ -66,6 +66,24 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         // ueber `scrollPathToVisible(...)` in restoreSelection() ist davon unabhaengig.
         expandsSelectedPaths = false
         cellRenderer = GradleTasksTreeCellRenderer()
+        // Zwingend notwendig, damit der eigene Renderer ueberhaupt zum Zeichnen verwendet wird:
+        // `com.intellij.ui.treeStructure.Tree` installiert bereits in seinem eigenen Konstruktor
+        // `setCellRenderer(new NodeRenderer())`. Ein spaeteres `setCellRenderer(...)` aktualisiert
+        // zwar `JTree.getCellRenderer()`, aber nicht das Feld `currentCellRenderer` in
+        // `javax.swing.plaf.basic.BasicTreeUI` - und genau dieses Feld liest
+        // `com.intellij.ui.tree.ui.DefaultTreeUI.getRenderer(...)` beim Zeichnen jeder Zeile.
+        // Ohne diesen `updateUI()`-Aufruf zeichnet der Baum deshalb weiter mit `NodeRenderer`
+        // (nur `toString()` je Knoten: keine Icons, keine Fettschrift fuer Gruppen/Ordner, keine
+        // graue Task-Description) und [GradleTasksTreeCellRenderer.customizeCellRenderer] wird
+        // nie aufgerufen. `updateUI()` installiert die TreeUI neu; deren `updateRenderer()`
+        // uebernimmt dabei den aktuell gesetzten Renderer.
+        //
+        // Per Reflection auf `BasicTreeUI.currentCellRenderer` in einer laufenden Sandbox
+        // verifiziert: direkt nach `setCellRenderer(...)` steht dort noch `NodeRenderer`,
+        // nach `updateUI()` der eigene Renderer. Das war die eigentliche Ursache des lange
+        // als "Icons werden nicht gezeichnet" dokumentierten Problems - siehe
+        // docs/INTEGRATION_STRATEGY.md, Abschnitt "Tree-Row-Icons".
+        updateUI()
         val speedSearch = GradleTasksSpeedSearch.installOn(this)
         var lastKnownFilterText = ""
         speedSearch.addChangeListener {

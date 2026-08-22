@@ -1,0 +1,42 @@
+# Zentrale Verwaltung aller externen Abhaengigkeiten und Gradle-Plugins (Gradle Version Catalog).
+#
+# Es ist KEIN zusaetzliches Gradle-Plugin noetig: Version Catalogs sind seit Gradle 7.4 stabile
+# Kernfunktion. Gradle liest diese Datei allein aufgrund ihres Pfades (`gradle/libs.versions.toml`)
+# automatisch ein und stellt sie in `build.gradle.kts` als typsicheren `libs`-Accessor bereit -
+# ohne Eintrag in `settings.gradle.kts`.
+#
+# Bewusst NICHT hier, sondern weiterhin in `gradle.properties`, weil es keine Abhaengigkeiten sind:
+# die Plugin-Metadaten `pluginGroup`, `pluginName`, `pluginVersion`, `pluginSinceBuild` sowie
+# `platformType` - Letzteres ist ein Produktcode ("IU" = IntelliJ IDEA Ultimate), keine Version.
+
+[versions]
+kotlin = "2.3.20"
+
+# Version des IntelliJ Platform Gradle Plugins (Build-Werkzeug), NICHT der Ziel-IDE.
+# Benoetigt Gradle >= 9.0, siehe docs/INTEGRATION_STRATEGY.md.
+intellijPlatformGradlePlugin = "2.18.1"
+
+# Version der Ziel-IDE, gegen die kompiliert und die per `runIde` gestartet wird.
+# Zusammen mit `platformType` aus gradle.properties ergibt das die IDE-Abhaengigkeit.
+intellijIdea = "2026.2"
+
+snakeyaml = "2.6"
+junit = "5.11.0"
+
+[libraries]
+# Fuer das YAML-basierte Expand/Collapse-Konfigurationssystem, siehe persistence/GroupExpandYaml.kt.
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+
+# Bewusst an die Kotlin-Version gekoppelt (`version.ref = "kotlin"`), damit kotlin-test nie von
+# der Version des Kotlin-Plugins abweicht - dasselbe Verhalten wie beim frueheren `kotlin("test")`.
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+
+# Absichtlich ohne eigene Version: Die Version wird ueber die von `junit-jupiter` mitgelieferte
+# `junit-bom`-Plattform ausgerichtet, sodass Launcher und Engine nicht auseinanderlaufen koennen.
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellijPlatformGradlePlugin" }

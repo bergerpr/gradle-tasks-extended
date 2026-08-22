@@ -32,9 +32,18 @@ Run a single test class/method the normal Gradle way, e.g.:
 ./gradlew test --tests "de.example.gradletasksview.model.TaskTreeBuilderTest"
 ```
 
-Toolchain: Kotlin, JVM target 21, target platform `IU` (IntelliJ IDEA Ultimate) version from
-`gradle.properties` (`platformVersion`). Requires Gradle >= 9.0 (wrapper pinned to 9.7.1) because of
-IntelliJ Platform Gradle Plugin 2.18.1.
+Toolchain: Kotlin, JVM target 21, target platform `IU` (IntelliJ IDEA Ultimate). Requires Gradle
+>= 9.0 (wrapper pinned to 9.7.1) because of IntelliJ Platform Gradle Plugin 2.18.1.
+
+### Dependency versions
+
+**All external dependency and Gradle plugin versions live in `gradle/libs.versions.toml`** (Gradle
+version catalog) — never hardcode a version in `build.gradle.kts`. This needs no extra plugin;
+Gradle picks the file up by its path and exposes it as the typed `libs` accessor. Bumping the
+target IDE therefore means editing `intellijIdea` in the catalog, not `gradle.properties`.
+
+`gradle.properties` keeps only what is not a dependency: `pluginGroup`, `pluginName`,
+`pluginVersion`, `pluginSinceBuild`, and `platformType` (`IU` — a product code, not a version).
 
 ## Architecture
 
