@@ -23,6 +23,10 @@ intellijIdea = "2026.2"
 snakeyaml = "2.6"
 junit = "5.11.0"
 
+# Werkzeuge fuer Versions-Updates des Katalogs selbst, siehe [plugins] unten.
+benManesVersions = "0.61.0"
+versionCatalogUpdate = "1.1.1"
+
 [libraries]
 # Fuer das YAML-basierte Expand/Collapse-Konfigurationssystem, siehe persistence/GroupExpandYaml.kt.
 snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
@@ -40,3 +44,14 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 intellij-platform = { id = "org.jetbrains.intellij.platform", version.ref = "intellijPlatformGradlePlugin" }
+
+# Reine Wartungswerkzeuge, am Buildergebnis aendern sie nichts:
+# `./gradlew dependencyUpdates`     -> Bericht, welche Versionen veraltet sind (ben-manes)
+# `./gradlew versionCatalogUpdate`  -> schreibt die gefundenen Updates in DIESE Datei zurueck
+# Keiner der beiden ist ein offizielles Gradle-Plugin; ben-manes ist der De-facto-Standard
+# fuer die Update-Erkennung, version-catalog-update der ueblichste Partner dafuer.
+# ID bewusst "io.github..." und nicht "com.github...": Letztere wird vom Plugin selbst beim
+# Build als deprecated gemeldet. Der Java-Paketname der Klassen (com.github.benmanes.…) ist
+# davon nicht betroffen und bleibt unveraendert.
+ben-manes-versions = { id = "io.github.ben-manes.versions", version.ref = "benManesVersions" }
+version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }

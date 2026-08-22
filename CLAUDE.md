@@ -45,6 +45,43 @@ target IDE therefore means editing `intellijIdea` in the catalog, not `gradle.pr
 `gradle.properties` keeps only what is not a dependency: `pluginGroup`, `pluginName`,
 `pluginVersion`, `pluginSinceBuild`, and `platformType` (`IU` — a product code, not a version).
 
+Two maintenance-only plugins keep the catalog current (neither affects the built plugin, and
+neither runs as part of `build`/`buildPlugin`):
+
+```bash
+./gradlew dependencyUpdates                                              # report only
+./gradlew versionCatalogUpdate --interactive --no-configuration-cache    # propose
+./gradlew versionCatalogApplyUpdates                                     # apply proposals
+```
+
+`--no-configuration-cache` is required for the `versionCatalog*` tasks — they touch
+`Task.project` at execution time, which the globally enabled configuration cache rejects.
+`dependencyUpdates` is unaffected. The `keep { }` block in `build.gradle.kts` must stay:
+`intellijIdea` is not referenced by any `[libraries]`/`[plugins]` entry, so without it
+`versionCatalogUpdate` would delete that version as unused and break configuration.
+`dependencyUpdates` cannot resolve `idea:idea:<version>` (the target IDE is not a regular Maven
+artifact) — that report line is expected, and the IDE version is bumped by hand.
+
+### No deprecated plugins, libraries, or APIs
+
+Deprecated things must not be used — pick the current, non-deprecated variant instead. This
+covers Gradle plugin IDs (`io.github.ben-manes.versions`, **not** the deprecated
+`com.github.ben-manes.versions`), libraries, and IntelliJ Platform APIs. Since the project
+targets only the newest IDE and needs no backward compatibility, there is never a reason to
+stay on an outdated API.
+
+Beware that the Kotlin compiler stays silent on IntelliJ's `@ApiStatus.Obsolete` markers, so a
+clean compile is not proof. Verify against the platform jars — that is how
+`com.intellij.openapi.actionSystem.DataProvider` was found and replaced with `UiDataProvider` /
+`DataSink` in `GradleTasksTree`.
+
+Two known, unavoidable exceptions, both third-party and disclosed rather than hidden:
+`ToolWindowFactory.isApplicable` / `isDoNotActivateOnStart` appear in the compiled factory only
+because Kotlin auto-generates overrides for a Java interface's default methods; and
+`nl.littlerobots.version-catalog-update` internally calls the deprecated `Task.project` at
+execution time (re-check before moving to Gradle 10). The project's own build script produces
+zero deprecation warnings under `--warning-mode all`.
+
 ## Architecture
 
 Source root: `src/main/kotlin/de/example/gradletasksview/`

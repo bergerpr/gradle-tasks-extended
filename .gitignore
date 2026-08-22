@@ -12,3 +12,7 @@ gradle/gradle_tasks_extended/custom.yaml
 # Lokaler Claude-Knowledge-Graph (MCP memory server) - persoenliches Session-Gedaechtnis,
 # nicht teamweit geteilt.
 .claude/knowledge-graph/
+
+# Wegwerf-Vorschlagsdatei von `versionCatalogUpdate --interactive`; wird durch
+# `versionCatalogApplyUpdates` in gradle/libs.versions.toml uebernommen und danach geloescht.
+gradle/libs.versions.updates.toml

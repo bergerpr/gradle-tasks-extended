@@ -6,8 +6,9 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.actionSystem.DataProvider
+import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.openapi.components.service
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
@@ -30,7 +31,7 @@ import javax.swing.tree.DefaultTreeModel
  * Kontextmenue-Datenversorgung und Copy selbst nach, statt eine fremde View-Instanz
  * zu delegieren (Weg B, siehe Plan.md "Architekturentscheidung").
  */
-class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(DefaultMutableTreeNode())), DataProvider {
+class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(DefaultMutableTreeNode())), UiDataProvider {
 
     private val executor = GradleTaskExecutor(project)
     val stateManager = GradleTasksTreeStateManager(this, project.service<GradleTasksExpandConfigStore>())
@@ -148,9 +149,18 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         selectedTaskDescriptors().firstOrNull()?.let { executor.execute(it) }
     }
 
-    override fun getData(dataId: String): Any? = when {
-        PlatformDataKeys.COPY_PROVIDER.`is`(dataId) -> copyProvider
-        else -> null
+    /**
+     * Stellt dem Action-System den [CopyProvider] bereit, damit "Copy" (Ctrl+C) im Baum
+     * funktioniert.
+     *
+     * Bewusst [UiDataProvider] und nicht das aeltere `DataProvider`: dessen
+     * `getData(String)` ist in der aktuellen Plattform mit `@ApiStatus.Obsolete` markiert.
+     * Der Unterschied ist nicht nur kosmetisch - `uiDataSnapshot` wird einmal pro
+     * Datenschnappschuss auf dem EDT aufgerufen und befuellt eine [DataSink], statt bei
+     * jedem einzelnen Schluessel erneut nach einem String-Vergleich befragt zu werden.
+     */
+    override fun uiDataSnapshot(sink: DataSink) {
+        sink[PlatformDataKeys.COPY_PROVIDER] = copyProvider
     }
 
     private val copyProvider = object : CopyProvider {
