@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImp
 import com.intellij.openapi.project.Project
 import de.example.gradletasksview.model.GradleTaskDataProvider
 import de.example.gradletasksview.model.GradleTaskViewMode
+import de.example.gradletasksview.model.filterTasksByModule
 import de.example.gradletasksview.persistence.GradleTaskViewSettings
 import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import kotlinx.coroutines.CoroutineScope
@@ -66,6 +67,16 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
         scheduleRefresh(debounce = false)
     }
 
+    /**
+     * Schaltet die Modulgliederung um (Feststellbutton, siehe REQ-074). Sie ist orthogonal zum
+     * Modus: Der Modus bleibt, nur die Modulebene kommt hinzu oder faellt weg. Auf den Inhalt
+     * wirkt das nicht - Modul-Excludes greifen unabhaengig davon.
+     */
+    fun setShowModules(showModules: Boolean) {
+        project.service<GradleTasksViewConfigStore>().setShowModules(showModules)
+        scheduleRefresh(debounce = false)
+    }
+
     /** Setzt alle persoenlichen Expand/Collapse-Abweichungen zurueck auf `default.yaml`. */
     fun resetExpandStateToDefault() {
         project.service<GradleTasksViewConfigStore>().resetToDefault()
@@ -121,16 +132,22 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
         // Erlaubt es, default.yaml von Hand zu editieren (z. B. um ein Icon zuzuordnen) und
         // das Ergebnis ohne IDE-Neustart zu sehen. Liest nur dann wirklich neu ein, wenn sich
         // der Zeitstempel einer der beiden Dateien geaendert hat.
-        project.service<GradleTasksViewConfigStore>().reloadIfChanged()
+        val configStore = project.service<GradleTasksViewConfigStore>()
+        configStore.reloadIfChanged()
 
         val allTasks = readAction { dataProvider.loadTasks() }
+
+        // Reihenfolge ist bedeutsam: Der Modulausschluss wirkt VOR der Textsuche, sonst
+        // lieferte die Suche Treffer, die im Baum gar nicht existieren (siehe REQ-075).
+        val visibleTasks = filterTasksByModule(allTasks, configStore.moduleFilterRules(mode))
         val filtered = if (filterText.isBlank()) {
-            allTasks
+            visibleTasks
         } else {
-            allTasks.filter { it.taskName.contains(filterText, ignoreCase = true) }
+            // Gegen den qualifizierten Pfad, passend zum SpeedSearch (siehe GradleTasksSpeedSearch).
+            visibleTasks.filter { it.taskPath.contains(filterText, ignoreCase = true) }
         }
 
-        val model = GradleTasksTreeModelBuilder.build(mode, filtered)
+        val model = GradleTasksTreeModelBuilder.build(mode, filtered, configStore.showModules())
 
         withContext(Dispatchers.EDT) {
             val previousSelection = currentTree.stateManager.captureSelectedStableId()

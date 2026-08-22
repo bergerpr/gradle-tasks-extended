@@ -7,12 +7,10 @@ betrifft:
   - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
   - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
   - gradle/gradle_tasks_extended/
-offene_punkte:
-  - OPEN-005
 quelle: Erweiterung ueber Plan.md hinaus
 ---
 
-Unterhalb von `gradle/gradle_tasks_extended/` liegen zwei flache YAML-Dateien:
+Unterhalb von `gradle/gradle_tasks_extended/` liegen zwei YAML-Dateien:
 `default.yaml` als versionierbare Team-Vorgabe und `custom.yaml` fuer persoenliche
 Abweichungen, die beim manuellen Auf-/Zuklappen automatisch entstehen. `custom.yaml` hat
 Vorrang.
@@ -21,4 +19,7 @@ Vorrang.
 editierte Dateien fuehren zu einem leeren Zustand statt zu einem Absturz - es handelt sich um
 eine von Menschen editierbare Systemgrenze.
 
-Begruendung und Konsequenzen: ADR-003.
+Die Knoteneintraege stehen flach auf oberster Ebene, ohne Wrapper-Schluessel. Daneben - auf
+derselben Ebene - stehen Modulbloecke und die Ansichtseinstellungen, siehe REQ-076.
+
+Begruendung und Konsequenzen: ADR-003 und ADR-014.

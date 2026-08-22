@@ -10,6 +10,7 @@ import com.intellij.ui.components.JBScrollPane
 import de.example.gradletasksview.actions.GradleTaskCollapseAllAction
 import de.example.gradletasksview.actions.GradleTaskExpandAllAction
 import de.example.gradletasksview.actions.GradleTaskResetExpandStateAction
+import de.example.gradletasksview.actions.GradleTaskShowModulesToggleAction
 import de.example.gradletasksview.actions.GradleTaskViewModeActionGroup
 import de.example.gradletasksview.ui.GradleTasksTree
 import de.example.gradletasksview.ui.GradleTaskViewRefresher
@@ -18,7 +19,8 @@ import javax.swing.JPanel
 
 /**
  * Wurzel-Panel der eigenen ToolWindow-Ansicht: Toolbar mit dem Modus-Dropdown
- * (siehe REQ-001) ueber dem eigenen [GradleTasksTree].
+ * (siehe REQ-001) und dem Feststellbutton fuer die Modulgliederung (REQ-074) ueber dem
+ * eigenen [GradleTasksTree].
  */
 class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
 
@@ -27,6 +29,9 @@ class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
     init {
         val actionGroup = DefaultActionGroup().apply {
             add(GradleTaskViewModeActionGroup())
+            // Direkt neben dem Modus-Dropdown, weil beide zusammen bestimmen, wie der Baum
+            // gegliedert ist - aber als eigener Feststellbutton, da orthogonal (siehe REQ-074).
+            add(GradleTaskShowModulesToggleAction())
             addSeparator()
             add(GradleTaskExpandAllAction())
             add(GradleTaskCollapseAllAction())

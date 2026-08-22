@@ -39,6 +39,13 @@ object GradleTasksIcons {
     val FolderOpen: Icon = load("/icons/taskFolderOpen.svg")
 
     /**
+     * Modulknoten bei eingeschalteter Modulgliederung. Bewusst ein anderes Symbol als
+     * [Folder]: Ein Modul ist keine erfundene Gliederung, sondern ein echtes Gradle-Projekt,
+     * und das soll auf einen Blick unterscheidbar sein.
+     */
+    val Module: Icon = load("/icons/taskModule.svg")
+
+    /**
      * Laedt ein Icon aus den Plugin-Ressourcen. Bewusst `findIcon` (nullable) statt
      * `getIcon`: So faellt ein Tippfehler im Pfad oder eine nicht mitgebuendelte Datei
      * sofort im Log auf, statt sich als unsichtbares Icon zu tarnen.

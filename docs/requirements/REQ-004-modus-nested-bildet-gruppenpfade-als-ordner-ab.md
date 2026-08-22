@@ -7,8 +7,6 @@ betrifft:
   - src/main/kotlin/de/example/gradletasksview/model/TaskTreeBuilder.kt
   - src/main/kotlin/de/example/gradletasksview/model/NestedFolderNode.kt
   - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
-offene_punkte:
-  - OPEN-005
 quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---
 
@@ -17,3 +15,7 @@ virtuellen Ordnerknoten: aus `docker/gui/react` wird `docker` -> `gui` -> `react
 
 Innerhalb eines Ordners stehen **Tasks vor Unterordnern**. Ordner und Tasks werden jeweils
 alphabetisch sortiert (siehe REQ-023).
+
+Ist die Modulgliederung eingeschaltet (REQ-074), haengt der Ordnerbaum unter dem Modulknoten;
+jedes Modul bekommt also seinen eigenen. Die Untermodule folgen darunter - dieselbe
+Reihenfolge wie Tasks vor Unterordnern.

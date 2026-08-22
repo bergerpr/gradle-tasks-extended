@@ -5,6 +5,15 @@ package de.example.gradletasksview.model
  * Wird ausschliesslich aus bereits importierten ExternalSystem/DataNode-Daten
  * abgeleitet (siehe [de.example.gradletasksview.model.GradleTaskDataProvider]) -
  * es findet kein eigener Gradle-Sync statt.
+ *
+ * @property taskName Blanker Taskname, wie er in der Ansicht steht (`buildImage`).
+ * @property taskPath Qualifizierter Gradle-Taskpfad (`:app:buildImage`). Damit laesst sich der
+ *   Task eindeutig genau in seinem Modul ausfuehren (siehe REQ-074).
+ * @property gradleProjectPath Gradle-Projektpfad des besitzenden Moduls (`:`, `:app`,
+ *   `:app:core`) - nicht das Dateisystemverzeichnis.
+ * @property moduleName Anzeigename des Moduls aus dem IDE-Projektmodell; dient nur der
+ *   Darstellung, nie als Identitaet.
+ * @property externalProjectPath Verzeichnis, in dem Gradle fuer diesen Task aufgerufen wird.
  */
 data class GradleTaskDescriptor(
     val taskName: String,
@@ -13,6 +22,7 @@ data class GradleTaskDescriptor(
     val description: String?,
     val externalProjectPath: String,
     val gradleProjectPath: String,
+    val moduleName: String,
     val stableId: String
 )
 

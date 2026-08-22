@@ -4,11 +4,13 @@ import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes
 import de.example.gradletasksview.icons.GradleTasksIcons
 import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
+import de.example.gradletasksview.persistence.TaskViewConfigKey
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
- * Rendert Gruppenzeilen (Default/Sort), virtuelle Ordner (Nested) und Task-Blaetter.
+ * Rendert Modulknoten (bei eingeschalteter Modulgliederung), Gruppenzeilen (Default/Sort),
+ * virtuelle Ordner (Nested) und Task-Blaetter.
  *
  * Die Icons stammen aus den plugin-eigenen Ressourcen ([GradleTasksIcons]) und nicht mehr
  * aus `AllIcons`/`ExternalSystemIcons`. Damit haengt die Darstellung weder davon ab, unter
@@ -31,28 +33,44 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
         row: Int,
         hasFocus: Boolean
     ) {
-        val userObject = (value as? DefaultMutableTreeNode)?.userObject
+        val node = value as? DefaultMutableTreeNode
+        val modulePath = enclosingModulePath(node)
 
-        when (userObject) {
+        when (val userObject = node?.userObject) {
+            // Modulknoten: der Gradle-Projektpfad ist der Anzeigetext, der IDE-Modulname steht
+            // nur als Zusatz daneben. Der Pfad ist eindeutig und zugleich der Schluessel, den
+            // man in default.yaml/custom.yaml schreiben wuerde.
+            is ModuleNodeData -> {
+                icon = configStore.iconFor(TaskViewConfigKey.module(userObject.gradlePath))
+                    ?: GradleTasksIcons.Module
+                append(userObject.gradlePath, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                userObject.moduleName
+                    .takeIf { it.isNotEmpty() && it != userObject.gradlePath }
+                    ?.let { append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES) }
+            }
+
             // Gruppenzeile (Default/Sort) und virtueller Ordner (Nested) teilen sich bewusst
             // dasselbe Ordner-Icon: Es ist in allen drei Modi derselbe Knotentyp aus Sicht des
             // Benutzers - ein aufklappbarer Container fuer Tasks - und soll deshalb ueberall
             // gleich aussehen. Nur die Beschriftung unterscheidet sich (voller Gruppenpfad in
             // Default/Sort, einzelnes Pfadsegment in Nested).
             is GroupHeaderNodeData -> {
-                icon = configStore.iconFor(userObject.groupPath) ?: folderIcon(expanded)
+                icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.groupPath, modulePath))
+                    ?: folderIcon(expanded)
                 append(userObject.groupPath.ifEmpty { "(default)" }, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is FolderNodeData -> {
-                icon = configStore.iconFor(userObject.folder.fullPath) ?: folderIcon(expanded)
+                icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.folder.fullPath, modulePath))
+                    ?: folderIcon(expanded)
                 append(userObject.folder.displayName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is TaskNodeData -> {
                 // Schluessel ist der Taskname, so wie er in der Ansicht steht - derselbe Wert,
                 // den ein Benutzer in die YAML-Datei schreiben wuerde.
-                icon = configStore.iconFor(userObject.descriptor.taskName) ?: GradleTasksIcons.Task
+                icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.descriptor.taskName, modulePath))
+                    ?: GradleTasksIcons.Task
                 append(userObject.descriptor.taskName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
                 userObject.descriptor.description?.let {
                     append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES)

@@ -11,10 +11,15 @@ import javax.swing.tree.DefaultMutableTreeNode
 
 /**
  * Wendet den dateibasierten Expand/Collapse-Zustand ([GradleTasksViewConfigStore]:
- * `default.yaml` + `custom.yaml`) auf Gruppen-/Ordnerknoten an und haelt ihn bei
+ * `default.yaml` + `custom.yaml`) auf Modul-, Gruppen- und Ordnerknoten an und haelt ihn bei
  * Benutzerinteraktion aktuell - in allen drei Modi (Default/Sort/Nested), nicht nur
  * im Nested-Modus. Als Schluessel dient der volle Gruppen-/Ordnerpfad (z. B.
- * `docker/gui/jsp`), derselbe von Menschen lesbare Pfad wie in `default.yaml`/`custom.yaml`.
+ * `docker/gui/jsp`) bzw. der Gradle-Projektpfad (`:app`), derselbe von Menschen lesbare Pfad
+ * wie in `default.yaml`/`custom.yaml`.
+ *
+ * Ist die Modulgliederung eingeschaltet, wird der Zustand eines Gruppen-/Ordnerknotens unter
+ * dem Modul abgelegt, zu dem er gehoert - erst damit kann dieselbe Gruppe in zwei Modulen
+ * unterschiedlich aufgeklappt sein (siehe REQ-076).
  */
 class GradleTasksTreeStateManager(
     private val tree: JTree,
@@ -36,8 +41,7 @@ class GradleTasksTreeStateManager(
      * Vorfahren mit aufzuklappen, um den Kindpfad ueberhaupt darstellen zu koennen.
      */
     private fun applyExpansionRecursively(node: DefaultMutableTreeNode) {
-        val key = configKeyOf(node.userObject)
-        val shouldExpand = key?.let { configStore.isExpanded(it) } ?: true
+        val shouldExpand = configKeyOf(node)?.let { configStore.isExpanded(it) } ?: true
 
         if (!shouldExpand) return
 
@@ -57,15 +61,8 @@ class GradleTasksTreeStateManager(
 
     private fun onExpansionChanged(event: TreeExpansionEvent, expanded: Boolean) {
         val node = event.path.lastPathComponent as? DefaultMutableTreeNode ?: return
-        val key = configKeyOf(node.userObject) ?: return
+        val key = configKeyOf(node) ?: return
         configStore.setExpanded(key, expanded)
-    }
-
-    /** Gruppen-/Ordnerpfad als Konfigurationsschluessel, oder `null` fuer Task-/Wurzelknoten. */
-    private fun configKeyOf(userObject: Any?): String? = when (userObject) {
-        is GroupHeaderNodeData -> userObject.groupPath
-        is FolderNodeData -> userObject.folder.fullPath
-        else -> null
     }
 
     fun captureSelectedStableId(): String? {

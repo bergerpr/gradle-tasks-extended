@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 "Gradle Tasks Extended" is a private IntelliJ IDEA Ultimate plugin (no Marketplace distribution) that adds
 a standalone ToolWindow for browsing/running Gradle tasks, with three view modes: `Default` (original
 order), `Sort` (alphabetical), and `Nested` (folder hierarchy built from slash-separated task groups, e.g.
-`docker/gui/react`).
+`docker/gui/react`). A separate toolbar toggle adds a **module level** on top of any of the three modes
+(six combinations, not a fourth mode), and modules can be excluded/re-included per mode.
 
 - **Knowledge base — start here for behavioral questions** ("what should happen when..."):
   `docs/requirements/` holds one small file per **implemented** requirement, `docs/decisions/` one per
@@ -91,16 +92,20 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 
 - `model/` — pure model logic, no platform dependencies: `GradleTaskDescriptor` (normalized task
   representation), `TaskTreeBuilder` (builds sorted groups / nested folder tree), `TaskTreeSorting`,
-  `GradleTaskViewMode`, `NestedFolderNode`, `GradleTaskDataProvider` (reads already-imported Gradle
-  project data). This package is unit-testable without the IntelliJ platform test framework.
+  `GradleTaskViewMode`, `NestedFolderNode`, `ModuleTreeNode` (Gradle project hierarchy), `ModuleFilter`
+  (exclude/include precedence rules), `GradleTaskDataProvider` (reads already-imported Gradle
+  project data — the only file here that touches the platform). Everything except the data provider is
+  unit-testable without the IntelliJ platform test framework.
 - `ui/` — the `JTree`, cell renderer, tree model builder, speed search wiring, and
   `GradleTaskViewRefresher` (owns rebuild-on-reimport + debouncing + initial-load retry logic).
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
 - `actions/` — toolbar dropdown (mode switch) and context menu actions (execute, copy name/path,
   expand/collapse all).
-- `persistence/` — per-project persisted state: selected view mode, and expand/collapse state. Expand
-  state uses a two-tier YAML system (see below), not just IntelliJ's `PersistentStateComponent`.
+- `persistence/` — per-project persisted state: selected view mode via `PersistentStateComponent`;
+  everything else (expand/collapse state, icons, module grouping toggle, exclude/include lists) via the
+  two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — module
+  node, module-scoped entry, or module-independent entry.
 - `execution/` — `GradleTaskExecutor`, which runs tasks exclusively via
   `ExternalSystemUtil.runTask(TaskExecutionSpec)` (the current, non-deprecated API — never the
   `@ApiStatus.Obsolete` 4-parameter overload, and never a hand-rolled process/command-line invocation).
@@ -117,6 +122,12 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 - **`stableId`** (`externalProjectPath::gradleProjectPath::taskName`) is the only reliable identity for
   selection preservation and persistence keys — never rely on visible names alone, since task names can
   collide across subprojects/composite builds.
+- **Module identity comes from the parent node**, not from `TaskData`: `taskNode.getParent(ModuleData::class.java)`
+  plus the `ModuleData.gradleIdentityPathOrNull` / `gradlePathOrNull` extensions in
+  `org.jetbrains.plugins.gradle.util`. `ModuleData.getId()` is *not* the Gradle project path, and the
+  non-nullable `gradlePath`/`gradleIdentityPath` accessors on `GradleModuleData` are deprecated. Tasks
+  are executed with the **qualified** path (`:app:buildImage`) — a bare name runs the task in every
+  matching project. See `docs/decisions/ADR-015-*.md`.
 - **Refresh must be debounced.** `GradleTaskViewRefresher` also retries the very first refresh with
   backoff (500ms/1s/2s/4s) because a restored ToolWindow can become visible before cached project data is
   actually available, and no reliable "data ready" event exists for that case.
@@ -124,31 +135,66 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
   APIs (coroutines, IntelliJ Platform Gradle Plugin 2.x), not legacy equivalents.
 - No Marketplace-related work (signing, product code, obfuscation) is in scope.
 
-### YAML view config (REQ-070, REQ-071, ADR-003)
+### YAML view config (REQ-070, REQ-071, REQ-076, ADR-003, ADR-014)
 
-Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering both the
-expand/collapse state and per-node custom icons:
+Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering the
+expand/collapse state, per-node custom icons, and the view settings (module grouping + exclude/include):
 - `default.yaml` — team-wide default, created once if missing (`TaskViewConfigYaml.createStarterIfMissing`),
   never overwritten if it already exists. Meant to be checked into version control.
-- `custom.yaml` — personal overrides, written automatically on manual expand/collapse; takes precedence
-  over `default.yaml`. Cleared via the toolbar "Reset to Default" action.
+- `custom.yaml` — personal overrides, written automatically on manual expand/collapse and by the module
+  toggle; takes precedence over `default.yaml`. Cleared via the toolbar "Reset to Default" action, which
+  therefore also resets the module toggle and personal exclude/include lists.
 - `icons/` — custom icon files that the YAML entries reference by file name.
 
-Format is intentionally flat (no nested `groups:` wrapper) and backward compatible — a value is either a
-bare boolean (short form, expand state only) or a mapping with the optional keys `expanded` and `icon`:
+Three kinds of key sit side by side at the top level, and node entries stay flat (no `groups:` wrapper)
+so existing files keep working unchanged — the plugin never rewrites `default.yaml`, so migration is not
+an option. A node value is either a bare boolean (short form, expand state only) or a mapping with the
+optional keys `expanded` and `icon`:
 
 ```yaml
-docker/gui: false                 # short form, unchanged
+gradle_tasks_extended:            # reserved key: view settings
+  showModules: true
+  exclude:
+    - ":legacy"                   # hides the module and its submodules
+  include:
+    ":legacy":                    # ... except these group paths
+      - docker/gui
+  modes:
+    sort:
+      exclude:
+        - ":sandbox"              # only in Sort mode
+
+docker/gui: false                 # short form, unchanged — applies to every module
 docker/gui/jsp:
   icon: smile.svg                 # replaces the built-in folder icon
 printGroup-docker-server-gui:
   icon: smile.svg                 # tasks are keyed by task name
+
+":app":                           # leading colon = module block; root project is ":"
+  expanded: false                 #   reserved: the module node itself
+  icon: app.svg
+  docker/gui/jsp:                 #   anything else: a group path only inside :app
+    expanded: true
 ```
 
-This applies to **all three view modes**, not just `Nested` — group paths (`Default`/`Sort`) and folder
-paths (`Nested`) share the same human-readable, slash-separated key space via
-`GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. Task entries share that key space but
-are keyed by `taskName`; no ambiguity arises because each node type only ever looks up its own key.
+Expand state and icons apply to **all three view modes**, not just `Nested` — group paths
+(`Default`/`Sort`) and folder paths (`Nested`) share the same human-readable, slash-separated key space
+via `GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. Task entries share that key space
+but are keyed by `taskName`, module nodes by their Gradle project path; no ambiguity arises because each
+node type only ever looks up its own key, and module paths are recognisable by the leading `:`.
+Exclude/include are the exception: they are explicitly **per mode** (this amends ADR-003).
+
+Three format rules are worth remembering (full reasoning in ADR-014): the reserved key is named after the
+plugin so it cannot collide with a real Gradle group; `:` distinguishes module from group because Gradle
+project paths always start with one; and module keys stay **absolute** (`":app:core"` is a top-level key,
+not nested inside `":app"`) even though the *display* is nested — otherwise a sub-key inside a module
+block could not be told apart from a group path.
+
+Resolution per node, most specific first: module-scoped `custom.yaml` > module-scoped `default.yaml` >
+module-independent `custom.yaml` > module-independent `default.yaml` > built-in default. The
+exclude/include **lists** follow the opposite idea — they are unioned rather than overridden, so a team
+default can never silently disappear; precedence between conflicting rules is specificity, then
+mode-specific, then include (ADR-016).
 
 Icon rules: the value is a file name relative to `gradle/gradle_tasks_extended/icons/`, loaded via
 `IconLoader.findIcon(URL)`. A sibling `<name>_dark.<ext>` is preferred automatically under dark themes
@@ -156,7 +202,8 @@ Icon rules: the value is a file name relative to `gradle/gradle_tasks_extended/i
 the store does it. Paths escaping the icons directory are rejected, and a missing file logs a warning and
 falls back to the built-in icon rather than rendering nothing. `GradleTasksViewConfigStore.reloadIfChanged()`
 re-reads both files on refresh when their timestamps changed, so hand edits apply without an IDE restart.
-`setExpanded` preserves an entry's `icon`, and `write` keeps icon-less entries in the short boolean form.
+`setExpanded` preserves an entry's `icon`, and `write` keeps icon-less entries (and group-less module
+blocks) in the short boolean form.
 
 ### Plugin dependency gotcha
 

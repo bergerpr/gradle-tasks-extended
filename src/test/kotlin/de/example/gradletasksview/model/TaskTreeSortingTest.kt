@@ -11,8 +11,9 @@ class TaskTreeSortingTest {
         groupName = group,
         description = null,
         externalProjectPath = "/project",
-        gradleProjectPath = "/project",
-        stableId = buildStableId("/project", "/project", name)
+        gradleProjectPath = ":",
+        moduleName = "project",
+        stableId = buildStableId("/project", ":", name)
     )
 
     @Test

@@ -11,4 +11,6 @@ quelle: Plan.md, Akzeptanzkriterien / Funktionserhalt
 ---
 
 Vor jedem Rebuild wird die `stableId` des selektierten Tasks gesichert und danach im neuen
-Baum wieder gesucht und selektiert. Sichtbare Namen allein reichen dafuer nicht aus.
+Baum wieder gesucht und selektiert. Sichtbare Namen allein reichen dafuer nicht aus - seit die
+`stableId` den echten Gradle-Projektpfad enthaelt (REQ-024), trifft die Wiederherstellung auch
+bei gleichnamigen Tasks in zwei Modulen den richtigen Knoten.

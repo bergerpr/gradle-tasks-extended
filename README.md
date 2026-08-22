@@ -1,7 +1,8 @@
 # Gradle Tasks Extended
 
 IntelliJ IDEA Ultimate Plugin, das die Gradle-Task-Ansicht um eine eigene
-ToolWindow-Ansicht mit drei Darstellungsmodi erweitert (`Default`, `Sort`, `Nested`).
+ToolWindow-Ansicht mit drei Darstellungsmodi erweitert (`Default`, `Sort`, `Nested`),
+kombinierbar mit einer zuschaltbaren Modulgliederung.
 Spezifikation, verifizierte Plattform-APIs und Entscheidungen sind in eine durchsuchbare
 Wissensbasis aufgeloest (siehe unten).
 
@@ -44,9 +45,9 @@ grep -h "^titel:" backlog/*.md
 ```text
 src/main/kotlin/de/example/gradletasksview/
   toolwindow/   ToolWindowFactory, Panel, Startup-Activity
-  actions/      Toolbar-Dropdown, Kontextmenue-Aktionen
-  model/        Reine Modelllogik (Sortierung, Nested-Baum, stableId)
-  persistence/  Projektbezogene Persistenz (Modus, Expand-States, eigene Icons)
+  actions/      Toolbar-Dropdown, Modulgliederungs-Schalter, Kontextmenue-Aktionen
+  model/        Reine Modelllogik (Sortierung, Nested-Baum, Modulbaum, Filter, stableId)
+  persistence/  Projektbezogene Persistenz (Modus, Expand-States, Icons, Ansichtseinstellungen)
   ui/           JTree, Renderer, SpeedSearch, Refresher
   execution/    Task-Ausfuehrung ueber ExternalSystemUtil
 ```

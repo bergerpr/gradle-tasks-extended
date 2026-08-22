@@ -6,8 +6,6 @@ verifiziert: unit
 betrifft:
   - src/main/kotlin/de/example/gradletasksview/model/TaskTreeBuilder.kt
   - src/main/kotlin/de/example/gradletasksview/model/TaskTreeSorting.kt
-offene_punkte:
-  - OPEN-005
 quelle: Plan.md, Abschnitt "Zielverhalten / Sort"
 ---
 
@@ -16,3 +14,7 @@ Tasks innerhalb jeder Gruppe nach ihrem Namen.
 
 Die Liste bleibt flach: `docker/gui` und `docker/gui/jsp` sind zwei getrennte Gruppenzeilen,
 es entstehen keine Ordnerknoten. Nur die Reihenfolge aendert sich gegenueber `Default`.
+
+Ist die Modulgliederung eingeschaltet (REQ-074), gilt das je Modul: Die sortierte Gruppenliste
+haengt dann unter dem jeweiligen Modulknoten, sodass sich `docker/gui` in `:app` und in `:lib`
+nicht mehr zu einer Zeile vermischen.

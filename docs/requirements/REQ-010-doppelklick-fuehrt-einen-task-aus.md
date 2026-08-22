@@ -14,3 +14,8 @@ aus - niemals ueber eigene Prozess- oder Kommandozeilenaufrufe.
 
 Verwendet wird ausschliesslich die `TaskExecutionSpec`-Ueberladung von
 `ExternalSystemUtil.runTask`, siehe ADR-006.
+
+Ausgefuehrt wird der **qualifizierte** Taskpfad (`:app:buildImage`) im Verzeichnis des
+zugehoerigen Moduls, nicht der blanke Taskname: Sonst laesst Gradle den gleichnamigen Task in
+jedem passenden Projekt laufen statt nur im gemeinten. Woher der Pfad stammt, steht in
+ADR-015.

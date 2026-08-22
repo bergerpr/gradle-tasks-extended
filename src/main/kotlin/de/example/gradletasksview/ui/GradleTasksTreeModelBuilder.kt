@@ -2,7 +2,9 @@ package de.example.gradletasksview.ui
 
 import de.example.gradletasksview.model.GradleTaskDescriptor
 import de.example.gradletasksview.model.GradleTaskViewMode
+import de.example.gradletasksview.model.ModuleTreeNode
 import de.example.gradletasksview.model.NestedFolderNode
+import de.example.gradletasksview.model.buildModuleTree
 import de.example.gradletasksview.model.buildNestedTree
 import de.example.gradletasksview.model.buildSortedGroups
 import javax.swing.tree.DefaultMutableTreeNode
@@ -12,19 +14,50 @@ import javax.swing.tree.DefaultTreeModel
  * Baut aus einer (bereits gefilterten) Task-Liste das `DefaultTreeModel` fuer
  * den jeweils aktiven [GradleTaskViewMode]. Reine In-Memory-Transformation ohne
  * PSI-Zugriff - unabhaengig von der Codebasengroesse, nur von der Task-Anzahl.
+ *
+ * Die Modulgliederung (`showModules`) ist **orthogonal** zum Modus: Sie schiebt lediglich eine
+ * Modulebene nach aussen, waehrend die Gliederung darunter unveraendert die des jeweiligen
+ * Modus bleibt. Es entstehen also sechs Kombinationen, kein vierter Modus (siehe REQ-074).
  */
 object GradleTasksTreeModelBuilder {
 
-    fun build(mode: GradleTaskViewMode, tasks: List<GradleTaskDescriptor>): DefaultTreeModel {
+    fun build(
+        mode: GradleTaskViewMode,
+        tasks: List<GradleTaskDescriptor>,
+        showModules: Boolean = false
+    ): DefaultTreeModel {
         val root = DefaultMutableTreeNode("root")
 
-        when (mode) {
-            GradleTaskViewMode.DEFAULT -> buildDefault(root, tasks)
-            GradleTaskViewMode.SORT -> buildSort(root, tasks)
-            GradleTaskViewMode.NESTED -> buildNested(root, tasks)
+        if (showModules) {
+            addModuleNodes(root, buildModuleTree(tasks), mode)
+        } else {
+            addModeContent(root, mode, tasks)
         }
 
         return DefaultTreeModel(root)
+    }
+
+    /**
+     * Modul zuerst mit seinem eigenen Inhalt, danach die Untermodule - dieselbe Reihenfolge wie
+     * "Tasks vor Unterordnern" im Nested-Modus (siehe REQ-004).
+     */
+    private fun addModuleNodes(parent: DefaultMutableTreeNode, module: ModuleTreeNode, mode: GradleTaskViewMode) {
+        val moduleNode = DefaultMutableTreeNode(ModuleNodeData(module.gradlePath, module.moduleName))
+        addModeContent(moduleNode, mode, module.tasks)
+        module.childrenModules.values.forEach { child -> addModuleNodes(moduleNode, child, mode) }
+        parent.add(moduleNode)
+    }
+
+    private fun addModeContent(
+        parent: DefaultMutableTreeNode,
+        mode: GradleTaskViewMode,
+        tasks: List<GradleTaskDescriptor>
+    ) {
+        when (mode) {
+            GradleTaskViewMode.DEFAULT -> buildDefault(parent, tasks)
+            GradleTaskViewMode.SORT -> buildSort(parent, tasks)
+            GradleTaskViewMode.NESTED -> buildNested(parent, tasks)
+        }
     }
 
     /** Reihenfolge, wie sie von Gradle/External System geliefert wird - keine eigene Sortierung. */

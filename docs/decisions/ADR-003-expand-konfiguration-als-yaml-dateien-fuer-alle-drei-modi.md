@@ -24,6 +24,12 @@ Reset beim Umschalten die gerade erst nutzbar gewordene Konfiguration bei jedem 
 zerstoeren. Zuruecksetzen geschieht seither ausschliesslich explizit ueber den
 "Reset to Default"-Button (REQ-072).
 
+**Nachtrag zur Modusunabhaengigkeit:** Dass die Konfiguration fuer alle drei Modi
+gleichermassen gilt, trifft weiterhin auf den Expand-Zustand und die Icons zu - aber nicht
+mehr auf alles in diesen Dateien. Die Exclude-/Include-Listen (REQ-075) sind ausdruecklich
+**pro Modus** konfigurierbar, ein Modul kann also in `Nested` sichtbar und in `Sort`
+ausgeblendet sein. Die Abweichung ist gewollt und soll nicht stillschweigend entstehen.
+
 Das Format ist bewusst flach gehalten, ohne `groups:`-Wrapper, damit es von Hand lesbar
 bleibt. Gebuendelt wird eine eigene SnakeYAML-Version; IntelliJ-Plugin-Klassenlader sind pro
 Plugin isoliert, ein Versionskonflikt mit der Plattform ist daher ausgeschlossen.

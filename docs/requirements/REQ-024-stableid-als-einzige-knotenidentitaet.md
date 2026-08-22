@@ -6,11 +6,14 @@ verifiziert: unit
 betrifft:
   - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDescriptor.kt
   - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
-offene_punkte:
-  - OPEN-001
 quelle: Plan.md, Abschnitt "Datenmodell"
 ---
 
 Die Identitaet eines Tasks ist immer
 `externalProjectPath + "::" + gradleProjectPath + "::" + taskName`, niemals der sichtbare
 Name allein. Selektionserhalt und Persistenzschluessel stuetzen sich ausschliesslich darauf.
+
+`gradleProjectPath` ist der echte Gradle-Projektpfad des besitzenden Moduls (`:`, `:app`,
+`:app:core`), ermittelt aus dem Eltern-`ModuleData`-Knoten (ADR-015). Damit ist `buildImage`
+in `:app` und in `:lib` zuverlaessig unterscheidbar; `externalProjectPath` haelt zusaetzlich
+Composite Builds mit gleich benannten Modulen auseinander.

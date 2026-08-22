@@ -26,7 +26,7 @@ verifiziert: unit | visuell | manuell | konstruktiv
 betrifft:                   # Quelldateien, die diese Anforderung tragen
   - src/main/kotlin/.../GradleTasksSpeedSearch.kt
 offene_punkte:              # optional: bekannte Luecke im Backlog
-  - OPEN-002
+  - OPEN-003
 quelle: Plan.md, Abschnitt "Filterung"
 ```
 
@@ -42,6 +42,11 @@ niedrig), optional `betrifft_anforderung`, `betrifft`, `quelle`.
 diesen Katalog aufgeloest und danach entfernt; die Datei existiert weiterhin in der
 Git-Historie. Ein `quelle: Plan.md, Abschnitt "..."` ist also eine Herkunftsangabe, kein
 Verweis auf eine noch vorhandene Datei.
+
+Dasselbe gilt fuer `quelle: OPEN-###, ...`: Wird ein Backlog-Eintrag umgesetzt, wandert seine
+Aussage nach `docs/` und die Datei verschwindet aus `backlog/`. Die Herkunftsangabe bleibt als
+Hinweis darauf stehen, woher die Festlegung stammt, und ist ebenfalls in der Git-Historie
+nachlesbar.
 
 Nicht uebernommen wurde aus `Plan.md` alles Prozesshafte und Ueberholte: Rechercheauftrag,
 Implementierungsreihenfolge und die Code-Geruestentwuerfe. Letztere waren teils schlicht
