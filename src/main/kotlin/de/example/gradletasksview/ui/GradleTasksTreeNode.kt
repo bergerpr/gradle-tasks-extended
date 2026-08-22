@@ -29,7 +29,7 @@ data class GroupHeaderNodeData(val groupPath: String) : GradleTasksTreeNodeData 
 }
 
 data class FolderNodeData(val folder: NestedFolderNode) : GradleTasksTreeNodeData {
-    override fun toString(): String = folder.displayName
+    override fun toString(): String = folder.compactedName
 }
 
 /**

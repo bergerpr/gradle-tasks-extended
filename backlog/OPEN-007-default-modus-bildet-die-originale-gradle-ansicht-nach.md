@@ -22,9 +22,9 @@ Der `Default`-Modus soll aussehen wie die originale Gradle-Ansicht der IDE, mit 
 Erweiterung: Die Taskgruppen darunter erscheinen nicht als flache Zeilen, sondern als
 Ordnerbaum wie im `Nested`-Modus.
 
-**Setzt OPEN-006 voraus.** Ohne das Zusammenfassen von Ordnerpfaden waere diese Ansicht
-tiefer verschachtelt als jede bisherige, weil zur Modulebene und zum `Tasks`-Knoten noch je
-eine Zeile pro Pfadsegment kaeme.
+Das Zusammenfassen von Ordnerpfaden ist Voraussetzung dafuer und inzwischen umgesetzt
+(REQ-004): Ohne es waere diese Ansicht tiefer verschachtelt als jede bisherige, weil zur
+Modulebene und zum `Tasks`-Knoten noch je eine Zeile pro Pfadsegment kaeme.
 
 ## Zielbild
 
@@ -33,7 +33,7 @@ eine Zeile pro Pfadsegment kaeme.
 |--- Tasks
 |    |--- build
 |    |    |--- assembleAll
-|    |--- docker/gui         (zusammengefasst, siehe OPEN-006)
+|    |--- docker/gui         (zusammengefasst, siehe REQ-004)
 |    |    |--- printRootGui
 |    |--- tooling
 |         |--- rootOnly

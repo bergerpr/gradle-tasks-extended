@@ -22,6 +22,13 @@ nach, und Modulpfade sind am fuehrenden `:` erkennbar (ADR-014).
 Ein Eintrag ohne Modulbezug gilt weiterhin fuer alle Module; steht derselbe Schluessel
 zusaetzlich in einem Modulblock, gewinnt dort der modulbezogene (REQ-076).
 
+Werden Ordner ohne eigene Tasks zu einer Zeile zusammengefasst (REQ-004), bleibt der
+Schluessel der volle Pfad - `docker/server/gui` greift also auf der zusammengefassten Zeile.
+Ein Eintrag fuer einen dabei weggefallenen Zwischenknoten wie `docker/server` findet dagegen
+keinen Knoten mehr und bleibt wirkungslos. Das ist bewusst in Kauf genommen: Anders liesse
+sich der Schluesselraum nicht eindeutig halten, und ein Zwischenknoten ohne eigene Tasks ist
+genau der, dessen Icon oder Zuklappzustand niemanden interessiert.
+
 Eine Geschwisterdatei `<name>_dark.<ext>` wird bei dunklen Themes bevorzugt. Eintraege, die
 aus dem Icon-Verzeichnis herausfuehren, werden abgelehnt; fehlt eine Datei, greift das
 eingebaute Icon und es wird gewarnt.

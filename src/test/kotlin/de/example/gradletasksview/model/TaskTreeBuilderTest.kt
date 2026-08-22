@@ -68,8 +68,10 @@ class TaskTreeBuilderTest {
         val react = gui.childrenFolders.getValue("react")
         assertEquals(listOf("build-react"), react.childrenTasks.map { it.taskName })
 
-        val server = docker.childrenFolders.getValue("server")
-        val serverGui = server.childrenFolders.getValue("gui")
+        // "server" hat keine eigenen Tasks und genau ein Kind und ist deshalb mit "gui" zu
+        // einer Zeile zusammengefasst (REQ-004); "docker" bleibt stehen, es hat zwei Kinder.
+        val serverGui = docker.childrenFolders.getValue("server/gui")
+        assertEquals("docker/server/gui", serverGui.fullPath)
         assertEquals(listOf("build-image"), serverGui.childrenTasks.map { it.taskName })
     }
 

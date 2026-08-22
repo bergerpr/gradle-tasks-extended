@@ -8,7 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 a standalone ToolWindow for browsing/running Gradle tasks, with three view modes: `Default` (original
 order), `Sort` (alphabetical), and `Nested` (folder hierarchy built from slash-separated task groups, e.g.
 `docker/gui/react`). A separate toolbar toggle adds a **module level** on top of any of the three modes
-(six combinations, not a fourth mode), and modules can be excluded/re-included per mode.
+(six combinations, not a fourth mode), and modules can be excluded/re-included per mode. In the folder
+tree, a folder with no tasks of its own and exactly one child is compacted into one row
+(`docker/server/gui`) the way the IDE's project view compacts middle packages — the config key stays the
+full path, so an entry for a compacted-away intermediate node has no effect (REQ-004).
 
 - **Knowledge base — start here for behavioral questions** ("what should happen when..."):
   `docs/requirements/` holds one small file per **implemented** requirement, `docs/decisions/` one per

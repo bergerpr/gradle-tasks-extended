@@ -18,7 +18,9 @@ object GradleTasksSpeedSearch {
         TreeSpeedSearch.installOn(tree, false) { path ->
             when (val data = (path.lastPathComponent as? DefaultMutableTreeNode)?.userObject) {
                 is TaskNodeData -> data.descriptor.taskPath
-                is FolderNodeData -> data.folder.displayName
+                // Der zusammengesetzte Name eines zusammengefassten Ordners, damit
+                // "server/gui" sowohl ueber "server" als auch ueber "gui" gefunden wird.
+                is FolderNodeData -> data.folder.compactedName
                 is GroupHeaderNodeData -> data.groupPath
                 is ModuleNodeData -> data.gradlePath
                 else -> ""

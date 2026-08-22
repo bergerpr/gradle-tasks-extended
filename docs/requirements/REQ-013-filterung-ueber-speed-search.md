@@ -18,6 +18,10 @@ Die Filterung wirkt **datengetrieben vor** dem Aufbau von Sort/Nested: Der Refre
 die Taskliste und baut den Baum daraus neu. Wuerde stattdessen nur der Speed-Search-Cursor
 bewegt, blieben ausgefilterte Tasks durch die Verschachtelung sichtbar.
 
+Bei Ordnerknoten ist der Suchtext der angezeigte Name. Ein zusammengefasster Ordner (REQ-004)
+wird damit ueber jedes seiner Segmente gefunden - `server/gui` sowohl ueber `server` als auch
+ueber `gui`.
+
 Der Modulausschluss (REQ-075) greift noch davor. Die Suche findet daher keine Tasks aus
 ausgeschlossenen Modulen - ein Treffer, den der sichtbare Baum nicht enthaelt, waere ein
 Widerspruch.

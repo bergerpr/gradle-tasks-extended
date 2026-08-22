@@ -63,7 +63,10 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             is FolderNodeData -> {
                 icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.folder.fullPath, modulePath))
                     ?: folderIcon(expanded)
-                append(userObject.folder.displayName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                // compactedName statt displayName: Ordner ohne eigene Tasks sind mit ihrem
+                // einzigen Kind zu einer Zeile zusammengefasst und heissen dann "server/gui"
+                // (REQ-004). Der Schluessel fuer Icon und Expand-Zustand bleibt der volle Pfad.
+                append(userObject.folder.compactedName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is TaskNodeData -> {
