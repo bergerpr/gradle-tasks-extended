@@ -1,6 +1,6 @@
 package de.example.gradletasksview.ui
 
-import de.example.gradletasksview.persistence.GradleTasksExpandConfigStore
+import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import de.example.gradletasksview.util.childNodes
 import de.example.gradletasksview.util.findFirstOrNull
 import de.example.gradletasksview.util.toTreePath
@@ -10,7 +10,7 @@ import javax.swing.event.TreeExpansionListener
 import javax.swing.tree.DefaultMutableTreeNode
 
 /**
- * Wendet den dateibasierten Expand/Collapse-Zustand ([GradleTasksExpandConfigStore]:
+ * Wendet den dateibasierten Expand/Collapse-Zustand ([GradleTasksViewConfigStore]:
  * `default.yaml` + `custom.yaml`) auf Gruppen-/Ordnerknoten an und haelt ihn bei
  * Benutzerinteraktion aktuell - in allen drei Modi (Default/Sort/Nested), nicht nur
  * im Nested-Modus. Als Schluessel dient der volle Gruppen-/Ordnerpfad (z. B.
@@ -18,7 +18,7 @@ import javax.swing.tree.DefaultMutableTreeNode
  */
 class GradleTasksTreeStateManager(
     private val tree: JTree,
-    private val configStore: GradleTasksExpandConfigStore
+    private val configStore: GradleTasksViewConfigStore
 ) {
 
     private var listening = false

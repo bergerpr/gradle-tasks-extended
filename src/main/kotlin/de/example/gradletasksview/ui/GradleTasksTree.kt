@@ -17,7 +17,7 @@ import com.intellij.ui.treeStructure.Tree
 import de.example.gradletasksview.execution.GradleTaskExecutor
 import de.example.gradletasksview.model.GradleTaskDescriptor
 import de.example.gradletasksview.model.NestedFolderNode
-import de.example.gradletasksview.persistence.GradleTasksExpandConfigStore
+import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import java.awt.datatransfer.StringSelection
 import java.awt.event.HierarchyEvent
 import java.awt.event.MouseAdapter
@@ -34,7 +34,8 @@ import javax.swing.tree.DefaultTreeModel
 class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(DefaultMutableTreeNode())), UiDataProvider {
 
     private val executor = GradleTaskExecutor(project)
-    val stateManager = GradleTasksTreeStateManager(this, project.service<GradleTasksExpandConfigStore>())
+    private val configStore = project.service<GradleTasksViewConfigStore>()
+    val stateManager = GradleTasksTreeStateManager(this, configStore)
 
     /**
      * Wird bei jeder Aenderung des SpeedSearch-Suchtexts aufgerufen. `TreeSpeedSearch`
@@ -66,7 +67,7 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         // aufruft) automatisch deren Vorfahren aufklappen wuerde. Das gezielte Aufklappen
         // ueber `scrollPathToVisible(...)` in restoreSelection() ist davon unabhaengig.
         expandsSelectedPaths = false
-        cellRenderer = GradleTasksTreeCellRenderer()
+        cellRenderer = GradleTasksTreeCellRenderer(configStore)
         // Zwingend notwendig, damit der eigene Renderer ueberhaupt zum Zeichnen verwendet wird:
         // `com.intellij.ui.treeStructure.Tree` installiert bereits in seinem eigenen Konstruktor
         // `setCellRenderer(new NodeRenderer())`. Ein spaeteres `setCellRenderer(...)` aktualisiert

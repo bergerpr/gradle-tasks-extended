@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import de.example.gradletasksview.model.GradleTaskDataProvider
 import de.example.gradletasksview.model.GradleTaskViewMode
 import de.example.gradletasksview.persistence.GradleTaskViewSettings
-import de.example.gradletasksview.persistence.GradleTasksExpandConfigStore
+import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -68,7 +68,7 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
 
     /** Setzt alle persoenlichen Expand/Collapse-Abweichungen zurueck auf `default.yaml`. */
     fun resetExpandStateToDefault() {
-        project.service<GradleTasksExpandConfigStore>().resetToDefault()
+        project.service<GradleTasksViewConfigStore>().resetToDefault()
         scheduleRefresh(debounce = false)
     }
 
@@ -117,6 +117,11 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
         val currentTree = tree ?: return false
         val settings = GradleTaskViewSettings.getInstance(project)
         val mode = settings.state.selectedMode
+
+        // Erlaubt es, default.yaml von Hand zu editieren (z. B. um ein Icon zuzuordnen) und
+        // das Ergebnis ohne IDE-Neustart zu sehen. Liest nur dann wirklich neu ein, wenn sich
+        // der Zeitstempel einer der beiden Dateien geaendert hat.
+        project.service<GradleTasksViewConfigStore>().reloadIfChanged()
 
         val allTasks = readAction { dataProvider.loadTasks() }
         val filtered = if (filterText.isBlank()) {

@@ -121,18 +121,39 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
   APIs (coroutines, IntelliJ Platform Gradle Plugin 2.x), not legacy equivalents.
 - No Marketplace-related work (signing, product code, obfuscation) is in scope.
 
-### Expand/collapse YAML persistence (extension beyond `Plan.md`)
+### YAML view config (extension beyond `Plan.md`)
 
-Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`:
-- `default.yaml` — team-wide default, created once if missing (`GroupExpandYaml.createStarterIfMissing`),
+Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering both the
+expand/collapse state and per-node custom icons:
+- `default.yaml` — team-wide default, created once if missing (`TaskViewConfigYaml.createStarterIfMissing`),
   never overwritten if it already exists. Meant to be checked into version control.
 - `custom.yaml` — personal overrides, written automatically on manual expand/collapse; takes precedence
   over `default.yaml`. Cleared via the toolbar "Reset to Default" action.
+- `icons/` — custom icon files that the YAML entries reference by file name.
 
-Format is intentionally flat (no nested `groups:` wrapper): one `<group/folder path>: true|false` line per
-entry, written with SnakeYAML. This applies to **all three view modes**, not just `Nested` — group paths
-(`Default`/`Sort`) and folder paths (`Nested`) share the same human-readable, slash-separated key space via
-`GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`.
+Format is intentionally flat (no nested `groups:` wrapper) and backward compatible — a value is either a
+bare boolean (short form, expand state only) or a mapping with the optional keys `expanded` and `icon`:
+
+```yaml
+docker/gui: false                 # short form, unchanged
+docker/gui/jsp:
+  icon: smile.svg                 # replaces the built-in folder icon
+printGroup-docker-server-gui:
+  icon: smile.svg                 # tasks are keyed by task name
+```
+
+This applies to **all three view modes**, not just `Nested` — group paths (`Default`/`Sort`) and folder
+paths (`Nested`) share the same human-readable, slash-separated key space via
+`GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. Task entries share that key space but
+are keyed by `taskName`; no ambiguity arises because each node type only ever looks up its own key.
+
+Icon rules: the value is a file name relative to `gradle/gradle_tasks_extended/icons/`, loaded via
+`IconLoader.findIcon(URL)`. A sibling `<name>_dark.<ext>` is preferred automatically under dark themes
+(`JBColor.isBright()`) — unlike bundled classpath icons, file icons get no automatic variant lookup, so
+the store does it. Paths escaping the icons directory are rejected, and a missing file logs a warning and
+falls back to the built-in icon rather than rendering nothing. `GradleTasksViewConfigStore.reloadIfChanged()`
+re-reads both files on refresh when their timestamps changed, so hand edits apply without an IDE restart.
+`setExpanded` preserves an entry's `icon`, and `write` keeps icon-less entries in the short boolean form.
 
 ### Plugin dependency gotcha
 

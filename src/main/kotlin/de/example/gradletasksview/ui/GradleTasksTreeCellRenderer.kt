@@ -3,6 +3,7 @@ package de.example.gradletasksview.ui
 import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes
 import de.example.gradletasksview.icons.GradleTasksIcons
+import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
 
@@ -15,8 +16,11 @@ import javax.swing.tree.DefaultMutableTreeNode
  * `AllIcons`-Konstante in der jeweiligen IDE-Version noch auf eine existierende Ressource
  * zeigt - beides hatte sich beim Nachstellen der originalen Gradle-Ansicht als
  * unzuverlaessig erwiesen (siehe docs/INTEGRATION_STRATEGY.md, "Tree-Row-Icons").
+ *
+ * Vorrang hat jedoch ein in `default.yaml`/`custom.yaml` konfiguriertes eigenes Icon
+ * ([GradleTasksViewConfigStore.iconFor]); die eingebauten Icons sind nur der Rueckfall.
  */
-class GradleTasksTreeCellRenderer : ColoredTreeCellRenderer() {
+class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfigStore) : ColoredTreeCellRenderer() {
 
     override fun customizeCellRenderer(
         tree: JTree,
@@ -36,17 +40,19 @@ class GradleTasksTreeCellRenderer : ColoredTreeCellRenderer() {
             // gleich aussehen. Nur die Beschriftung unterscheidet sich (voller Gruppenpfad in
             // Default/Sort, einzelnes Pfadsegment in Nested).
             is GroupHeaderNodeData -> {
-                icon = folderIcon(expanded)
+                icon = configStore.iconFor(userObject.groupPath) ?: folderIcon(expanded)
                 append(userObject.groupPath.ifEmpty { "(default)" }, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is FolderNodeData -> {
-                icon = folderIcon(expanded)
+                icon = configStore.iconFor(userObject.folder.fullPath) ?: folderIcon(expanded)
                 append(userObject.folder.displayName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is TaskNodeData -> {
-                icon = GradleTasksIcons.Task
+                // Schluessel ist der Taskname, so wie er in der Ansicht steht - derselbe Wert,
+                // den ein Benutzer in die YAML-Datei schreiben wuerde.
+                icon = configStore.iconFor(userObject.descriptor.taskName) ?: GradleTasksIcons.Task
                 append(userObject.descriptor.taskName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
                 userObject.descriptor.description?.let {
                     append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES)

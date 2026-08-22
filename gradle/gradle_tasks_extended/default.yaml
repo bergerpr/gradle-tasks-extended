@@ -1,7 +1,27 @@
 # Gradle Tasks Extended - Standard-Konfiguration fuer den Expand/Collapse-Zustand
-# von Gruppen/Ordnern (gilt in allen drei Ansichtsmodi: Default, Sort und Nested).
-# Jede Zeile ist "<Gruppen-/Ordnerpfad>: true|false". Nicht aufgefuehrte Pfade
-# gelten als aufgeklappt. Diese Datei kann versioniert und im Team geteilt werden.
+# von Gruppen/Ordnern (gilt in allen drei Ansichtsmodi: Default, Sort und Nested)
+# sowie fuer eigene Icons. Diese Datei kann versioniert und im Team geteilt werden.
 #
-# Beispiel:
-# docker/gui/jsp: false
+# Kurzform - nur Expand/Collapse, ein Eintrag pro Zeile:
+#   docker/gui/jsp: false
+#
+# Langform - Abbildung mit den optionalen Schluesseln "expanded" und "icon":
+#   docker/gui/jsp:
+#     expanded: false
+#     icon: smile.svg
+#
+# "icon" ist ein Dateiname relativ zu gradle/gradle_tasks_extended/icons/ und ersetzt
+# das eingebaute Icon des Plugins. Existiert daneben eine Datei mit dem Zusatz "_dark"
+# (z. B. smile_dark.svg), wird diese bei dunklen Themes automatisch bevorzugt.
+#
+# Als Schluessel dient bei Gruppen/Ordnern der volle Pfad, bei Tasks der Taskname.
+# Nicht aufgefuehrte Eintraege gelten als aufgeklappt und nutzen das eingebaute Icon.
+
+# Ordner bzw. Gruppe: in Nested der Ordner "jsp" unterhalb von docker/gui,
+# in Default/Sort die Gruppenzeile "docker/gui/jsp".
+docker/gui/jsp:
+  icon: smile.svg
+
+# Einzelner Task - hier greift der Taskname als Schluessel.
+printGroup-docker-server-gui:
+  icon: smile.svg

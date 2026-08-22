@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
  * `GradleTaskViewSettings` benoetigt keinen Platform-Container fuer die reine
  * Zustandslogik (kein Zugriff auf `Project` im Konstruktor) und kann daher
  * direkt instanziiert werden. Der Expand/Collapse-Zustand wird separat ueber
- * [GradleTasksExpandConfigStore]/[GroupExpandYaml] verwaltet und dort getestet.
+ * [GradleTasksViewConfigStore]/[GroupExpandYaml] verwaltet und dort getestet.
  */
 class GradleTaskViewSettingsTest {
 

@@ -14,7 +14,7 @@ import de.example.gradletasksview.model.GradleTaskViewMode
  * als Application-Level-Singleton implementieren.
  *
  * Der Expand/Collapse-Zustand selbst wird nicht mehr hier, sondern dateibasiert ueber
- * [GradleTasksExpandConfigStore] verwaltet (`default.yaml`/`custom.yaml`).
+ * [GradleTasksViewConfigStore] verwaltet (`default.yaml`/`custom.yaml`).
  */
 @State(
     name = "GradleTasksViewSettings",

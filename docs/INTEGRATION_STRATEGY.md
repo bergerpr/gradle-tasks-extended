@@ -143,14 +143,14 @@ nur die Jars von "Gradle for Java" auf den Compile-Classpath legt, nicht die der
   entweder Tasks gefunden werden oder die Versuche aufgebraucht sind - pragmatischer Ansatz,
   der ohne exaktes Wissen ueber den tatsaechlichen Bereitschafts-Zeitpunkt auskommt.
 
-## YAML-basierte Expand/Collapse-Konfiguration (Erweiterung ueber Plan.md hinaus)
+## YAML-basierte Ansichtskonfiguration (Erweiterung ueber Plan.md hinaus)
 
 Auf expliziten Wunsch wurde eine zweistufige, dateibasierte Konfiguration des
 Expand/Collapse-Zustands ergaenzt (nicht Teil des urspruenglichen Plans):
 
 - `<Projektwurzel>/gradle/gradle_tasks_extended/default.yaml`: Team-weite, versionierbare
   Vorgabe. Wird nur angelegt, wenn sie noch nicht existiert (Existenzpruefung via
-  `File.exists()` in `GroupExpandYaml.createStarterIfMissing`) - eine bereits vorhandene
+  `File.exists()` in `TaskViewConfigYaml.createStarterIfMissing`) - eine bereits vorhandene
   Datei wird nie ueberschrieben.
 - `<Projektwurzel>/gradle/gradle_tasks_extended/custom.yaml`: Persoenliche Abweichungen,
   entstehen automatisch beim manuellen Auf-/Zuklappen. Hat Vorrang vor `default.yaml`.
@@ -173,6 +173,40 @@ Expand/Collapse-Zustands ergaenzt (nicht Teil des urspruenglichen Plans):
   unabhaengig vom Modus ueber `GroupHeaderNodeData.groupPath` (Default/Sort) bzw.
   `FolderNodeData.folder.fullPath` (Nested) - beides derselbe von Menschen lesbare,
   Slash-getrennte Pfad wie in den YAML-Dateien.
+
+### Eigene Icons pro Eintrag
+
+Das Format wurde spaeter um eigene Icons erweitert, ohne die bestehende Kurzform zu brechen:
+Ein Wert darf weiterhin ein blosser Boolean sein oder eine Abbildung mit den optionalen
+Schluesseln `expanded` und `icon`. `icon` ist ein Dateiname relativ zu
+`gradle/gradle_tasks_extended/icons/` und ersetzt das eingebaute Plugin-Icon.
+
+Bemerkenswert an der Umsetzung:
+
+- **Tasks kommen neu in den Schluesselraum.** Bisher enthielten die Dateien nur Gruppen-/
+  Ordnerpfade, da nur Container einen Expand-Zustand haben. Icons gibt es auch fuer Tasks,
+  Schluessel ist dort der `taskName`. Eine Kollision zwischen Gruppenpfad und Taskname ist
+  unkritisch, weil jeder Knotentyp beim Rendern ausschliesslich seinen eigenen Schluessel
+  nachschlaegt. Gleichnamige Tasks in mehreren Subprojekten bekommen allerdings dasselbe
+  Icon - fuer eine Icon-Zuordnung bewusst in Kauf genommen, im Gegensatz zur `stableId`,
+  die fuer Selektion und Persistenz zwingend eindeutig sein muss.
+- **Dark-Variante muss selbst aufgeloest werden.** Bei Icons aus dem Klassenpfad waehlt die
+  Plattform `*_dark.svg` automatisch; bei Dateien aus dem Projektverzeichnis
+  (`IconLoader.findIcon(URL)`) tut sie das nicht. `GradleTasksViewConfigStore` prueft daher
+  ueber `JBColor.isBright()` selbst auf eine Geschwisterdatei `<name>_dark.<ext>`. Der
+  Icon-Zwischenspeicher enthaelt die Theme-Helligkeit im Schluessel, damit ein
+  Theme-Wechsel zur Laufzeit nicht die falsche Variante weiterverwendet.
+- **Systemgrenze bleibt Systemgrenze.** Die Dateien werden von Hand gepflegt und koennen aus
+  einem geteilten Repository stammen: Eintraege, die aus dem Icon-Verzeichnis herausfuehren
+  (`../..`), werden abgelehnt, fehlende Dateien fuehren zu einer Warnung und dem eingebauten
+  Rueckfall-Icon statt zu einer leeren Zeile.
+- **`setExpanded` darf Icons nicht verlieren.** Beim automatischen Schreiben von
+  `custom.yaml` wird der vorhandene Eintrag kopiert und nur `expanded` gesetzt; Eintraege
+  ohne Icon werden weiterhin in der Kurzform `pfad: true|false` geschrieben, damit die Datei
+  von Hand lesbar bleibt.
+- **Handaenderungen wirken ohne IDE-Neustart.** `reloadIfChanged()` vergleicht die
+  Zeitstempel beider Dateien und liest nur bei echter Aenderung neu ein; aufgerufen wird es
+  zu Beginn von `GradleTaskViewRefresher.doRefresh()`.
 
 ## Manuelles Testen in der Sandbox (`./gradlew runIde`)
 
