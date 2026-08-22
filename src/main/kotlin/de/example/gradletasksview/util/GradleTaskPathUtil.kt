@@ -5,7 +5,7 @@ import de.example.gradletasksview.model.UNNAMED_GROUP_DISPLAY_NAME
 /**
  * Zerlegt einen Gradle-Task-Gruppennamen in normalisierte Pfadsegmente.
  *
- * Regeln (siehe Plan.md, "Zu klärende Produktdetails"):
+ * Regeln (siehe REQ-021 und REQ-022):
  * - `/` ist der einzige Separator.
  * - Fuehrende, folgende und doppelte `/` werden entfernt bzw. zusammengefasst,
  *   leere Segmente werden ignoriert.

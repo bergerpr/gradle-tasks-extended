@@ -29,7 +29,7 @@ import javax.swing.tree.DefaultTreeModel
  * Eigener `JTree` fuer die Gradle-Task-Ansicht. Baut auf `com.intellij.ui.treeStructure.Tree`
  * auf (Standard-Basisklasse fuer IntelliJ-Trees) und bildet Doppelklick-Ausfuehrung,
  * Kontextmenue-Datenversorgung und Copy selbst nach, statt eine fremde View-Instanz
- * zu delegieren (Weg B, siehe Plan.md "Architekturentscheidung").
+ * zu delegieren (siehe ADR-001).
  */
 class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(DefaultMutableTreeNode())), UiDataProvider {
 
@@ -41,7 +41,7 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
      * Wird bei jeder Aenderung des SpeedSearch-Suchtexts aufgerufen. `TreeSpeedSearch`
      * selbst blendet keine Knoten aus (es navigiert nur zum naechsten Treffer) - die
      * eigentliche Filterung erfolgt datengetrieben im [GradleTaskViewRefresher] vor dem
-     * Aufbau von Sort/Nested (siehe Plan.md, Abschnitt "Filterung").
+     * Aufbau von Sort/Nested (siehe REQ-013).
      */
     var onFilterTextChanged: (String) -> Unit = {}
 
@@ -84,7 +84,7 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         // verifiziert: direkt nach `setCellRenderer(...)` steht dort noch `NodeRenderer`,
         // nach `updateUI()` der eigene Renderer. Das war die eigentliche Ursache des lange
         // als "Icons werden nicht gezeichnet" dokumentierten Problems - siehe
-        // docs/INTEGRATION_STRATEGY.md, Abschnitt "Tree-Row-Icons".
+        // ADR-005.
         updateUI()
         val speedSearch = GradleTasksSpeedSearch.installOn(this)
         var lastKnownFilterText = ""

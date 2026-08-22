@@ -10,7 +10,7 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
 /**
  * Liest bereits importierte Gradle-Task-Daten aus dem ExternalSystem-Datenmodell.
  * Loest keinen eigenen Gradle-Sync aus und greift nicht auf interne
- * View-Rendering-Klassen zu (Weg B, siehe Plan.md "Architekturentscheidung").
+ * View-Rendering-Klassen zu (siehe REQ-020, REQ-052 und ADR-001).
  *
  * Muss unter [com.intellij.openapi.application.readAction] aufgerufen werden, da
  * [ProjectDataManager] und [com.intellij.openapi.externalSystem.model.DataNode]
@@ -38,7 +38,7 @@ class GradleTaskDataProvider(private val project: Project) {
 
     private fun toDescriptor(data: TaskData): GradleTaskDescriptor {
         // gradleProjectPath ist aktuell mit externalProjectPath identisch - siehe
-        // docs/INTEGRATION_STRATEGY.md, Abschnitt "Bekannte Risiken", fuer die
+        // OPEN-001 fuer die
         // noch ausstehende Verfeinerung anhand des Eltern-ModuleData-Knotens.
         val externalProjectPath = data.linkedExternalProjectPath
         val gradleProjectPath = data.linkedExternalProjectPath

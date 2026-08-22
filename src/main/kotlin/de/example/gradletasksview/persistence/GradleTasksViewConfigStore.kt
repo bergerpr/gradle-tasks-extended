@@ -30,7 +30,7 @@ import javax.swing.Icon
  * (aufgeklappt bzw. Plugin-Icon).
  *
  * `Service.Level.PROJECT`, da die Konfigurationsdateien projektbezogen sind (siehe
- * Plan.md, Abschnitt "Edge Cases" zu mehreren offenen Projekten).
+ * REQ-042 zu mehreren offenen Projekten).
  */
 @Service(Service.Level.PROJECT)
 class GradleTasksViewConfigStore(private val project: Project, private val cs: CoroutineScope) {

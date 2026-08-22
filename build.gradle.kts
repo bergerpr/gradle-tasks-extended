@@ -34,10 +34,10 @@ dependencies {
         // Hinweis: Die im urspruenglichen Plan angenommene ID "org.jetbrains.plugins.gradle"
         // bezeichnet in aktuellen Plattformversionen nur noch das optionale "Gradle for Java"-
         // Sub-Plugin. Die Basis-Gradle-Integration (u. a. GradleConstants, Sync-Datenmodell)
-        // wurde unter der ID "com.intellij.gradle" ausgelagert - siehe docs/INTEGRATION_STRATEGY.md.
+        // wurde unter der ID "com.intellij.gradle" ausgelagert - siehe ADR-002.
         bundledPlugin("com.intellij.gradle")
         // Bewusst KEIN testFramework(TestFrameworkType.Platform) hier: die bisherigen Tests
-        // sind reine Modelllogik-Unit-Tests ohne Platform-Testframework (siehe Plan.md,
+        // sind reine Modelllogik-Unit-Tests ohne Platform-Testframework (siehe REQ-060,
         // Abschnitt "Testing"). testFramework(Platform) zieht einen JUnit5-Launcher-Listener
         // der IDE-Sandbox nach sich, der ohne vorbereitete Sandbox fehlschlaegt. Sobald die
         // Integrationstests mit BasePlatformTestCase (Plan-Implementierungsschritt 16)
@@ -90,7 +90,7 @@ tasks {
 }
 
 // Test-/Demo-Tasks, um Sort- und Nested-Modus mit dem Gruppenpfad-Beispiel aus
-// Plan.md (Abschnitt "Nested") gegen ein echtes, importiertes Gradle-Projekt
+// REQ-004 (Nested-Modus) gegen ein echtes, importiertes Gradle-Projekt
 // auszuprobieren. Jeder Task gibt beim Ausfuehren lediglich seine eigene Gruppe aus.
 listOf(
     "docker/gui",

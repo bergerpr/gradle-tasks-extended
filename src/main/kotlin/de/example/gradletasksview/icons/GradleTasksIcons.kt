@@ -11,7 +11,7 @@ import javax.swing.Icon
  * aus `AllIcons`/`ExternalSystemIcons`.
  *
  * Hintergrund: Die frueher verwendeten Plattform-Icons wurden im Baum nicht sichtbar
- * gezeichnet (siehe docs/INTEGRATION_STRATEGY.md). Eigene Ressourcen haben zwei Vorteile:
+ * gezeichnet (siehe ADR-005). Eigene Ressourcen haben zwei Vorteile:
  * Sie liegen im Klassenlader des Plugins selbst (kein Zugriff ueber Modulgrenzen hinweg,
  * die sich zwischen Plattformversionen verschieben koennen), und ein fehlendes bzw. nicht
  * aufloesbares Icon laesst sich hier eindeutig von einem korrekt geladenen unterscheiden -

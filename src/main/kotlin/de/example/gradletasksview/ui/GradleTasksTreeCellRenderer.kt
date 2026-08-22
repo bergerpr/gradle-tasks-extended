@@ -15,7 +15,7 @@ import javax.swing.tree.DefaultMutableTreeNode
  * welchem Plattformmodul ein Icon gerade ausgeliefert wird, noch davon, ob eine
  * `AllIcons`-Konstante in der jeweiligen IDE-Version noch auf eine existierende Ressource
  * zeigt - beides hatte sich beim Nachstellen der originalen Gradle-Ansicht als
- * unzuverlaessig erwiesen (siehe docs/INTEGRATION_STRATEGY.md, "Tree-Row-Icons").
+ * unzuverlaessig erwiesen (siehe ADR-004 und ADR-005).
  *
  * Vorrang hat jedoch ein in `default.yaml`/`custom.yaml` konfiguriertes eigenes Icon
  * ([GradleTasksViewConfigStore.iconFor]); die eingebauten Icons sind nur der Rueckfall.

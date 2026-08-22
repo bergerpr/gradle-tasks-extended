@@ -13,7 +13,7 @@
     <depends>com.intellij.modules.platform</depends>
     <!-- "com.intellij.gradle" ist die aktuelle Plugin-ID der Basis-Gradle-Integration
          (frueher/im Plan als "org.jetbrains.plugins.gradle" bezeichnet - diese ID gehoert
-         inzwischen zum optionalen "Gradle for Java"-Sub-Plugin). Siehe docs/INTEGRATION_STRATEGY.md. -->
+         inzwischen zum optionalen "Gradle for Java"-Sub-Plugin). Siehe ADR-002. -->
     <depends>com.intellij.gradle</depends>
 
     <resource-bundle>messages.GradleTasksViewBundle</resource-bundle>

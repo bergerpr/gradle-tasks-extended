@@ -57,7 +57,7 @@ object GradleTasksTreeModelBuilder {
 
     private fun buildFolderNode(folder: NestedFolderNode): DefaultMutableTreeNode {
         val node = DefaultMutableTreeNode(FolderNodeData(folder))
-        // Tasks stehen in jedem Ordner vor Unterordnern (siehe Plan.md, Abschnitt "Nested").
+        // Tasks stehen in jedem Ordner vor Unterordnern (siehe REQ-004).
         folder.childrenTasks.forEach { task -> node.add(DefaultMutableTreeNode(TaskNodeData(task))) }
         folder.childrenFolders.values.forEach { child -> node.add(buildFolderNode(child)) }
         return node

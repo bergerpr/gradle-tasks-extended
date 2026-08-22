@@ -18,7 +18,7 @@ import javax.swing.JPanel
 
 /**
  * Wurzel-Panel der eigenen ToolWindow-Ansicht: Toolbar mit dem Modus-Dropdown
- * (siehe Plan.md, Abschnitt "Toolbar-Dropdown") ueber dem eigenen [GradleTasksTree].
+ * (siehe REQ-001) ueber dem eigenen [GradleTasksTree].
  */
 class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
 

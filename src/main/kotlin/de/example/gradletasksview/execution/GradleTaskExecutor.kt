@@ -13,7 +13,7 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
  * niemals ueber eigene Prozessausfuehrung. Nutzt die aktuelle, nicht veraltete
  * [TaskExecutionSpec]-API statt der als `@ApiStatus.Obsolete` markierten
  * `ExternalSystemUtil.runTask(settings, executorId, project, systemId)`-Ueberladung
- * (siehe docs/INTEGRATION_STRATEGY.md).
+ * (siehe ADR-006).
  */
 class GradleTaskExecutor(private val project: Project) {
 

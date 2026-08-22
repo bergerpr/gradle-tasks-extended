@@ -7,7 +7,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 
 /**
- * Eigenstaendige ToolWindow-Ansicht ("Weg B" aus Plan.md) statt Erweiterung der
+ * Eigenstaendige ToolWindow-Ansicht (siehe ADR-001) statt Erweiterung der
  * internen Gradle-View. Registriert in `plugin.xml` unter der `id`
  * `GradleTasksExtended`.
  */

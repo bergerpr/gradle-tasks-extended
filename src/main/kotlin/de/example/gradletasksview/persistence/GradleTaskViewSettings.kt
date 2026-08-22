@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import de.example.gradletasksview.model.GradleTaskViewMode
 
 /**
- * Projektbezogene Persistenz der Modusauswahl (siehe Plan.md, Abschnitt "Persistenz").
+ * Projektbezogene Persistenz der Modusauswahl (siehe REQ-040).
  * `Service.Level.PROJECT`, da Gradle-Gruppenstrukturen projektspezifisch sind - niemals
  * als Application-Level-Singleton implementieren.
  *

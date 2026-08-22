@@ -12,7 +12,7 @@ import java.awt.datatransfer.StringSelection
 
 /**
  * Nachgebaute Kontextmenue-Aktionen fuer die eigene [GradleTasksTree]
- * (siehe Plan.md, Abschnitt "Erhalt der bestehenden Funktionen"). Alle Aktionen
+ * (siehe REQ-011 und ADR-001). Alle Aktionen
  * lesen die Selektion direkt vom Tree, statt an eine fremde Action-Instanz zu delegieren.
  */
 private fun AnActionEvent.tree(): GradleTasksTree? =

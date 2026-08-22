@@ -9,13 +9,16 @@ a standalone ToolWindow for browsing/running Gradle tasks, with three view modes
 order), `Sort` (alphabetical), and `Nested` (folder hierarchy built from slash-separated task groups, e.g.
 `docker/gui/react`).
 
-- `Plan.md` is the full original spec (German). It describes the target behavior for all three modes,
-  data model, persistence rules, and acceptance criteria in detail — consult it for behavioral questions
-  ("what should happen when...") before guessing.
-- `docs/INTEGRATION_STRATEGY.md` documents verified platform APIs, corrections vs. `Plan.md` (notably the
-  `com.intellij.gradle` vs `org.jetbrains.plugins.gradle` plugin ID mixup), root-caused bugs from manual
-  test sessions, and currently known/unresolved issues (e.g. tree row icons not rendering in the sandbox).
-  Check it before re-investigating something that may already be diagnosed there.
+- **Knowledge base — start here for behavioral questions** ("what should happen when..."):
+  `docs/requirements/` holds one small file per **implemented** requirement, `docs/decisions/` one per
+  architectural decision, and `backlog/` (repo root, deliberately outside `docs/`) one per open item.
+  Every file carries YAML frontmatter, so grep the frontmatter instead of reading the catalogue:
+  `grep -l "kategorie: persistenz" docs/requirements/*.md`, `grep -rl "<file>.kt" docs/`,
+  `grep -h "^titel:" backlog/*.md`. Field reference and further recipes: `docs/SCHEMA.md`.
+  Everything under `docs/` describes the current state and is true; nothing there is aspirational.
+- Verified platform APIs, root-caused bugs from manual test sessions, and every deliberate deviation from
+  the original spec live in `docs/decisions/` — check there before re-investigating something that may
+  already be diagnosed (`grep -rl "<file>.kt" docs/decisions/`).
 - `docs/INSTALLATION.md` covers local "Install Plugin from Disk" installation (no Marketplace signing/
   publishing flow exists in this project).
 
@@ -103,7 +106,7 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
   `@ApiStatus.Obsolete` 4-parameter overload, and never a hand-rolled process/command-line invocation).
 - `util/` — path/tree helpers (`GradleTaskPathUtil`, `TreePathUtil`).
 
-### Key invariants (see `Plan.md`, "Hinweise für die umsetzende KI")
+### Key invariants (see `docs/decisions/`)
 
 - **No Gradle sync is ever triggered by this plugin.** Task data comes only from already-imported project
   data via `ProjectDataManager.getExternalProjectsData(...)` / `DataNode<ProjectData>` traversal
@@ -121,7 +124,7 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
   APIs (coroutines, IntelliJ Platform Gradle Plugin 2.x), not legacy equivalents.
 - No Marketplace-related work (signing, product code, obfuscation) is in scope.
 
-### YAML view config (extension beyond `Plan.md`)
+### YAML view config (REQ-070, REQ-071, ADR-003)
 
 Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering both the
 expand/collapse state and per-node custom icons:
@@ -161,10 +164,24 @@ The base Gradle integration (`GradleConstants` etc., package `org.jetbrains.plug
 ships under plugin ID **`com.intellij.gradle`**, not `org.jetbrains.plugins.gradle` — that ID now belongs
 only to the optional "Gradle for Java" sub-plugin. Both `build.gradle.kts` (`bundledPlugin(...)`) and
 `plugin.xml` (`<depends>`) must reference `com.intellij.gradle`. See
-`docs/INTEGRATION_STRATEGY.md` for the full explanation if this ever needs re-verifying against a newer
+`docs/decisions/ADR-002-*.md` for the full explanation if this ever needs re-verifying against a newer
 platform version.
 
 ## Testing notes
+
+### Manual sandbox runs (`./gradlew runIde`)
+
+The project-local **personal** config may be reset or deleted freely while testing — no need to back it
+up and restore it around a sandbox run; just mention the change in the result. That covers
+`.idea/gradleTasksView.xml` (the persisted view mode, which has to be changed anyway to verify all three
+modes) and `gradle/gradle_tasks_extended/custom.yaml` (personal expand/collapse overrides, rewritten on
+the next manual expand). Backing them up is not even reliable: a running sandbox IDE rewrites or removes
+`.idea/gradleTasksView.xml` on exit. Excluded is `gradle/gradle_tasks_extended/default.yaml` — the
+team-wide, version-controlled default the plugin never overwrites.
+
+A still-running sandbox IDE keeps `snakeyaml-2.6.jar` locked inside the sandbox `plugins/` directory,
+which makes `prepareSandbox` — and with it `buildPlugin` and `runIde` — fail with a copy error. Kill the
+previous sandbox process before rebuilding.
 
 - Existing tests in `src/test/kotlin/` are pure model-logic unit tests (JUnit 5 / kotlin-test), with no
   IntelliJ Platform test framework dependency — deliberately, since `testFramework(TestFrameworkType.Platform)`

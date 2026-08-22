@@ -7,7 +7,7 @@ import javax.swing.tree.DefaultMutableTreeNode
 /**
  * Filterung ueber `TreeSpeedSearch`, matched gegen `taskName` bzw. den
  * Anzeigenamen von Gruppen-/Ordnerknoten. Wird auf dem eigenen `JTree`
- * installiert (siehe Plan.md, Abschnitt "Erhalt der bestehenden Funktionen").
+ * installiert (siehe REQ-013).
  */
 object GradleTasksSpeedSearch {
 

@@ -7,7 +7,7 @@ import de.example.gradletasksview.ui.GradleTaskViewRefresher
 
 /**
  * Erzeugt [GradleTaskViewRefresher] bereits beim Oeffnen des Projekts (siehe
- * Plan.md, Abschnitt "Refresh-Strategie", Trigger "Projekt wird geoeffnet"),
+ * REQ-032, Ausloeser "Projekt wird geoeffnet"),
  * damit der Reimport-Listener auch dann aktiv ist, wenn das ToolWindow noch
  * nicht sichtbar war.
  */

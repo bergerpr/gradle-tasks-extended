@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
- * Deckt das Plan.md-Beispiel aus Abschnitt "Testing" ab:
+ * Deckt das Beispiel aus REQ-004 ab:
  *
  * ```
  * docker/gui -> build-all-gui

@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
  * Orchestriert das Laden, Filtern und Neuaufbauen der Gradle-Task-Ansicht.
  * `Service.Level.PROJECT`: jedes Projektfenster hat eine eigene Instanz und einen
  * eigenen [tree]/State - niemals als Application-Level-Singleton mit
- * projektuebergreifendem State implementieren (siehe Plan.md, Abschnitt "Edge Cases").
+ * projektuebergreifendem State implementieren (siehe REQ-042).
  *
  * Der Konstruktorparameter [cs] wird von der Plattform automatisch mit einem
  * projekt-gebundenen `CoroutineScope` injiziert (Standardmechanismus fuer
@@ -78,7 +78,7 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
     }
 
     /**
-     * Debounced Rebuild (siehe Plan.md, Abschnitt "Performance bei großen Projekten"):
+     * Debounced Rebuild (siehe REQ-031):
      * ein neu gestarteter Refresh bricht einen vorherigen, noch wartenden Refresh ab,
      * statt bei jedem einzelnen Event einen vollstaendigen Rebuild auszuloesen.
      */

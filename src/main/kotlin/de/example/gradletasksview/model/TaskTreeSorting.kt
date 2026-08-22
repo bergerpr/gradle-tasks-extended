@@ -12,7 +12,7 @@ val caseInsensitiveStableComparator: Comparator<String> =
 /**
  * Ordner mit dem Namen [UNNAMED_GROUP_DISPLAY_NAME] werden immer als letztes
  * einsortiert, unabhaengig von der alphabetischen Reihenfolge der uebrigen
- * Eintraege (siehe Plan.md, "Zu klärende Produktdetails").
+ * Eintraege (siehe REQ-022 und REQ-023).
  */
 private fun otherLastThen(comparator: Comparator<String>): Comparator<String> =
     Comparator { a, b ->
