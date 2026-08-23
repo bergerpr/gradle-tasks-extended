@@ -50,6 +50,14 @@ laesst es sich einpassen, auf Originalgroesse stellen und stufenlos zoomen, mit 
 und dem Mausrad (ohne Zusatztaste, denn im Bildbetrachter ist Zoomen die haeufigere Absicht als
 Blaettern; zum Verschieben gibt es die Leisten des Bildlaufs).
 
+Weitergeblaettert wird auch dort, mit zwei Pfeilen und den Pfeiltasten - und zwar **unter
+Beibehaltung des Zoomfaktors**: Zwei Screenshots derselben Stelle lassen sich nur vergleichen,
+wenn sie gleich gross bleiben, deshalb wird beim Wechsel nur das Bild getauscht. Der Titel
+fuehrt Bildunterschrift und Zaehler; bei einem einzigen Bild bleiben die Pfeile sichtbar, aber
+ausgegraut. Die Tastenkuerzel haengen an der Wurzelkomponente des Fensters und werden erst
+nach `init()` registriert - vorher gibt es sie nicht - und ueber dessen `disposable` wieder
+abgemeldet.
+
 Das Fenster ist **nicht modal**, sodass der Info-Dialog daneben bedienbar bleibt, und merkt
 sich seine Groesse unter einem eigenen Dimensionsschluessel. Der Zoombereich ist auf das
 Zehnfache nach unten und das Achtfache nach oben begrenzt; beim Oeffnen wird eingepasst, aber

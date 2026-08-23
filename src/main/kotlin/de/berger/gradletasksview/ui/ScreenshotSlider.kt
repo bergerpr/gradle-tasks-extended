@@ -122,9 +122,10 @@ class ScreenshotSlider(
         add(caption, BorderLayout.SOUTH)
     }
 
+    /** Uebergibt die ganze Strecke, damit sich im grossen Fenster weiterblaettern laesst. */
     private fun openViewer() {
-        val (shot, image) = slides.getOrNull(index) ?: return
-        ScreenshotViewerDialog(project, shot, image).show()
+        if (slides.isEmpty()) return
+        ScreenshotViewerDialog(project, slides, index).show()
     }
 
     /** Blaettert zyklisch - am Ende geht es vorne weiter, das erspart das Deaktivieren der Schalter. */

@@ -142,5 +142,7 @@ Unit-Tests gibt es dafuer nicht:
 - Ein Klick auf ein Bild oeffnet es gross; Einpassen, Originalgroesse, die beiden Zoomschalter
   und das Mausrad wirken, und der Info-Dialog dahinter bleibt bedienbar.
 - Das Betrachterfenster merkt sich seine Groesse ueber ein erneutes Oeffnen hinweg.
+- Im Betrachter blaettern Pfeile und Pfeiltasten weiter, ohne den Zoomfaktor zu aendern; der
+  Titel zaehlt mit, und das Fenster oeffnet bei dem Bild, das die Bildstrecke gerade zeigt.
 - Am seitlichen Streifen steht der Elefant statt des alten Baumsymbols, in hellem und dunklem
   Theme erkennbar und auf einem hochaufloesenden Bildschirm scharf.
