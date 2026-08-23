@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>de.example.gradletasksview</id>
+    <id>de.berger.gradletasksview</id>
     <name>Gradle Tasks Extended</name>
     <vendor>Privat</vendor>
 
@@ -21,14 +21,14 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="GradleTasksExtended"
-                    factoryClass="de.example.gradletasksview.toolwindow.GradleTasksExtendedToolWindowFactory"
+                    factoryClass="de.berger.gradletasksview.toolwindow.GradleTasksExtendedToolWindowFactory"
                     anchor="right"
                     icon="/icons/gradleTasksToolWindow.svg"/>
 
         <!-- GradleTaskViewSettings und GradleTaskViewRefresher sind ueber @Service(Service.Level.PROJECT)
              bereits als "Light Services" registriert und werden hier bewusst NICHT zusaetzlich
              als projectService deklariert (das wuerde zu einer Doppelregistrierung fuehren). -->
-        <postStartupActivity implementation="de.example.gradletasksview.toolwindow.GradleTasksExtendedStartupActivity"/>
+        <postStartupActivity implementation="de.berger.gradletasksview.toolwindow.GradleTasksExtendedStartupActivity"/>
     </extensions>
 
     <actions>
@@ -36,25 +36,25 @@
             <!-- Run, Debug, Run with Coverage: dynamisch aus den registrierten Executors,
                  als Kontext-Aktionen der Plattform (REQ-079, ADR-022). -->
             <group id="GradleTasksExtended.RunActions"
-                   class="de.example.gradletasksview.actions.GradleTaskRunActionGroup"/>
+                   class="de.berger.gradletasksview.actions.GradleTaskRunActionGroup"/>
             <!-- "Modify Run Configuration ..." bzw. "Create ...", dieselbe Aktion wie im
                  Kontextmenue der originalen Gradle-Ansicht. -->
             <reference ref="ExternalSystem.CreateRunConfiguration"/>
             <separator/>
             <action id="GradleTasksExtended.CopyTaskName"
-                    class="de.example.gradletasksview.actions.GradleTaskCopyNameAction"/>
+                    class="de.berger.gradletasksview.actions.GradleTaskCopyNameAction"/>
             <action id="GradleTasksExtended.CopyTaskPath"
-                    class="de.example.gradletasksview.actions.GradleTaskCopyPathAction"/>
+                    class="de.berger.gradletasksview.actions.GradleTaskCopyPathAction"/>
             <action id="GradleTasksExtended.CopyFolderPath"
-                    class="de.example.gradletasksview.actions.GradleTaskCopyFolderPathAction"/>
+                    class="de.berger.gradletasksview.actions.GradleTaskCopyFolderPathAction"/>
             <separator/>
             <action id="GradleTasksExtended.ToggleHidden"
-                    class="de.example.gradletasksview.actions.GradleTaskToggleHiddenAction"/>
+                    class="de.berger.gradletasksview.actions.GradleTaskToggleHiddenAction"/>
             <separator/>
             <action id="GradleTasksExtended.ExpandAll"
-                    class="de.example.gradletasksview.actions.GradleTaskExpandAllAction"/>
+                    class="de.berger.gradletasksview.actions.GradleTaskExpandAllAction"/>
             <action id="GradleTasksExtended.CollapseAll"
-                    class="de.example.gradletasksview.actions.GradleTaskCollapseAllAction"/>
+                    class="de.berger.gradletasksview.actions.GradleTaskCollapseAllAction"/>
         </group>
     </actions>
 </idea-plugin>

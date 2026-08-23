@@ -2,7 +2,7 @@
 id: ADR-007
 titel: Keine UI-Automatisierung
 betrifft:
-  - src/test/kotlin/de/example/gradletasksview/
+  - src/test/kotlin/de/berger/gradletasksview/
 quelle: Plan.md, Abschnitt "UI-Automatisierung - bewusste Entscheidung"
 ---
 

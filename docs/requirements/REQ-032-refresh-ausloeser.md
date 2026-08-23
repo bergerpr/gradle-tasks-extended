@@ -4,9 +4,9 @@ titel: Refresh-Ausloeser
 kategorie: plattform
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
-  - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedStartupActivity.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/toolwindow/GradleTasksExtendedStartupActivity.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Plan.md, Abschnitt "Refresh-Strategie / Trigger"
 ---
 

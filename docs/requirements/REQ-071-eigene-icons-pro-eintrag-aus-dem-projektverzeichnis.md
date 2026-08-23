@@ -4,9 +4,9 @@ titel: Eigene Icons pro Eintrag aus dem Projektverzeichnis
 kategorie: darstellung
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigYaml.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
 quelle: Erweiterung ueber Plan.md hinaus
 ---
 

@@ -2,7 +2,7 @@
 id: ADR-009
 titel: UiDataProvider statt DataProvider
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Folge aus ADR-008
 ---
 

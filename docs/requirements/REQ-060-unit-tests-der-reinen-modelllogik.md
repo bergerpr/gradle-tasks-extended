@@ -4,7 +4,7 @@ titel: Unit-Tests der reinen Modelllogik
 kategorie: test
 verifiziert: unit
 betrifft:
-  - src/test/kotlin/de/example/gradletasksview/
+  - src/test/kotlin/de/berger/gradletasksview/
 quelle: Plan.md, Abschnitt "Unit Tests"
 ---
 

@@ -2,9 +2,9 @@
 id: ADR-004
 titel: Plugin-eigene Icons statt AllIcons und ExternalSystemIcons
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/icons/GradleTasksIcons.kt
+  - src/main/kotlin/de/berger/gradletasksview/icons/GradleTasksIcons.kt
   - src/main/resources/icons/
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
 ersetzt_vorgabe: Plan.md gab AllIcons.Nodes.Folder vor
 quelle: Erweiterung ueber Plan.md hinaus
 ---

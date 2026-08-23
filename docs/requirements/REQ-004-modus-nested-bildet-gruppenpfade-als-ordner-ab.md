@@ -4,10 +4,10 @@ titel: Modus Nested bildet Gruppenpfade als Ordner ab
 kategorie: modi
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/TaskTreeBuilder.kt
-  - src/main/kotlin/de/example/gradletasksview/model/NestedFolderNode.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/TaskTreeBuilder.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/NestedFolderNode.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
 quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---
 

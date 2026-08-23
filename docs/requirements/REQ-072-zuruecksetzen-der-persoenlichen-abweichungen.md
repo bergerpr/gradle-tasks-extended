@@ -4,8 +4,8 @@ titel: Zuruecksetzen der persoenlichen Abweichungen
 kategorie: persistenz
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskResetExpandStateAction.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskResetExpandStateAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
 quelle: Erweiterung ueber Plan.md hinaus
 ---
 

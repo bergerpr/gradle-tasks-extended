@@ -4,7 +4,7 @@ titel: Keine eigene Gradle-Synchronisation
 kategorie: daten
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
 quelle: Plan.md, Abschnitt "Datenbeschaffung (Weg B)"
 ---
 

@@ -2,7 +2,7 @@
 id: ADR-006
 titel: Task-Ausfuehrung nur ueber die TaskExecutionSpec-Ueberladung
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
 ersetzt_vorgabe: Plan.md skizzierte die 4-Parameter-Ueberladung
 quelle: Plan.md, Abschnitt "Task-Ausfuehrung", verifiziert gegen 2026.2
 ---

@@ -4,8 +4,8 @@ titel: stableId als einzige Knotenidentitaet
 kategorie: daten
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDescriptor.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDescriptor.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
 quelle: Plan.md, Abschnitt "Datenmodell"
 ---
 

@@ -2,11 +2,11 @@
 id: ADR-020
 titel: Vier Namensraeume im Konfigurationsformat
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfig.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigKey.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/model/NodeVisibility.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfig.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigKey.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigYaml.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/NodeVisibility.kt
 ersetzt_vorgabe: ADR-014 (flacher Schluesselraum), ADR-016 (Vorrang bei Exclude/Include)
 quelle: OPEN-009
 ---

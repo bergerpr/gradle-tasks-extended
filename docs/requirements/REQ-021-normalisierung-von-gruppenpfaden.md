@@ -4,7 +4,7 @@ titel: Normalisierung von Gruppenpfaden
 kategorie: daten
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/util/GradleTaskPathUtil.kt
+  - src/main/kotlin/de/berger/gradletasksview/util/GradleTaskPathUtil.kt
 quelle: Plan.md, "Zu klaerende Produktdetails"
 ---
 

@@ -4,7 +4,7 @@ titel: Selektion ueberlebt einen Rebuild
 kategorie: interaktion
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeStateManager.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeStateManager.kt
 offene_punkte:
   - OPEN-003
 quelle: Plan.md, Akzeptanzkriterien / Funktionserhalt

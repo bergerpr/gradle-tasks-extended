@@ -2,7 +2,7 @@
 id: ADR-019
 titel: Tasks werden modulweise eingesammelt
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
 ersetzt_vorgabe: ADR-015, Abschnitt "Nachschlag ueber den Elternknoten"
 quelle: OPEN-004, manuelle Testsitzung vom 2026-08-23
 ---

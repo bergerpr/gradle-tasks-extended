@@ -4,7 +4,7 @@ titel: Case-insensitive Sortierung mit stabiler Zweitsortierung
 kategorie: daten
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/TaskTreeSorting.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/TaskTreeSorting.kt
 quelle: Plan.md, "Zu klaerende Produktdetails"
 ---
 

@@ -2,8 +2,8 @@
 id: ADR-012
 titel: Rebuild nur bei echter Aenderung des Filtertexts
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeStateManager.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeStateManager.kt
 quelle: Ursachenanalyse aus einer manuellen Testsitzung
 ---
 

@@ -43,7 +43,7 @@ compacted-away intermediate node has no effect (REQ-004).
 
 Run a single test class/method the normal Gradle way, e.g.:
 ```bash
-./gradlew test --tests "de.example.gradletasksview.model.TaskTreeBuilderTest"
+./gradlew test --tests "de.berger.gradletasksview.model.TaskTreeBuilderTest"
 ```
 
 Toolchain: Kotlin, JVM target 25 (the target platform 2026.2 runs on Java 25), target platform
@@ -99,7 +99,7 @@ zero deprecation warnings under `--warning-mode all`.
 
 ## Architecture
 
-Source root: `src/main/kotlin/de/example/gradletasksview/`
+Source root: `src/main/kotlin/de/berger/gradletasksview/`
 
 - `model/` — pure model logic, no platform dependencies: `GradleTaskDescriptor` (normalized task
   representation), `TaskTreeBuilder` (builds sorted groups / nested folder tree), `TaskTreeSorting`,

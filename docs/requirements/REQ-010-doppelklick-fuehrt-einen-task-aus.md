@@ -4,8 +4,8 @@ titel: Doppelklick fuehrt einen Task aus
 kategorie: interaktion
 verifiziert: manuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Plan.md, Abschnitt "Task-Ausfuehrung (Doppelklick)"
 ---
 

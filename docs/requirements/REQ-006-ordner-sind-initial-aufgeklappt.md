@@ -4,8 +4,8 @@ titel: Ordner sind initial aufgeklappt
 kategorie: darstellung
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeStateManager.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeStateManager.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
 quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---
 

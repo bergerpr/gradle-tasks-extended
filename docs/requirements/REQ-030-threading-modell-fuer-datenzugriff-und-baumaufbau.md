@@ -4,8 +4,8 @@ titel: Threading-Modell fuer Datenzugriff und Baumaufbau
 kategorie: plattform
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
 quelle: Plan.md, Abschnitt "Threading"
 ---
 

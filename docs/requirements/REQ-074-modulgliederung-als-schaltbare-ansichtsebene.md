@@ -4,13 +4,13 @@ titel: Modulgliederung als schaltbare Ansichtsebene
 kategorie: modi
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDescriptor.kt
-  - src/main/kotlin/de/example/gradletasksview/model/ModuleTreeNode.kt
-  - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
-  - src/main/kotlin/de/example/gradletasksview/util/GradleModulePathUtil.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDescriptor.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/ModuleTreeNode.kt
+  - src/main/kotlin/de/berger/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
+  - src/main/kotlin/de/berger/gradletasksview/util/GradleModulePathUtil.kt
 quelle: OPEN-005, Abschnitte "Baumform" und "Geforderter Funktionsumfang"; OPEN-007
 ---
 

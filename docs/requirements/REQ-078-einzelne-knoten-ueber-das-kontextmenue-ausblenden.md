@@ -4,12 +4,12 @@ titel: Einzelne Knoten ueber das Kontextmenue ausblenden
 kategorie: interaktion
 verifiziert: konstruktiv
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTasksTreeContextActions.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskShowHiddenToggleAction.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTasksTreeContextActions.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskShowHiddenToggleAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: OPEN-008
 ---
 

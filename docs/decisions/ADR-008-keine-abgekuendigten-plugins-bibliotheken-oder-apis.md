@@ -4,7 +4,7 @@ titel: Keine abgekuendigten Plugins, Bibliotheken oder APIs
 betrifft:
   - gradle/libs.versions.toml
   - build.gradle.kts
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Vorgabe des Projektinhabers
 ---
 

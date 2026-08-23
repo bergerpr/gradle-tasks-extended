@@ -2,9 +2,9 @@
 id: ADR-003
 titel: Expand-Konfiguration als YAML-Dateien fuer alle drei Modi
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigYaml.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
 ersetzt_vorgabe: Plan.md, Abschnitt "Persistenzregeln" (Loeschen beim Wechsel auf Default)
 quelle: Erweiterung ueber Plan.md hinaus
 ---

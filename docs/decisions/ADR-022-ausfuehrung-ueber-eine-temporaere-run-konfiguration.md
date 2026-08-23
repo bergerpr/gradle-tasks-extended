@@ -2,9 +2,9 @@
 id: ADR-022
 titel: Ausfuehrung ueber eine temporaere Run-Konfiguration
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskRunActionGroup.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskRunActionGroup.kt
   - src/main/resources/META-INF/plugin.xml
 ersetzt_vorgabe: ADR-006 (Ausfuehrung ueber ExternalSystemUtil.runTask)
 quelle: REQ-079, verifiziert gegen die Plattform-Jars von 2026.2

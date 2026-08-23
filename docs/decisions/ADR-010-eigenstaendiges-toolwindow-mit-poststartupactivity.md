@@ -3,8 +3,8 @@ id: ADR-010
 titel: Eigenstaendiges ToolWindow mit postStartupActivity
 betrifft:
   - src/main/resources/META-INF/plugin.xml
-  - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedToolWindowFactory.kt
-  - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedStartupActivity.kt
+  - src/main/kotlin/de/berger/gradletasksview/toolwindow/GradleTasksExtendedToolWindowFactory.kt
+  - src/main/kotlin/de/berger/gradletasksview/toolwindow/GradleTasksExtendedStartupActivity.kt
 quelle: Technischer Rechercheauftrag der urspruenglichen Spezifikation
 ---
 

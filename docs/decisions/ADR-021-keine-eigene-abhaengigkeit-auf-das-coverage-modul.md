@@ -4,7 +4,7 @@ titel: Keine eigene Abhaengigkeit auf das Coverage-Modul
 betrifft:
   - build.gradle.kts
   - src/main/resources/META-INF/plugin.xml
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskRunActionGroup.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskRunActionGroup.kt
 quelle: REQ-079
 ---
 

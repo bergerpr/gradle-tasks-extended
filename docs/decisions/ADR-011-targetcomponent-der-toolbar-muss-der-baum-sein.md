@@ -2,8 +2,8 @@
 id: ADR-011
 titel: targetComponent der Toolbar muss der Baum sein
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTasksTreeContextActions.kt
+  - src/main/kotlin/de/berger/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTasksTreeContextActions.kt
 quelle: Ursachenanalyse aus einer manuellen Testsitzung
 ---
 

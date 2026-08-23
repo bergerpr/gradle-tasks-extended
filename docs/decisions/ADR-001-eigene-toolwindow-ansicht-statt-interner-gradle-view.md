@@ -3,8 +3,8 @@ id: ADR-001
 titel: Eigene ToolWindow-Ansicht statt interner Gradle-View
 betrifft:
   - src/main/resources/META-INF/plugin.xml
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
 quelle: Plan.md, Abschnitt "Architekturentscheidung"
 ---
 

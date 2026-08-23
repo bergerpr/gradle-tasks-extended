@@ -2,7 +2,7 @@
 id: ADR-016
 titel: Vorrangreihenfolge bei Exclude und Include
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/ModuleFilter.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/ModuleFilter.kt
 ersetzt_vorgabe: OPEN-005, Abschnitt "Vorrangregeln" (zwei Regeln fuer denselben Gleichstand)
 quelle: OPEN-005, Arbeitspaket AP-4
 ---

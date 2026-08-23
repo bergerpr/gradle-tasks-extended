@@ -2,8 +2,8 @@
 id: ADR-013
 titel: Erster Refresh wird mit steigendem Abstand wiederholt
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Ursachenanalyse aus einer manuellen Testsitzung
 ---
 

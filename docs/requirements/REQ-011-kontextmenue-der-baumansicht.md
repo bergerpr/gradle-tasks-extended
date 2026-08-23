@@ -4,7 +4,7 @@ titel: Kontextmenue der Baumansicht
 kategorie: interaktion
 verifiziert: manuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTasksTreeContextActions.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTasksTreeContextActions.kt
   - src/main/resources/META-INF/plugin.xml
 quelle: Plan.md, Abschnitt "Kontextmenue"
 ---

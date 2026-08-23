@@ -4,7 +4,7 @@ titel: Task-Beschreibung als Tooltip und Zusatztext
 kategorie: darstellung
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
 quelle: Plan.md, Abschnitt "Ziel" (Erhalt der Tooltips)
 ---
 

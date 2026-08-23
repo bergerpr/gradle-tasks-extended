@@ -4,9 +4,9 @@ titel: Mehrere offene Projekte haben unabhaengigen Zustand
 kategorie: persistenz
 verifiziert: konstruktiv
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTaskViewSettings.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTaskViewSettings.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
 offene_punkte:
   - OPEN-004
 quelle: Plan.md, Abschnitt "Edge Cases"

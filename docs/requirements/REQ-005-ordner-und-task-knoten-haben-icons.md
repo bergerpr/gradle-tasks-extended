@@ -4,8 +4,8 @@ titel: Ordner- und Task-Knoten haben Icons
 kategorie: darstellung
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
-  - src/main/kotlin/de/example/gradletasksview/icons/GradleTasksIcons.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/icons/GradleTasksIcons.kt
   - src/main/resources/icons/
 quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---

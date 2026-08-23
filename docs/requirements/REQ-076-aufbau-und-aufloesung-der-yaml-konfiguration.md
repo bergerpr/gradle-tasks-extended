@@ -4,12 +4,12 @@ titel: Aufbau und Aufloesung der YAML-Konfiguration
 kategorie: persistenz
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfig.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigKey.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeNode.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeStateManager.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfig.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigKey.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigYaml.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeNode.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeStateManager.kt
 quelle: OPEN-005, Abschnitte "Ansichtseinstellungen in der YAML" und "Schluesselform mit Modulbezug"; OPEN-009
 ---
 

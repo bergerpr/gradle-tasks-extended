@@ -4,11 +4,11 @@ titel: Modus Default bildet die originale Gradle-Ansicht nach
 kategorie: modi
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeNode.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
-  - src/main/kotlin/de/example/gradletasksview/icons/GradleTasksIcons.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeNode.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/icons/GradleTasksIcons.kt
 quelle: OPEN-007
 ---
 

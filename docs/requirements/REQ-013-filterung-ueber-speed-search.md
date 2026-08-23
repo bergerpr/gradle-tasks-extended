@@ -4,8 +4,8 @@ titel: Filterung ueber Speed-Search
 kategorie: interaktion
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksSpeedSearch.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksSpeedSearch.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
 quelle: Plan.md, Abschnitt "Filterung"
 ---
 

@@ -4,9 +4,9 @@ titel: Tasks ohne Gruppe landen in Other
 kategorie: daten
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/util/GradleTaskPathUtil.kt
-  - src/main/kotlin/de/example/gradletasksview/model/TaskTreeSorting.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDescriptor.kt
+  - src/main/kotlin/de/berger/gradletasksview/util/GradleTaskPathUtil.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/TaskTreeSorting.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDescriptor.kt
 quelle: Plan.md, "Zu klaerende Produktdetails"
 ---
 

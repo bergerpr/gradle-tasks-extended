@@ -2,8 +2,8 @@
 id: ADR-017
 titel: Default zeigt nicht mehr die Originalreihenfolge
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeModelBuilder.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
 ersetzt_vorgabe: Plan.md, Abschnitt "Zielverhalten / Default" (ehemals REQ-002)
 quelle: OPEN-007, Abschnitte "Entschieden" und "Katalog danach"
 ---

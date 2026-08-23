@@ -2,7 +2,7 @@
 id: ADR-005
 titel: updateUI() nach setCellRenderer ist zwingend
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Diagnose an der laufenden Sandbox
 ---
 

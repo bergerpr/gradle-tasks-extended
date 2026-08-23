@@ -2,9 +2,9 @@
 id: ADR-015
 titel: Modulidentitaet aus dem Eltern-ModuleData-Knoten
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDescriptor.kt
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDescriptor.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
 quelle: OPEN-005, Arbeitspaket AP-1
 ---
 

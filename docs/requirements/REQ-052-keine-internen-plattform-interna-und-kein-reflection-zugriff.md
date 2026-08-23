@@ -4,9 +4,9 @@ titel: Keine internen Plattform-Interna und kein Reflection-Zugriff
 kategorie: plattform
 verifiziert: konstruktiv
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Plan.md, Abschnitt "Out of Scope"
 ---
 

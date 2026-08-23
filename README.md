@@ -45,7 +45,7 @@ grep -h "^titel:" backlog/*.md
 ## Projektstruktur
 
 ```text
-src/main/kotlin/de/example/gradletasksview/
+src/main/kotlin/de/berger/gradletasksview/
   toolwindow/   ToolWindowFactory, Panel, Startup-Activity
   actions/      Toolbar-Dropdown, Modulgliederungs-Schalter, Kontextmenue-Aktionen
   model/        Reine Modelllogik (Sortierung, Nested-Baum, Modulbaum, Filter, stableId)

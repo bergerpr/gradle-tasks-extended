@@ -2,8 +2,8 @@
 id: ADR-018
 titel: Taskname statt Taskpfad an die External-System-Settings
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
-  - src/main/kotlin/de/example/gradletasksview/model/GradleTaskDataProvider.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/GradleTaskDataProvider.kt
 ersetzt_vorgabe: ADR-015, Abschnitt "Folge fuer die Ausfuehrung"
 quelle: OPEN-004, manuelle Testsitzung vom 2026-08-23
 ---

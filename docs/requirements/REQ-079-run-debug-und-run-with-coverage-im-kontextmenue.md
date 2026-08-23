@@ -4,9 +4,9 @@ titel: Run, Debug und Run with Coverage im Kontextmenue
 kategorie: interaktion
 verifiziert: manuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskRunActionGroup.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskRunActionGroup.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
   - src/main/resources/META-INF/plugin.xml
 quelle: OPEN-010, Angleichung an die originale Gradle-Ansicht
 ---

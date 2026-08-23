@@ -4,7 +4,7 @@ titel: Refresh ist entprellt
 kategorie: plattform
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
 quelle: Plan.md, Abschnitt "Performance bei grossen Projekten"
 ---
 

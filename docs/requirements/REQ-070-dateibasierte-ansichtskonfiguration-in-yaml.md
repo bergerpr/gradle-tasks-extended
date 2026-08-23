@@ -4,8 +4,8 @@ titel: Dateibasierte Ansichtskonfiguration in YAML
 kategorie: persistenz
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigYaml.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
   - gradle/gradle_tasks_extended/
 quelle: Erweiterung ueber Plan.md hinaus
 ---

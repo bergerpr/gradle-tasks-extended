@@ -4,10 +4,10 @@ titel: Ausblenden von Knoten ueber hidden
 kategorie: daten
 verifiziert: unit
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/model/NodeVisibility.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfig.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/GradleTasksViewConfigStore.kt
-  - src/main/kotlin/de/example/gradletasksview/ui/GradleTaskViewRefresher.kt
+  - src/main/kotlin/de/berger/gradletasksview/model/NodeVisibility.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfig.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTaskViewRefresher.kt
 quelle: OPEN-005, Abschnitte "Vorrangregeln" und "Wirkung und Sichtbarkeit"; OPEN-009
 ---
 

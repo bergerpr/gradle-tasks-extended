@@ -2,9 +2,9 @@
 id: ADR-014
 titel: Format der Modulkonfiguration in der YAML
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfigYaml.kt
-  - src/main/kotlin/de/example/gradletasksview/persistence/TaskViewConfig.kt
-  - src/main/kotlin/de/example/gradletasksview/util/GradleModulePathUtil.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfigYaml.kt
+  - src/main/kotlin/de/berger/gradletasksview/persistence/TaskViewConfig.kt
+  - src/main/kotlin/de/berger/gradletasksview/util/GradleModulePathUtil.kt
 quelle: OPEN-005, Abschnitt "Entschieden"
 ---
 

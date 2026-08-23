@@ -4,10 +4,10 @@ titel: Toolbar-Dropdown mit drei Ansichtsmodi
 kategorie: modi
 verifiziert: visuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskViewModeActionGroup.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskViewModeAction.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
-  - src/main/kotlin/de/example/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskViewModeActionGroup.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskViewModeAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskShowModulesToggleAction.kt
+  - src/main/kotlin/de/berger/gradletasksview/toolwindow/GradleTasksExtendedPanel.kt
 quelle: Plan.md, Abschnitt "Toolbar-Dropdown"; OPEN-007
 ---
 
