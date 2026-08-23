@@ -10,7 +10,9 @@
 # `platformType` - Letzteres ist ein Produktcode ("IU" = IntelliJ IDEA Ultimate), keine Version.
 
 [versions]
-kotlin = "2.3.20"
+# Folgt der Kotlin-Linie der Ziel-IDE: 2026.2 buendelt 2.4.0, und das Plugin bringt wegen
+# `kotlin.stdlib.default.dependency=false` keine eigene Stdlib mit (siehe REQ-050).
+kotlin = "2.4.10"
 
 # Version des IntelliJ Platform Gradle Plugins (Build-Werkzeug), NICHT der Ziel-IDE.
 # Benoetigt Gradle >= 9.0, siehe docs/INTEGRATION_STRATEGY.md.

@@ -30,3 +30,8 @@ veralteten API zu bleiben.
   das als "Java sourceCompatibility too low for target platform". Weil es keine
   Rueckwaertskompatibilitaet zu geben braucht, wird die Toolchain beim Anheben der IDE-Version
   einfach mitgezogen statt auf der aelteren LTS-Version gehalten.
+- Die Kotlin-Version folgt der Linie, die die Ziel-IDE mitbringt: 2026.2 buendelt Kotlin
+  **2.4.0** (nachlesbar in `KotlinVersionCurrentValue` der mitgelieferten Stdlib und im
+  Manifest von `kotlin-reflect`), das Projekt uebersetzt mit 2.4.x. Das Plugin liefert wegen
+  `kotlin.stdlib.default.dependency=false` keine eigene Stdlib mit, sondern nutzt die der IDE -
+  eine aeltere Minor-Linie waere unnoetig, eine neuere riskant.
