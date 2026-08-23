@@ -49,9 +49,10 @@ something breaks; treat it like the requirement files under `docs/`.
 
 `verifyPlugin` runs against the platform the plugin is compiled against (`ides { current() }`);
 which IDEs get checked is configured in `build.gradle.kts`, the verifier does not derive it from
-`plugin.xml`. Three finding categories are known and deliberately do not fail the build
-(deprecated/experimental auto-generated `ToolWindowFactory` overrides, and the internal
-`ExternalSystemTaskLocation` — REQ-052, ADR-022); everything else does.
+`plugin.xml`. Two finding categories are known and deliberately do not fail the build — deprecated and
+experimental usages, nearly all of them overrides Kotlin generates for `ToolWindowFactory`'s
+Java default methods. Everything else fails, `INTERNAL_API_USAGES` included: the one internal
+usage the verifier once found is gone (ADR-022).
 
 Run a single test class/method the normal Gradle way, e.g.:
 ```bash

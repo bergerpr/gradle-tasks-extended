@@ -110,22 +110,18 @@ intellijPlatform {
             current()
         }
 
-        // Woran der Build scheitern soll, ausdruecklich aufgezaehlt statt ueber `ALL`:
-        // Drei Kategorien meldet der Verifier hier bekanntermassen und unvermeidbar.
+        // Woran der Build scheitern soll, ausdruecklich aufgezaehlt statt ueber `ALL`: Zwei
+        // Kategorien meldet der Verifier hier bekanntermassen und unvermeidbar, weil Kotlin
+        // fuer die Java-Default-Methoden von ToolWindowFactory automatisch Ueberschreibungen
+        // erzeugt (isApplicable, isDoNotActivateOnStart, manage, getAnchor, getIcon) - im
+        // Quellcode steht davon nichts, und der Compiler warnt entsprechend auch nicht. Dazu
+        // kommt IconUtil.downscaleIconToSize als experimentelle API.
         //
-        //   DEPRECATED_API_USAGES   - Kotlin erzeugt fuer die Java-Default-Methoden von
-        //                             ToolWindowFactory (isApplicable, isDoNotActivateOnStart)
-        //                             automatisch Ueberschreibungen; im Quellcode steht davon
-        //                             nichts, und der Compiler warnt entsprechend auch nicht.
-        //   EXPERIMENTAL_API_USAGES - dieselben automatischen Ueberschreibungen (manage,
-        //                             getAnchor, getIcon) plus IconUtil.downscaleIconToSize.
-        //   INTERNAL_API_USAGES     - ExternalSystemTaskLocation, der einzige Typ, den der
-        //                             Gradle-Producer der Plattform aus dem
-        //                             ConfigurationContext akzeptiert (REQ-079, ADR-022).
+        //   DEPRECATED_API_USAGES, EXPERIMENTAL_API_USAGES
         //
-        // Sie bleiben im Bericht sichtbar, brechen den Build aber nicht ab. Alles Uebrige -
-        // echte Kompatibilitaetsprobleme, fehlende Abhaengigkeiten, zur Entfernung
-        // vorgemerkte oder nicht ueberschreibbare API - laesst ihn scheitern.
+        // INTERNAL_API_USAGES steht bewusst NICHT in dieser Ausnahme: Die einzige interne
+        // Nutzung war ExternalSystemTaskLocation, und die ist seit dem eigenen
+        // RunConfigurationProducer verschwunden (ADR-022).
         failureLevel = listOf(
             VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
             VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,

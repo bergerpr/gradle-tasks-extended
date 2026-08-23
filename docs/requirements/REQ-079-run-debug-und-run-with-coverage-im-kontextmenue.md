@@ -7,6 +7,7 @@ betrifft:
   - src/main/kotlin/de/berger/gradletasksview/actions/GradleTaskRunActionGroup.kt
   - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
   - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskExecutor.kt
+  - src/main/kotlin/de/berger/gradletasksview/execution/GradleTaskRunConfigurationProducer.kt
   - src/main/resources/META-INF/plugin.xml
 quelle: OPEN-010, Angleichung an die originale Gradle-Ansicht
 ---
@@ -23,9 +24,11 @@ selbst, und Beschriftung und Icon stimmen mit dem Rest der IDE ueberein. Die ori
 Ansicht baut ihr `ExternalSystemTaskMenu` genauso. "Modify Run Configuration" ist die
 Plattform-Aktion `ExternalSystem.CreateRunConfiguration`, per `<reference>` eingebunden.
 
-Damit diese Aktionen auf unserem Baum greifen, veroeffentlicht `uiDataSnapshot` die Selektion
-als `Location.DATA_KEY` mit einer `ExternalSystemTaskLocation` - der Gradle-Producer der
-Plattform liest genau diesen Schluessel (ADR-022). Sind mehrere Tasks desselben Gradle-Projekts
+Damit diese Aktionen auf unserem Baum greifen, bringt das Plugin einen eigenen
+`RunConfigurationProducer` mit: Er liest die Auswahl aus dem plugin-eigenen Datenschluessel
+`SELECTED_GRADLE_TASKS`, den `uiDataSnapshot` veroeffentlicht, und baut daraus eine
+Gradle-Run-Konfiguration. Zusaetzlich liefert der Baum eine gewoehnliche `PsiLocation` auf das
+Modulverzeichnis, ohne die der `ConfigurationContext` gar keine Producer fragt (ADR-022). Sind mehrere Tasks desselben Gradle-Projekts
 selektiert, landen sie zusammen in einer Konfiguration und laufen in einem Aufruf; ueber
 Projektgrenzen hinweg wird keine Location geliefert, die Eintraege sind dann inaktiv. Auch das
 entspricht der Originalansicht, deren `extractLocation` dieselbe Bedingung stellt.

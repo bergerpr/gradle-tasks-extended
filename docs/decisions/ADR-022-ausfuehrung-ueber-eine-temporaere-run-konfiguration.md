@@ -55,29 +55,27 @@ Veroeffentlicht wird ueber `DataSink.lazy`, weil `ExternalSystemTaskLocation.cre
 `PsiDirectory` zum Projektpfad nachschlaegt und das nur laufen soll, wenn eine Aktion die
 Location wirklich anfragt. `ExternalProjectsViewImpl` haelt es genauso.
 
-### `ExternalSystemTaskLocation` ist intern
+### Kein `ExternalSystemTaskLocation` - eigener Producer
 
-Der Plugin Verifier hat gemeldet, was eine Sichtprufung der Klassendatei zunaechst nicht
-hergab: `ExternalSystemTaskLocation` traegt `@ApiStatus.Internal`. Das kollidiert mit ADR-008
-und REQ-052, ist hier aber nicht zu umgehen - der Producer der Plattform castet die `Location`
-genau auf diesen Typ, ein anderer Typ wird also nie akzeptiert.
+Zuerst veroeffentlichte der Baum die Auswahl als `ExternalSystemTaskLocation`, die einzige
+Form, die der Gradle-Producer der Plattform aus dem `ConfigurationContext` liest. Der Plugin
+Verifier hat gemeldet, was eine Sichtpruefung der Klassendatei nicht hergab: Diese Klasse
+traegt `@ApiStatus.Internal` (ADR-008, REQ-052).
 
-Geprueft und verworfen:
+Aufgeloest ueber einen **eigenen `RunConfigurationProducer`**. Er liest die Auswahl aus einem
+plugin-eigenen Datenschluessel (`SELECTED_GRADLE_TASKS`) und fuellt damit eine
+`ExternalSystemRunConfiguration` - alle drei Bausteine (`LazyRunConfigurationProducer`, die
+Konfigurationsklasse und `AbstractExternalSystemTaskConfigurationType`) sind oeffentlich.
 
-- **Zurueck zu eigenen Aktionen ueber `ExternalSystemUtil.runTask`.** Kostet den Eintrag im
-  Konfigurations-Widget und laesst Coverage gar nicht laufen - genau die Gruende, aus denen
-  dieser ADR entstanden ist.
-- **Eigener `RunConfigurationProducer`.** Waere der saubere Ausweg: Ein eigener Producer
-  koennte aus einem plugin-eigenen Datenschluessel eine `ExternalSystemRunConfiguration`
-  bauen, ohne die interne Location. Das ist eine echte Alternative und bleibt offen; sie
-  bedeutet eine zusaetzliche Erweiterung samt Registrierung und eigener Kontextlogik.
+Eine `Location` veroeffentlicht der Baum weiterhin, jetzt aber als gewoehnliche
+`PsiLocation` auf das Modulverzeichnis. Der Inhalt interessiert niemanden mehr; gebraucht wird
+sie, weil `ConfigurationContext.createConfiguration` ohne Location gar keine Producer fragt -
+im Bytecode nachlesbar an der Stelle, an der `getLocation()` auf `null` geprueft wird, bevor
+`PreferredProducerFind` ueberhaupt aufgerufen wird.
 
-Offengelegt statt versteckt: `verifyPlugin` laesst `INTERNAL_API_USAGES` deshalb bewusst nicht
-scheitern, meldet die Stelle aber weiterhin im Bericht (siehe Kommentar in `build.gradle.kts`).
+Verworfen wurde der Rueckweg zu eigenen Aktionen ueber `ExternalSystemUtil.runTask`: Er kostet
+den Eintrag im Konfigurations-Widget und laesst Coverage gar nicht laufen - genau die Gruende,
+aus denen dieser ADR entstanden ist.
 
-## Was von ADR-006 bleibt
-
-Die Aussage "niemals eigene Prozess- oder Kommandozeilenaufrufe" gilt unveraendert, ebenso das
-Meiden der `@ApiStatus.Obsolete`-Ueberladungen - wir rufen `runTask` jetzt gar nicht mehr auf.
-Alle vier hier benutzten APIs sind oeffentlich und tragen keine Abkuendigung (geprueft gegen
-2026.2, siehe ADR-008).
+Seither meldet `./gradlew verifyPlugin` keine interne API mehr, und die Kategorie
+`INTERNAL_API_USAGES` laesst den Build wieder scheitern.

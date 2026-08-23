@@ -38,6 +38,11 @@
              bereits als "Light Services" registriert und werden hier bewusst NICHT zusaetzlich
              als projectService deklariert (das wuerde zu einer Doppelregistrierung fuehren). -->
         <postStartupActivity implementation="de.berger.gradletasksview.toolwindow.GradleTasksExtendedStartupActivity"/>
+
+        <!-- Baut aus der Auswahl im eigenen Baum eine Gradle-Run-Konfiguration. Daran haengen
+             die Ausfuehrungsarten und "Modify Run Configuration" im Kontextmenue (REQ-079). -->
+        <runConfigurationProducer
+                implementation="de.berger.gradletasksview.execution.GradleTaskRunConfigurationProducer"/>
     </extensions>
 
     <actions>

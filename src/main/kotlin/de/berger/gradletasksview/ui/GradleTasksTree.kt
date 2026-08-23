@@ -1,6 +1,7 @@
 package de.berger.gradletasksview.ui
 
 import com.intellij.execution.Location
+import com.intellij.execution.PsiLocation
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.ide.CopyProvider
 import com.intellij.openapi.actionSystem.ActionGroup
@@ -12,19 +13,19 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.openapi.components.service
-import com.intellij.openapi.externalSystem.model.execution.ExternalTaskExecutionInfo
-import com.intellij.openapi.externalSystem.service.execution.ExternalSystemTaskLocation
 import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiManager
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.treeStructure.Tree
 import de.berger.gradletasksview.execution.GradleTaskExecutor
+import de.berger.gradletasksview.execution.SELECTED_GRADLE_TASKS
 import de.berger.gradletasksview.execution.gradleTaskExecutionSettings
 import de.berger.gradletasksview.model.GradleTaskDescriptor
 import de.berger.gradletasksview.model.NestedFolderNode
 import de.berger.gradletasksview.persistence.GradleTasksViewConfigStore
 import de.berger.gradletasksview.persistence.TaskViewConfigKey
-import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.awt.datatransfer.StringSelection
 import java.awt.event.HierarchyEvent
 import java.awt.event.MouseAdapter
@@ -174,29 +175,29 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
      */
     override fun uiDataSnapshot(sink: DataSink) {
         sink[PlatformDataKeys.COPY_PROVIDER] = copyProvider
+        sink[SELECTED_GRADLE_TASKS] = selectedTaskDescriptors()
         sink.lazy(Location.DATA_KEY) { selectedTaskLocation() }
     }
 
     /**
-     * Die Selektion als [ExternalSystemTaskLocation]. Daran haengt das gesamte
-     * Ausfuehrungsmenue: Die Kontext-Aktionen der Plattform und "Modify Run Configuration"
-     * arbeiten ueber einen `ConfigurationContext`, und dessen Gradle-Producer liest genau
-     * diesen Datenschluessel - `getTaskSettingsFromContext` castet die `Location` auf
-     * [ExternalSystemTaskLocation] und nimmt sich die [ExternalTaskExecutionInfo] heraus
-     * (REQ-079, ADR-022).
+     * Die Selektion als gewoehnliche [PsiLocation] auf das Verzeichnis des besitzenden Moduls.
      *
-     * Bewusst ueber `DataSink.lazy`: Die Aufloesung schlaegt einen Verzeichnis-`PsiDirectory`
-     * nach und soll deshalb nur laufen, wenn eine Aktion die Location wirklich anfragt - die
-     * originale Ansicht haelt es in `ExternalProjectsViewImpl` genauso.
+     * Der Inhalt der Location interessiert niemanden - was der Baum ausgewaehlt hat, liest
+     * [GradleTaskRunConfigurationProducer] aus [SELECTED_GRADLE_TASKS]. Gebraucht wird sie
+     * trotzdem: `ConfigurationContext.createConfiguration` fragt ohne Location gar keine
+     * Producer, und damit gaebe es im Kontextmenue weder Ausfuehrungsarten noch "Modify Run
+     * Configuration". Frueher stand hier die passgenaue `ExternalSystemTaskLocation` - die ist
+     * `@ApiStatus.Internal` und deshalb einem eigenen Producer gewichen (ADR-022).
+     *
+     * Bewusst ueber `DataSink.lazy`: Die Aufloesung schlaegt ein `PsiDirectory` nach und soll
+     * nur laufen, wenn eine Aktion die Location wirklich anfragt.
      */
     private fun selectedTaskLocation(): Location<*>? {
         val settings = gradleTaskExecutionSettings(selectedTaskDescriptors()) ?: return null
-        return ExternalSystemTaskLocation.create(
-            project,
-            GradleConstants.SYSTEM_ID,
-            settings.externalProjectPath,
-            ExternalTaskExecutionInfo(settings, DefaultRunExecutor.EXECUTOR_ID),
-        )
+        val directory = LocalFileSystem.getInstance().findFileByPath(settings.externalProjectPath)
+            ?.let { PsiManager.getInstance(project).findDirectory(it) }
+            ?: return null
+        return PsiLocation(project, directory)
     }
 
     private val copyProvider = object : CopyProvider {
