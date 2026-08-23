@@ -6,6 +6,8 @@ verifiziert: manuell
 betrifft:
   - src/main/kotlin/de/example/gradletasksview/actions/GradleTasksTreeContextActions.kt
   - src/main/resources/META-INF/plugin.xml
+offene_punkte:
+  - OPEN-010
 quelle: Plan.md, Abschnitt "Kontextmenue"
 ---
 
