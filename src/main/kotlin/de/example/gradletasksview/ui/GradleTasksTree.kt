@@ -1,5 +1,6 @@
 package de.example.gradletasksview.ui
 
+import com.intellij.execution.Location
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.ide.CopyProvider
 import com.intellij.openapi.actionSystem.ActionGroup
@@ -11,15 +12,19 @@ import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.actionSystem.UiDataProvider
 import com.intellij.openapi.components.service
+import com.intellij.openapi.externalSystem.model.execution.ExternalTaskExecutionInfo
+import com.intellij.openapi.externalSystem.service.execution.ExternalSystemTaskLocation
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.treeStructure.Tree
 import de.example.gradletasksview.execution.GradleTaskExecutor
+import de.example.gradletasksview.execution.gradleTaskExecutionSettings
 import de.example.gradletasksview.model.GradleTaskDescriptor
 import de.example.gradletasksview.model.NestedFolderNode
 import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import de.example.gradletasksview.persistence.TaskViewConfigKey
+import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.awt.datatransfer.StringSelection
 import java.awt.event.HierarchyEvent
 import java.awt.event.MouseAdapter
@@ -158,15 +163,6 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
     }
 
     /**
-     * Fuehrt den ersten selektierten Task aus - mit [executorId] laesst sich zwischen Run,
-     * Debug und Run with Coverage waehlen (REQ-079). Ohne Angabe bleibt es beim normalen
-     * Run-Executor, so wie beim Doppelklick (REQ-010).
-     */
-    fun runSelectedTask(executorId: String = DefaultRunExecutor.EXECUTOR_ID) {
-        selectedTaskDescriptors().firstOrNull()?.let { executor.execute(it, executorId) }
-    }
-
-    /**
      * Stellt dem Action-System den [CopyProvider] bereit, damit "Copy" (Ctrl+C) im Baum
      * funktioniert.
      *
@@ -178,6 +174,29 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
      */
     override fun uiDataSnapshot(sink: DataSink) {
         sink[PlatformDataKeys.COPY_PROVIDER] = copyProvider
+        sink.lazy(Location.DATA_KEY) { selectedTaskLocation() }
+    }
+
+    /**
+     * Die Selektion als [ExternalSystemTaskLocation]. Daran haengt das gesamte
+     * Ausfuehrungsmenue: Die Kontext-Aktionen der Plattform und "Modify Run Configuration"
+     * arbeiten ueber einen `ConfigurationContext`, und dessen Gradle-Producer liest genau
+     * diesen Datenschluessel - `getTaskSettingsFromContext` castet die `Location` auf
+     * [ExternalSystemTaskLocation] und nimmt sich die [ExternalTaskExecutionInfo] heraus
+     * (REQ-079, ADR-022).
+     *
+     * Bewusst ueber `DataSink.lazy`: Die Aufloesung schlaegt einen Verzeichnis-`PsiDirectory`
+     * nach und soll deshalb nur laufen, wenn eine Aktion die Location wirklich anfragt - die
+     * originale Ansicht haelt es in `ExternalProjectsViewImpl` genauso.
+     */
+    private fun selectedTaskLocation(): Location<*>? {
+        val settings = gradleTaskExecutionSettings(selectedTaskDescriptors()) ?: return null
+        return ExternalSystemTaskLocation.create(
+            project,
+            GradleConstants.SYSTEM_ID,
+            settings.externalProjectPath,
+            ExternalTaskExecutionInfo(settings, DefaultRunExecutor.EXECUTOR_ID),
+        )
     }
 
     private val copyProvider = object : CopyProvider {

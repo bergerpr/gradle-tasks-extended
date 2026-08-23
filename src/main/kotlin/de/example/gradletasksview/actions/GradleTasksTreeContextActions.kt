@@ -1,8 +1,5 @@
 package de.example.gradletasksview.actions
 
-import com.intellij.coverage.CoverageExecutor
-import com.intellij.execution.executors.DefaultDebugExecutor
-import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
@@ -16,63 +13,17 @@ import de.example.gradletasksview.persistence.TaskViewConfigKey
 import de.example.gradletasksview.ui.GradleTaskViewRefresher
 import de.example.gradletasksview.ui.GradleTasksTree
 import java.awt.datatransfer.StringSelection
-import javax.swing.Icon
 
 /**
  * Nachgebaute Kontextmenue-Aktionen fuer die eigene [GradleTasksTree]
  * (siehe REQ-011 und ADR-001). Alle Aktionen
  * lesen die Selektion direkt vom Tree, statt an eine fremde Action-Instanz zu delegieren.
+ *
+ * Die Ausfuehrungsarten gehoeren bewusst nicht dazu: Sie kommen als Kontext-Aktionen von der
+ * Plattform selbst (siehe [GradleTaskRunActionGroup] und REQ-079).
  */
 private fun AnActionEvent.tree(): GradleTasksTree? =
     getData(PlatformDataKeys.CONTEXT_COMPONENT) as? GradleTasksTree
-
-/**
- * Gemeinsame Basis der drei Ausfuehrungsarten Run, Debug und Run with Coverage (REQ-079).
- * Sie unterscheiden sich ausschliesslich in Beschriftung, Icon und [executorId] - alles
- * andere, insbesondere der Weg ueber `TaskExecutionSpec` (ADR-006), ist identisch.
- */
-sealed class GradleTaskRunActionBase(
-    textKey: String,
-    descriptionKey: String,
-    icon: Icon,
-    private val executorId: String,
-) : AnAction(
-    { GradleTasksViewBundle.message(textKey) },
-    { GradleTasksViewBundle.message(descriptionKey) },
-    icon,
-) {
-    override fun update(e: AnActionEvent) {
-        e.presentation.isEnabled = e.tree()?.selectedTaskDescriptors()?.isNotEmpty() == true
-    }
-
-    override fun actionPerformed(e: AnActionEvent) {
-        e.tree()?.runSelectedTask(executorId)
-    }
-
-    override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
-}
-
-/** Die Vorgabe-Ausfuehrung, identisch zum Doppelklick (REQ-010). */
-class GradleTaskExecuteAction : GradleTaskRunActionBase(
-    textKey = "action.execute.text",
-    descriptionKey = "action.execute.description",
-    icon = AllIcons.Actions.Execute,
-    executorId = DefaultRunExecutor.EXECUTOR_ID,
-)
-
-class GradleTaskDebugAction : GradleTaskRunActionBase(
-    textKey = "action.debug.text",
-    descriptionKey = "action.debug.description",
-    icon = AllIcons.Actions.StartDebugger,
-    executorId = DefaultDebugExecutor.EXECUTOR_ID,
-)
-
-class GradleTaskRunWithCoverageAction : GradleTaskRunActionBase(
-    textKey = "action.runWithCoverage.text",
-    descriptionKey = "action.runWithCoverage.description",
-    icon = AllIcons.General.RunWithCoverage,
-    executorId = CoverageExecutor.EXECUTOR_ID,
-)
 
 class GradleTaskCopyNameAction : AnAction({ GradleTasksViewBundle.message("action.copyName.text") }) {
     override fun update(e: AnActionEvent) {

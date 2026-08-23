@@ -4,34 +4,37 @@ titel: Run, Debug und Run with Coverage im Kontextmenue
 kategorie: interaktion
 verifiziert: manuell
 betrifft:
-  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
-  - src/main/kotlin/de/example/gradletasksview/actions/GradleTasksTreeContextActions.kt
+  - src/main/kotlin/de/example/gradletasksview/actions/GradleTaskRunActionGroup.kt
   - src/main/kotlin/de/example/gradletasksview/ui/GradleTasksTree.kt
+  - src/main/kotlin/de/example/gradletasksview/execution/GradleTaskExecutor.kt
   - src/main/resources/META-INF/plugin.xml
-  - src/main/resources/messages/GradleTasksViewBundle.properties
 quelle: OPEN-010, Angleichung an die originale Gradle-Ansicht
 ---
 
-Das Kontextmenue bietet auf einem Task dieselben drei Ausfuehrungsarten an wie die originale
-Gradle-Ansicht der IDE: `Run Task`, `Debug Task` und `Run Task with Coverage`, in dieser
-Reihenfolge und jeweils mit dem Icon, das die Plattform dafuer verwendet.
+Das Kontextmenue bietet auf einem Task dieselben Ausfuehrungsarten an wie die originale
+Gradle-Ansicht - Run, Debug, Run with Coverage - und darunter "Modify Run Configuration",
+mit dem sich die Konfiguration vor dem Start anpassen laesst.
 
-Die Vorgabe bleibt der normale Run-Befehl: Ein Doppelklick fuehrt den Task weiterhin im
-Run-Executor aus (REQ-010), und `GradleTaskExecutor.execute` hat genau dafuer seinen
-Vorgabewert. Debug und Coverage kommen daneben, nicht an seine Stelle.
+Fest verdrahtet ist davon nichts. `GradleTaskRunActionGroup` laeuft ueber die
+Erweiterungsliste der registrierten Executors, filtert auf `Executor.isApplicable(project)`
+und holt zu jedem die Kontext-Aktion der Plattform (`contextActionId`: `RunClass`,
+`DebugClass`, `RunCoverage`, ...). Kommt eine Ausfuehrungsart hinzu, erscheint sie damit von
+selbst, und Beschriftung und Icon stimmen mit dem Rest der IDE ueberein. Die originale
+Ansicht baut ihr `ExternalSystemTaskMenu` genauso. "Modify Run Configuration" ist die
+Plattform-Aktion `ExternalSystem.CreateRunConfiguration`, per `<reference>` eingebunden.
 
-Unterschieden werden die drei ausschliesslich durch die Executor-ID, die an
-`TaskExecutionSpec.withExecutorId` geht - `DefaultRunExecutor.EXECUTOR_ID`,
-`DefaultDebugExecutor.EXECUTOR_ID` und `CoverageExecutor.EXECUTOR_ID`. Settings und Aufrufweg
-sind identisch, insbesondere bleibt es beim blanken Tasknamen plus `externalProjectPath`
-(ADR-018) und bei der `TaskExecutionSpec`-Ueberladung (ADR-006). Die Plattform macht es in
-ihrer eigenen `RunExternalSystemTaskAction` genauso, weshalb die drei Aktionen sich eine
-Basisklasse teilen und nur Beschriftung, Icon und ID mitbringen.
+Damit diese Aktionen auf unserem Baum greifen, veroeffentlicht `uiDataSnapshot` die Selektion
+als `Location.DATA_KEY` mit einer `ExternalSystemTaskLocation` - der Gradle-Producer der
+Plattform liest genau diesen Schluessel (ADR-022). Sind mehrere Tasks desselben Gradle-Projekts
+selektiert, landen sie zusammen in einer Konfiguration und laufen in einem Aufruf; ueber
+Projektgrenzen hinweg wird keine Location geliefert, die Eintraege sind dann inaktiv. Auch das
+entspricht der Originalansicht, deren `extractLocation` dieselbe Bedingung stellt.
 
-Woher der Debugger bzw. die Coverage-Messung kommt, entscheidet damit die Plattform: Die
-Aktionen legen keine Run-Konfiguration selbst an und setzen keine JVM-Argumente.
-`CoverageExecutor` liegt nicht im Plattform-Kern, sondern in einem eigenen Modul, das
-Buildskript und `plugin.xml` deshalb ausdruecklich anfordern (ADR-021).
+Der Doppelklick bleibt der normale Run (REQ-010) und nimmt in `GradleTaskExecutor` denselben
+Weg ueber eine temporaere Run-Konfiguration, damit beide Wege denselben Eintrag im
+Konfigurations-Widget der Kopfzeile erzeugen.
 
-Alle drei sind deaktiviert, solange kein Task selektiert ist, und wirken - wie `Run Task`
-bisher schon - auf den ersten selektierten Task.
+Eigene Aktionen fuer Run, Debug und Coverage gibt es bewusst nicht mehr: Sie liefen ueber
+`ExternalSystemUtil.runTask`, tauchten dadurch nie im Widget auf, und Coverage lief auf diesem
+Weg ueberhaupt nicht (ADR-022). Das uebrige Kontextmenue - Kopieren, Hide, Expand/Collapse -
+bleibt weiterhin plugin-eigen (REQ-011).

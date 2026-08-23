@@ -7,6 +7,13 @@ ersetzt_vorgabe: Plan.md skizzierte die 4-Parameter-Ueberladung
 quelle: Plan.md, Abschnitt "Task-Ausfuehrung", verifiziert gegen 2026.2
 ---
 
+**Abgeloest durch ADR-022.** Ausgefuehrt wird inzwischen ueber eine temporaere
+Run-Konfiguration; `ExternalSystemUtil.runTask` kommt gar nicht mehr vor. Der Grund steht
+dort: Ueber `runTask` erscheint der Lauf nicht im Konfigurations-Widget der Kopfzeile, und
+fuer andere Executor als Run und Debug findet die Plattform auf diesem Weg keinen Runner.
+Was bleibt, ist die Entscheidung gegen eigene Prozessausfuehrung und gegen die
+`@ApiStatus.Obsolete`-Ueberladungen.
+
 `GradleTaskExecutor` benutzt ausschliesslich `ExternalSystemUtil.runTask(TaskExecutionSpec)`.
 
 Die vier Ueberladungen mit `ExternalSystemTaskExecutionSettings` als erstem Parameter sind in

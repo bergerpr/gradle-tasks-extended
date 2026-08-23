@@ -112,18 +112,19 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
 - `actions/` — toolbar dropdown (mode switch), the two toolbar toggles (module grouping, show hidden),
-  and context menu actions (run/debug/run with coverage, copy name/path, hide/show,
-  expand/collapse all).
+  and context menu actions (copy name/path, hide/show, expand/collapse all).
+  The run/debug/coverage entries are *not* ours: `GradleTaskRunActionGroup` pulls the platform's
+  context actions from the executor extension list (REQ-079, ADR-022).
 - `persistence/` — per-project persisted state: selected view mode via `PersistentStateComponent`;
   everything else (expand/collapse state, icons, hidden nodes, module grouping toggle) via the
   two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — a sealed
   interface with `Module`, `Group` and `Task`, each optionally scoped to a module.
-- `execution/` — `GradleTaskExecutor`, which runs tasks exclusively via
-  `ExternalSystemUtil.runTask(TaskExecutionSpec)` (the current, non-deprecated API — never the
-  `@ApiStatus.Obsolete` 4-parameter overload, and never a hand-rolled process/command-line invocation).
-  Run, Debug and Run with Coverage differ only in the executor id passed to `withExecutorId`;
-  `CoverageExecutor` needs the `intellij.platform.coverage` module in both `build.gradle.kts` and
-  `plugin.xml` (ADR-021).
+- `execution/` — `GradleTaskExecutor`, which runs tasks through a **temporary run configuration**
+  (`createExternalSystemRunnerAndConfigurationSettings` → `RunManager.setTemporaryConfiguration` →
+  `ExecutionUtil.runConfiguration`), never via a hand-rolled process/command-line invocation and no
+  longer via `ExternalSystemUtil.runTask` — that path registers nothing with the `RunManager`, so the
+  run never showed up in the header widget, and it knows runner ids for Run and Debug only, so
+  coverage silently did nothing (ADR-022, superseding ADR-006).
 - `util/` — path/tree helpers (`GradleTaskPathUtil`, `TreePathUtil`).
 
 ### Key invariants (see `docs/decisions/`)

@@ -79,19 +79,20 @@ ist bereits im neuen Format geschrieben:
   auch die aus `default.yaml` stammenden (dann steht ein `hidden: false` in `custom.yaml`).
 - Bei ausgeschalteter Modulgliederung blendet **Hide** den Knoten in allen Modulen aus.
 
-## Mit den drei Ausfuehrungsarten hinzugekommen
+## Mit den Ausfuehrungsarten hinzugekommen
 
 REQ-079 ist reine Plattform-Anbindung und deshalb nur in einer laufenden IDE nachweisbar;
 Unit-Tests gibt es dafuer nicht:
 
-- Das Kontextmenue auf einem Task zeigt `Run Task`, `Debug Task` und `Run Task with Coverage`
-  mit den Icons der Plattform; auf einem Ordner- oder Modulknoten sind alle drei deaktiviert.
-- Ein Doppelklick startet weiterhin den normalen Run - die Vorgabe hat sich nicht verschoben.
-- `Debug Task` haelt an einem Breakpoint an (Build-Skript oder Test des Testprojekts) und
-  oeffnet das Debug-Fenster.
-- `Run Task with Coverage` oeffnet die Coverage-Auswertung. Zu beobachten ist dabei, wie sich
-  die Plattform bei einem Task verhaelt, der nichts zu messen hat: Ob der Eintrag dann wie in
-  der Originalansicht trotzdem angeboten bleibt oder eingeschraenkt gehoert, ist bewusst noch
-  nicht entschieden.
-- Das Plugin laedt in der Sandbox ohne Klassenladefehler - der Nachweis, dass die
-  Modulabhaengigkeit auf `intellij.platform.coverage` aus ADR-021 auch zur Laufzeit greift.
+- Das Kontextmenue auf einem Task zeigt Run, Debug und Run with Coverage mit den Namen und
+  Icons der Plattform (`Run ':app:buildImage'`), darunter "Modify Run Configuration"; auf
+  einem Ordner- oder Modulknoten sind sie inaktiv.
+- Jeder Start legt einen temporaeren Eintrag im Konfigurations-Widget der Kopfzeile an und
+  waehlt ihn aus - auch der Doppelklick, der weiterhin den normalen Run startet.
+- Ein zweiter Start desselben Tasks erzeugt keinen zweiten Eintrag, sondern benutzt den
+  vorhandenen wieder.
+- `Debug` haelt an einem Breakpoint an; `Run with Coverage` oeffnet die Coverage-Auswertung.
+  Zu beobachten ist, wie sich die Plattform bei einem Task verhaelt, der nichts zu messen hat.
+- "Modify Run Configuration" oeffnet den Konfigurationsdialog mit vorbelegtem Taskpfad.
+- Mehrere Tasks desselben Moduls selektiert: ein Aufruf mit beiden Tasknamen. Tasks aus
+  verschiedenen Modulen selektiert: die Ausfuehrungseintraege sind inaktiv.
