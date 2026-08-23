@@ -15,17 +15,19 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
  * `ExternalSystemUtil.runTask(settings, executorId, project, systemId)`-Ueberladung
  * (siehe ADR-006).
  *
- * Ausgefuehrt wird der qualifizierte Taskpfad (`:app:buildImage`), nicht der blanke Taskname:
- * Ein blanker Name laesst Gradle den gleichnamigen Task in *jedem* passenden Projekt
- * ausfuehren, was in einem Multi-Modul-Build zu mehreren ungewollten Ausfuehrungen fuehrt
- * (siehe REQ-010 und ADR-015).
+ * Bei Gradle landet am Ende der qualifizierte Taskpfad (`:app:buildImage`), damit der Task
+ * genau in seinem Modul laeuft und nicht in jedem gleichnamigen (REQ-010). Zusammengesetzt
+ * wird er allerdings von der Plattform, nicht hier: [ExternalSystemTaskExecutionSettings]
+ * erwartet in `taskNames` den **blanken** Namen und stellt ihm den Gradle-Projektpfad des
+ * Moduls voran, das unter `externalProjectPath` liegt. Ein hier bereits qualifizierter Pfad
+ * wuerde deshalb ein zweites Mal praefigiert (`:app::app:buildImage`) - siehe ADR-018.
  */
 class GradleTaskExecutor(private val project: Project) {
 
     fun execute(descriptor: GradleTaskDescriptor) {
         val settings = ExternalSystemTaskExecutionSettings().apply {
             externalProjectPath = descriptor.externalProjectPath
-            taskNames = listOf(descriptor.taskPath)
+            taskNames = listOf(descriptor.taskName)
             externalSystemIdString = GradleConstants.SYSTEM_ID.id
         }
 

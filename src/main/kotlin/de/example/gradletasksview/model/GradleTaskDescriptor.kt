@@ -7,8 +7,9 @@ package de.example.gradletasksview.model
  * es findet kein eigener Gradle-Sync statt.
  *
  * @property taskName Blanker Taskname, wie er in der Ansicht steht (`buildImage`).
- * @property taskPath Qualifizierter Gradle-Taskpfad (`:app:buildImage`). Damit laesst sich der
- *   Task eindeutig genau in seinem Modul ausfuehren (siehe REQ-074).
+ * @property taskPath Qualifizierter Gradle-Taskpfad (`:app:buildImage`). Anzeige-, Such- und
+ *   Kopierwert; fuer die Ausfuehrung wird er nicht uebergeben, die Plattform setzt ihn aus
+ *   [taskName] und [externalProjectPath] selbst zusammen (siehe ADR-018).
  * @property gradleProjectPath Gradle-Projektpfad des besitzenden Moduls (`:`, `:app`,
  *   `:app:core`) - nicht das Dateisystemverzeichnis.
  * @property moduleName Anzeigename des Moduls aus dem IDE-Projektmodell; dient nur der

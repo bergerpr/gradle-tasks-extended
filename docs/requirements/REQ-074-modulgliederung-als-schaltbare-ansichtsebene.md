@@ -54,8 +54,9 @@ sortiert: Die Modulebene ist Projektstruktur und keine von Gradle gelieferte Rei
 ## Modulidentitaet
 
 Jeder Task kennt seinen Gradle-Projektpfad (`:app:core`), den Anzeigenamen seines Moduls und
-seinen qualifizierten Taskpfad (`:app:core:test`). Der Pfad stammt aus dem
-Eltern-`ModuleData`-Knoten des Task-Knotens, siehe ADR-015; angezeigt wird er auch als
+seinen qualifizierten Taskpfad (`:app:core:test`). Der Pfad stammt aus dem `ModuleData`-Knoten,
+unter dem der Task haengt - welche Eigenschaft ihn traegt, steht in ADR-015, wie eingesammelt
+wird in ADR-019; angezeigt wird er auch als
 Beschriftung des Modulknotens, weil er zugleich dessen Konfigurationsschluessel ist (REQ-076).
 
 Damit wird `stableId` (REQ-024) auch bei gleichnamigen Tasks in zwei Modulen eindeutig, und
