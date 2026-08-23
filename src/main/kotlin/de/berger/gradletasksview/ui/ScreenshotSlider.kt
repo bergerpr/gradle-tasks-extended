@@ -2,14 +2,20 @@ package de.berger.gradletasksview.ui
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.project.Project
 import com.intellij.ui.components.ActionLink
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import de.berger.gradletasksview.GradleTasksViewBundle
 import java.awt.BorderLayout
+import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.RenderingHints
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.JComponent
@@ -50,7 +56,10 @@ object ScreenshotIndex {
  * Screenshots auffuehren, die noch nicht erstellt sind, ohne dass der Dialog kaputt aussieht.
  * Ist am Ende keines uebrig, erklaert ein Hinweistext, wo die Dateien hingehoeren.
  */
-class ScreenshotSlider(screenshots: List<Screenshot>) : JPanel(BorderLayout()) {
+class ScreenshotSlider(
+    screenshots: List<Screenshot>,
+    private val project: Project? = null,
+) : JPanel(BorderLayout()) {
 
     private val slides: List<Pair<Screenshot, BufferedImage>> = screenshots.mapNotNull { shot ->
         load(shot)?.let { shot to it }
@@ -59,12 +68,22 @@ class ScreenshotSlider(screenshots: List<Screenshot>) : JPanel(BorderLayout()) {
     private var index = 0
 
     private val canvas = object : JComponent() {
+        init {
+            // Ein Screenshot der Ansicht ist hier zwangslaeufig klein - der Klick fuehrt zur
+            // grossen Fassung mit Zoom (REQ-081).
+            cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+            toolTipText = GradleTasksViewBundle.message("configHelp.screenshots.enlarge")
+            addMouseListener(object : MouseAdapter() {
+                override fun mouseClicked(e: MouseEvent) = openViewer()
+            })
+        }
+
         override fun paintComponent(g: Graphics) {
             val image = slides.getOrNull(index)?.second ?: return
             val scale = minOf(width.toDouble() / image.width, height.toDouble() / image.height, 1.0)
             val w = (image.width * scale).toInt()
             val h = (image.height * scale).toInt()
-            (g as java.awt.Graphics2D).setRenderingHint(
+            (g as Graphics2D).setRenderingHint(
                 RenderingHints.KEY_INTERPOLATION,
                 RenderingHints.VALUE_INTERPOLATION_BILINEAR,
             )
@@ -86,7 +105,7 @@ class ScreenshotSlider(screenshots: List<Screenshot>) : JPanel(BorderLayout()) {
     }
 
     private fun emptyHint(): JComponent = JLabel(
-        de.berger.gradletasksview.GradleTasksViewBundle.message("configHelp.screenshots.missing"),
+        GradleTasksViewBundle.message("configHelp.screenshots.missing"),
         SwingConstants.CENTER,
     ).apply { foreground = UIUtil.getContextHelpForeground() }
 
@@ -103,6 +122,11 @@ class ScreenshotSlider(screenshots: List<Screenshot>) : JPanel(BorderLayout()) {
         add(caption, BorderLayout.SOUTH)
     }
 
+    private fun openViewer() {
+        val (shot, image) = slides.getOrNull(index) ?: return
+        ScreenshotViewerDialog(project, shot, image).show()
+    }
+
     /** Blaettert zyklisch - am Ende geht es vorne weiter, das erspart das Deaktivieren der Schalter. */
     private fun step(delta: Int) = show((index + delta + slides.size) % slides.size)
 
@@ -113,7 +137,8 @@ class ScreenshotSlider(screenshots: List<Screenshot>) : JPanel(BorderLayout()) {
         canvas.repaint()
     }
 
-    override fun getPreferredSize(): Dimension = JBUI.size(600, 320)
+    // Die Screenshots der Ansicht sind hochkant; mit 600x320 blieben sie winzig.
+    override fun getPreferredSize(): Dimension = JBUI.size(600, 420)
 
     private fun load(shot: Screenshot): BufferedImage? {
         val url = javaClass.getResource("$RESOURCE_DIR/${shot.fileName}")

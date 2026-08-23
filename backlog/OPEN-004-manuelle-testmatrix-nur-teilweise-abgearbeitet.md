@@ -139,5 +139,8 @@ Unit-Tests gibt es dafuer nicht:
 - Ein Eintrag in `screenshots.txt` ohne passende Datei laesst den Dialog unveraendert
   funktionieren.
 - Der Reiter `Configuration` zeigt unveraendert Pfade, Beispiel und Vorrangreihenfolge.
+- Ein Klick auf ein Bild oeffnet es gross; Einpassen, Originalgroesse, die beiden Zoomschalter
+  und das Mausrad wirken, und der Info-Dialog dahinter bleibt bedienbar.
+- Das Betrachterfenster merkt sich seine Groesse ueber ein erneutes Oeffnen hinweg.
 - Am seitlichen Streifen steht der Elefant statt des alten Baumsymbols, in hellem und dunklem
   Theme erkennbar und auf einem hochaufloesenden Bildschirm scharf.

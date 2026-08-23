@@ -71,7 +71,7 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
         return JPanel(BorderLayout()).apply {
             add(createHeader(), BorderLayout.NORTH)
             add(tabs, BorderLayout.CENTER)
-            preferredSize = JBUI.size(760, 640)
+            preferredSize = JBUI.size(780, 720)
         }
     }
 
@@ -81,10 +81,10 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
         add(htmlPane(descriptionHtml()).let { pane ->
             JBScrollPane(pane).apply {
                 border = JBUI.Borders.empty()
-                preferredSize = JBUI.size(700, 250)
+                preferredSize = JBUI.size(700, 200)
             }
         }, BorderLayout.NORTH)
-        add(ScreenshotSlider(screenshots()), BorderLayout.CENTER)
+        add(ScreenshotSlider(screenshots(), project), BorderLayout.CENTER)
     }
 
     /** Pfade und Aufbau der Konfiguration - der Teil, der frueher den ganzen Dialog fuellte. */

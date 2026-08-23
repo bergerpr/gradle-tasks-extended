@@ -6,6 +6,7 @@ verifiziert: manuell
 betrifft:
   - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksConfigHelpDialog.kt
   - src/main/kotlin/de/berger/gradletasksview/ui/ScreenshotSlider.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/ScreenshotViewerDialog.kt
   - src/main/resources/help/description.html
   - src/main/resources/help/screenshots/screenshots.txt
 quelle: Wunsch des Benutzers
@@ -40,6 +41,20 @@ Geblaettert wird zyklisch ueber zwei Schalter mit Zaehler (`2 / 4`) und Bildunte
 Ende geht es vorne weiter, das erspart das Deaktivieren der Schalter. Bilder werden
 seitenverhaeltnistreu eingepasst und nie vergroessert, damit ein Screenshot nicht unscharf
 aufgeblasen wird.
+
+## Vergroesserte Ansicht
+
+Ein Klick auf das Bild oeffnet es in einem eigenen Fenster - die Screenshots zeigen eine
+Tool-Window-Ansicht im Hochformat und bleiben in der Bildstrecke zwangslaeufig klein. Dort
+laesst es sich einpassen, auf Originalgroesse stellen und stufenlos zoomen, mit vier Schaltern
+und dem Mausrad (ohne Zusatztaste, denn im Bildbetrachter ist Zoomen die haeufigere Absicht als
+Blaettern; zum Verschieben gibt es die Leisten des Bildlaufs).
+
+Das Fenster ist **nicht modal**, sodass der Info-Dialog daneben bedienbar bleibt, und merkt
+sich seine Groesse unter einem eigenen Dimensionsschluessel. Der Zoombereich ist auf das
+Zehnfache nach unten und das Achtfache nach oben begrenzt; beim Oeffnen wird eingepasst, aber
+nie ueber die Originalgroesse hinaus vergroessert. Dass der Klick etwas bewirkt, zeigen
+Handcursor und Kurzinfo auf dem Bild.
 
 Das Zerlegen der Indexdatei steckt in `ScreenshotIndex` und ist damit ohne laufende IDE
 testbar (REQ-060); das Anzeigen in `ScreenshotSlider`.
