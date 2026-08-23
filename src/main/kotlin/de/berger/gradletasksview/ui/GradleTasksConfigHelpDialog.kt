@@ -11,6 +11,9 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.ui.HyperlinkLabel
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.HyperlinkEventAction
+import com.intellij.ui.dsl.builder.TopGap
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
@@ -75,16 +78,27 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
         }
     }
 
-    /** Was das Plugin kann, in Kurzform - darunter die Bildstrecke (REQ-081). */
-    private fun createDescriptionTab(): JComponent = JPanel(BorderLayout()).apply {
-        border = JBUI.Borders.empty(4)
-        add(htmlPane(descriptionHtml()).let { pane ->
-            JBScrollPane(pane).apply {
-                border = JBUI.Borders.empty()
-                preferredSize = JBUI.size(700, 200)
-            }
-        }, BorderLayout.NORTH)
-        add(ScreenshotSlider(screenshots(), project), BorderLayout.CENTER)
+    /**
+     * Ein durchgehender, scrollender Block: erster Absatz, Bildstrecke, Merkmalsliste,
+     * Fussnote. Frueher standen Text und Bilder in getrennten Bereichen mit eigenem Bildlauf
+     * - das zerschnitt die Beschreibung an einer Stelle, an der inhaltlich nichts endet.
+     *
+     * Gesetzt ueber das UI-DSL der Plattform, weil dessen `text`/`comment` Umbruch, Abstaende
+     * und Themefarben mitbringen; ein `JEditorPane` in einer Spalte muesste seine Hoehe bei
+     * jeder Breitenaenderung selbst nachrechnen.
+     */
+    private fun createDescriptionTab(): JComponent {
+        val parts = page(DESCRIPTION_RESOURCE).split(SCREENSHOT_MARKER, FOOTNOTE_MARKER)
+        val links = HyperlinkEventAction { event -> openLink(event.description) }
+
+        val content = panel {
+            row { text(parts.getOrElse(0) { "" }, action = links) }
+            row { cell(ScreenshotSlider(screenshots(), project)).align(AlignX.FILL) }.topGap(TopGap.SMALL)
+            row { text(parts.getOrElse(1) { "" }, action = links) }.topGap(TopGap.SMALL)
+            row { comment(parts.getOrElse(2) { "" }, action = links) }.topGap(TopGap.SMALL)
+        }.apply { border = JBUI.Borders.empty(8, 10) }
+
+        return JBScrollPane(content).apply { border = JBUI.Borders.empty() }
     }
 
     /** Pfade und Aufbau der Konfiguration - der Teil, der frueher den ganzen Dialog fuellte. */
@@ -274,8 +288,6 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
         javaClass.getResourceAsStream(resource)?.use { it.readBytes().decodeToString() }
             ?: "".also { LOG.warn("Ressource '$resource' fehlt im Plugin-Klassenlader.") }
 
-    private fun descriptionHtml(): String = withThemeColors(page(DESCRIPTION_RESOURCE))
-
     /** Die Farben, die beide Seiten brauchen - der Rest ist je Seite verschieden. */
     private fun withThemeColors(html: String): String = html
         .replace("{{linkColor}}", hex(JBUI.CurrentTheme.Link.Foreground.ENABLED))
@@ -325,6 +337,10 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
     private companion object {
         private const val HELP_RESOURCE = "/help/configuration.html"
         private const val DESCRIPTION_RESOURCE = "/help/description.html"
+
+        /** Trennmarken der drei Fragmente in `description.html`. */
+        private const val SCREENSHOT_MARKER = "<!-- screenshots -->"
+        private const val FOOTNOTE_MARKER = "<!-- footnote -->"
         private const val LICENSE_RESOURCE = "/icons/LICENSE-icons.txt"
 
         /** Kein Dateipfad, sondern ein eigener Verweis - siehe `openLink`. */

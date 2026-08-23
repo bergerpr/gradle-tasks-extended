@@ -14,15 +14,24 @@ quelle: Wunsch des Benutzers
 
 Der Info-Dialog (REQ-080) hat unter dem Kopf zwei Reiter:
 
-- **Description** - eine kurze Beschreibung, was das Plugin tut: die drei Ansichtsmodi, die
-  schaltbare Modulebene, das Ausblenden von Knoten, eigene Icons und die Ausfuehrungsarten im
-  Kontextmenue. Darunter eine **Bildstrecke** mit Screenshots, die dasselbe zeigen.
+- **Description** - ein durchgehender, scrollender Block: erster Absatz, dann die
+  **Bildstrecke**, dann die Merkmalsliste (Ansichtsmodi, schaltbare Modulebene, Ausblenden,
+  eigene Icons, Ausfuehrungsarten) und zum Schluss der Hinweis auf die Konfiguration und die
+  Herkunft der Icons. Getrennt wird nur durch Abstaende - Text und Bilder standen zuerst in
+  zwei Bereichen mit eigenem Bildlauf, was die Beschreibung an einer Stelle zerschnitt, an der
+  inhaltlich nichts endet.
 - **Configuration** - alles, was der Dialog vorher als Ganzes zeigte: Pfade, Unterschied
   zwischen Team-Vorgabe und persoenlicher Datei, Aufbau der YAML und Vorrangreihenfolge.
 
 Die Trennung folgt der Frage, die jemand gerade hat: "Was kann das?" beim ersten Blick,
 "Wo stelle ich das ein?" spaeter. Vorher stand beides in einer langen Seite, in der die
 Beschreibung gefehlt hat.
+
+Der Text liegt als `description.html` bei, allerdings nicht als vollstaendiges Dokument,
+sondern als drei Fragmente, getrennt durch die Marken `<!-- screenshots -->` und
+`<!-- footnote -->`. Gesetzt werden sie mit `text`/`comment` aus dem UI-DSL der Plattform: Das
+bringt Umbruch, Abstaende und Themefarben mit, waehrend ein `JEditorPane` in einer Spalte seine
+Hoehe bei jeder Breitenaenderung selbst nachrechnen muesste.
 
 ## Bildstrecke
 

@@ -129,8 +129,9 @@ Unit-Tests gibt es dafuer nicht:
 
 ## Mit den Reitern und der Bildstrecke hinzugekommen
 
-- Der Dialog oeffnet auf `Description`; der Text beschreibt die Ansichtsmodi, das Ausblenden,
-  eigene Icons und die Ausfuehrungsarten.
+- Der Dialog oeffnet auf `Description`; Absatz, Bildstrecke, Merkmalsliste und Fussnote stehen
+  in einem durchgehenden Block, der als Ganzes scrollt - keine zwei Bildlaeufe nebeneinander.
+- Der Link in der Fussnote oeffnet den Lizenztext der Icons.
 - Die Bildstrecke blaettert mit beiden Schaltern zyklisch durch alle Bilder, Zaehler und
   Bildunterschrift wandern mit, und die Bilder werden nie ueber ihre Groesse hinaus
   aufgeblasen.
