@@ -39,9 +39,9 @@ JRE.
 
 Die erste Fassung stellte all das mittig und immer sichtbar untereinander; damit ging die
 halbe Dialoghoehe fuer Angaben drauf, die man nur im Fehlerfall braucht. Jetzt steht oben, was
-man haeufig braucht, und der Rest ist einen Klick entfernt (`HideableDecorator`, ohne
-`adjustWindow`, damit beim Aufklappen die Beschreibung darunter weicht statt der Dialog zu
-springen). Der Kopf steht ueber den Reitern und scrollt nicht mit - sonst waere die Version genau dann
+man haeufig braucht, und der Rest ist einen Klick entfernt. Gebaut ist der Abschnitt mit
+`collapsibleGroup` aus dem UI-DSL der Plattform; die naheliegende Klasse `HideableDecorator`
+ist in allen Ueberladungen abgekuendigt (ADR-008). Der Kopf steht ueber den Reitern und scrollt nicht mit - sonst waere die Version genau dann
 verschwunden, wenn man weiter unten nachliest.
 
 Drei davon verdienen eine Erlaeuterung:Drei davon verdienen eine Erlaeuterung:

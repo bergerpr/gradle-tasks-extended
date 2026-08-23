@@ -10,8 +10,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.ui.HideableDecorator
 import com.intellij.ui.HyperlinkLabel
+import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
 import com.intellij.util.IconUtil
@@ -141,15 +141,15 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
         add(JLabel(headline()).leftAligned().apply { foreground = UIUtil.getContextHelpForeground() })
         add(Box.createVerticalStrut(JBUI.scale(6)))
 
-        // HideableDecorator bringt den Titel mit Dreieck und Trennlinie selbst mit; ohne
-        // `adjustWindow` waechst beim Aufklappen die Beschreibung darunter mit, statt dass
-        // der Dialog springt.
-        val details = JPanel(BorderLayout())
-        HideableDecorator(details, GradleTasksViewBundle.message("configHelp.details"), false).apply {
-            setContentComponent(createFactsTable())
-            setOn(false)
-        }
-        add(details.leftAligned())
+        // Klappabschnitt ueber das UI-DSL der Plattform: `HideableDecorator` waere die
+        // naheliegende Klasse, ist aber in beiden Ueberladungen abgekuendigt (ADR-008).
+        add(
+            panel {
+                collapsibleGroup(GradleTasksViewBundle.message("configHelp.details"), indent = false) {
+                    row { cell(createFactsTable()) }
+                }.expanded = false
+            }.leftAligned(),
+        )
     }
 
     /** Die drei Angaben, nach denen man im Alltag fragt - alles Weitere steckt in "Details". */
@@ -247,12 +247,26 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
     override fun createActions(): Array<Action> = arrayOf(okAction)
 
     private fun openLink(target: String) {
+        if (target == LICENSE_LINK) {
+            showLicense()
+            return
+        }
         val file = File(target)
         if (!file.isAbsolute) return
         // Der Dialog ist modal: Wuerde er offen bleiben, laege die geoeffnete Datei
         // unerreichbar dahinter.
         close(OK_EXIT_CODE)
         openInEditor(project, file)
+    }
+
+    /**
+     * Zeigt den mitgelieferten Lizenztext der Icons. Pflicht ist das nicht - die MIT-Lizenz
+     * verlangt nur, dass der Text mitgeliefert wird, und das tut die Datei im Plugin-Jar
+     * ohnehin. Sichtbar ist er trotzdem besser als vergraben (REQ-081).
+     */
+    private fun showLicense() {
+        val text = page(LICENSE_RESOURCE).ifEmpty { return }
+        PlainTextDialog(project, GradleTasksViewBundle.message("configHelp.license.title"), text).show()
     }
 
     /** Rohtext einer mitgelieferten Ressource; fehlt sie, bleibt der Bereich leer statt zu scheitern. */
@@ -311,6 +325,10 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
     private companion object {
         private const val HELP_RESOURCE = "/help/configuration.html"
         private const val DESCRIPTION_RESOURCE = "/help/description.html"
+        private const val LICENSE_RESOURCE = "/icons/LICENSE-icons.txt"
+
+        /** Kein Dateipfad, sondern ein eigener Verweis - siehe `openLink`. */
+        private const val LICENSE_LINK = "license:icons"
         private const val LOGO_RESOURCE = "/images/elefant.png"
 
         /** Klein genug, dass Logo und Zusammenfassung zusammen kaum hoeher sind als drei Zeilen. */
