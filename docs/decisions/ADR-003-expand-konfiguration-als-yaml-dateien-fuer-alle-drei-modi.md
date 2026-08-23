@@ -26,10 +26,12 @@ zerstoeren. Zuruecksetzen geschieht seither ausschliesslich explizit ueber den
 
 **Nachtrag zur Modusunabhaengigkeit:** Dass die Konfiguration fuer alle drei Modi
 gleichermassen gilt, trifft weiterhin auf den Expand-Zustand und die Icons zu - aber nicht
-mehr auf alles in diesen Dateien. Die Exclude-/Include-Listen (REQ-075) sind ausdruecklich
-**pro Modus** konfigurierbar, ein Modul kann also in `Nested` sichtbar und in `Sort`
-ausgeblendet sein. Die Abweichung ist gewollt und soll nicht stillschweigend entstehen.
+mehr auf alles in diesen Dateien. Ein Eintrag kann ueber `modes` je Ansichtsmodus abweichen
+(REQ-076), ein Modul also in `Nested` sichtbar und in `Sort` ausgeblendet sein. Die Abweichung
+ist gewollt und soll nicht stillschweigend entstehen.
 
-Das Format ist bewusst flach gehalten, ohne `groups:`-Wrapper, damit es von Hand lesbar
-bleibt. Gebuendelt wird eine eigene SnakeYAML-Version; IntelliJ-Plugin-Klassenlader sind pro
+**Nachtrag zum flachen Format:** Die urspruengliche Entscheidung gegen einen
+`groups:`-Wrapper ist mit ADR-020 zurueckgenommen - die oberste Ebene hat jetzt vier feste
+Schluessel. Der Grund steht dort: Gruppen und Tasks brauchen getrennte Namensraeume, sobald
+`hidden` dazukommt. Gebuendelt wird eine eigene SnakeYAML-Version; IntelliJ-Plugin-Klassenlader sind pro
 Plugin isoliert, ein Versionskonflikt mit der Plattform ist daher ausgeschlossen.

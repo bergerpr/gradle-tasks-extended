@@ -89,12 +89,12 @@ geschluesselt (REQ-041, REQ-076) - anders als frueher, wo `Default` ohne Moduleb
 modulunabhaengige Schluessel schrieb. Neue Auf-/Zuklapp-Aktionen landen also ab jetzt in einem
 Modulblock von `custom.yaml`.
 
-Bestehende Eintraege werden davon **nicht** ungueltig: Die Aufloesung faellt vom
-modulbezogenen auf den modulunabhaengigen Schluessel zurueck (REQ-076), ein altes
-`docker/gui: false` auf oberster Ebene wirkt in `Default` also weiter - bis es fuer ein
-einzelnes Modul ueberschrieben wird. Eine Migration ist damit weder noetig noch vorgesehen.
+Modulunabhaengige Eintraege werden davon **nicht** wirkungslos: Die Aufloesung faellt vom
+modulbezogenen auf den modulunabhaengigen Schluessel zurueck (REQ-076), ein `docker/gui` unter
+`groups:` wirkt in `Default` also weiter - bis es fuer ein einzelnes Modul ueberschrieben
+wird.
 Was sich aendert, ist die Reichweite: Derselbe Ordner kann in `:app` und in `:lib` jetzt
 unterschiedlich aufgeklappt sein, wo `Default` zuvor nur einen gemeinsamen Zustand kannte.
 
-Exclude/Include (REQ-075) wirken unveraendert vor dem Baumaufbau, und der Selektionserhalt
+Das Ausblenden (REQ-075) wirkt unveraendert vor dem Baumaufbau, und der Selektionserhalt
 (REQ-014) haengt an `stableId` und damit nicht an der Baumform.

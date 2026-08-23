@@ -19,7 +19,9 @@ Vorrang.
 editierte Dateien fuehren zu einem leeren Zustand statt zu einem Absturz - es handelt sich um
 eine von Menschen editierbare Systemgrenze.
 
-Die Knoteneintraege stehen flach auf oberster Ebene, ohne Wrapper-Schluessel. Daneben - auf
-derselben Ebene - stehen Modulbloecke und die Ansichtseinstellungen, siehe REQ-076.
+Die oberste Ebene hat genau vier feste Schluessel: `settings`, `groups`, `tasks` und
+`modules` (REQ-076). `custom.yaml` haelt dabei nur **Abweichungen** fest: Ein Knoten wird nur
+geschrieben, wenn sein Zustand von dem abweicht, was ohne diesen Eintrag gaelte, und
+verschwindet wieder, sobald er ihm entspricht.
 
-Begruendung und Konsequenzen: ADR-003 und ADR-014.
+Begruendung und Konsequenzen: ADR-003 und ADR-020.

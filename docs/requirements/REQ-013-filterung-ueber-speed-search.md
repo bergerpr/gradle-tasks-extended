@@ -22,7 +22,7 @@ Bei Ordnerknoten ist der Suchtext der angezeigte Name. Ein zusammengefasster Ord
 wird damit ueber jedes seiner Segmente gefunden - `server/gui` sowohl ueber `server` als auch
 ueber `gui`.
 
-Der Modulausschluss (REQ-075) greift noch davor. Die Suche findet daher keine Tasks aus
+Das Ausblenden (REQ-075) greift noch davor. Die Suche findet daher keine Tasks aus
 ausgeschlossenen Modulen - ein Treffer, den der sichtbare Baum nicht enthaelt, waere ein
 Widerspruch.
 

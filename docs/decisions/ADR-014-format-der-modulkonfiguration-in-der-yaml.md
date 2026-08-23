@@ -8,6 +8,12 @@ betrifft:
 quelle: OPEN-005, Abschnitt "Entschieden"
 ---
 
+**Abgeloest durch ADR-020.** Die oberste Ebene hat jetzt vier feste Schluessel
+(`settings`, `groups`, `tasks`, `modules`) statt dreier Sorten, die an Konventionen zu
+erkennen waren. Der Grund steht dort: Gruppen und Tasks teilten sich hier einen
+Namensraum, was mit `hidden` zu stillem Datenverlust gefuehrt haette. Was bleibt, ist die
+Entscheidung, Modulschluessel absolut zu halten.
+
 Drei Formentscheidungen fuer die Erweiterung von `default.yaml`/`custom.yaml` um Modulbezug
 und Ansichtseinstellungen (REQ-076). Alle drei haben denselben Zweck: bestehende Dateien
 sollen unveraendert weiterlaufen, denn das Plugin schreibt `default.yaml` bewusst nie um

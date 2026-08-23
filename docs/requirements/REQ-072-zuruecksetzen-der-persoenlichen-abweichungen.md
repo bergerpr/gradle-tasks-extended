@@ -13,7 +13,7 @@ Ein Toolbar-Button loescht `custom.yaml`, sodass wieder ausschliesslich `default
 
 Zurueckgesetzt wird damit alles, was in dieser Datei steht: Expand/Collapse-Zustand, eigene
 Icons, der Feststellbutton der Modulgliederung (REQ-074) und persoenliche
-Exclude-/Include-Listen (REQ-075). Das ist konsistent - alles vom Benutzer Gesetzte liegt an
+ausgeblendeten Knoten (REQ-075). Das ist konsistent - alles vom Benutzer Gesetzte liegt an
 einem Ort -, geht aber ueber den Expand-Zustand hinaus und soll deshalb bewusst so benannt
 sein.
 

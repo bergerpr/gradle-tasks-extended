@@ -7,6 +7,11 @@ ersetzt_vorgabe: OPEN-005, Abschnitt "Vorrangregeln" (zwei Regeln fuer denselben
 quelle: OPEN-005, Arbeitspaket AP-4
 ---
 
+**Abgeloest durch ADR-020.** `exclude`/`include` gibt es nicht mehr; Sichtbarkeit ist ein
+`hidden` am Knoten. Die hier festgelegte Reihenfolge Spezifitaet vor Modusbezug gilt
+unveraendert weiter und wurde nur um die Genauigkeit des Eintrags erweitert. Entfallen ist
+die Vereinigungsregel fuer Listen - die Begruendung dafuer steht in ADR-020.
+
 Die Vorgabe nannte zwei Regeln fuer "gleiche Spezifitaet", ohne zu sagen, welche zuerst
 greift:
 

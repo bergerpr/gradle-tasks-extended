@@ -15,7 +15,7 @@ adds a standalone ToolWindow for browsing/running Gradle tasks, with three view 
   without a `Tasks` node and without a forced module level.
 
 A separate toolbar toggle adds a **module level** on top of `Sort` and `Nested` (five combinations in
-total, not a fourth mode), and modules can be excluded/re-included per mode. In the folder tree, a folder
+total, not a fourth mode), and any node can be hidden — per module, and per mode if wanted. In the folder tree, a folder
 with no tasks of its own and exactly one child is compacted into one row (`docker/server/gui`) the way the
 IDE's project view compacts middle packages — the config key stays the full path, so an entry for a
 compacted-away intermediate node has no effect (REQ-004).
@@ -102,8 +102,8 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 
 - `model/` — pure model logic, no platform dependencies: `GradleTaskDescriptor` (normalized task
   representation), `TaskTreeBuilder` (builds sorted groups / nested folder tree), `TaskTreeSorting`,
-  `GradleTaskViewMode`, `NestedFolderNode`, `ModuleTreeNode` (Gradle project hierarchy), `ModuleFilter`
-  (exclude/include precedence rules), `GradleTaskDataProvider` (reads already-imported Gradle
+  `GradleTaskViewMode`, `NestedFolderNode`, `ModuleTreeNode` (Gradle project hierarchy), `NodeVisibility`
+  (`hidden` precedence rules), `GradleTaskDataProvider` (reads already-imported Gradle
   project data — the only file here that touches the platform). Everything except the data provider is
   unit-testable without the IntelliJ platform test framework.
 - `ui/` — the `JTree`, cell renderer, tree model builder, speed search wiring, and
@@ -113,9 +113,9 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 - `actions/` — toolbar dropdown (mode switch) and context menu actions (execute, copy name/path,
   expand/collapse all).
 - `persistence/` — per-project persisted state: selected view mode via `PersistentStateComponent`;
-  everything else (expand/collapse state, icons, module grouping toggle, exclude/include lists) via the
-  two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — module
-  node, module-scoped entry, or module-independent entry.
+  everything else (expand/collapse state, icons, hidden nodes, module grouping toggle) via the
+  two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — a sealed
+  interface with `Module`, `Group` and `Task`, each optionally scoped to a module.
 - `execution/` — `GradleTaskExecutor`, which runs tasks exclusively via
   `ExternalSystemUtil.runTask(TaskExecutionSpec)` (the current, non-deprecated API — never the
   `@ApiStatus.Obsolete` 4-parameter overload, and never a hand-rolled process/command-line invocation).
@@ -145,68 +145,74 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
   APIs (coroutines, IntelliJ Platform Gradle Plugin 2.x), not legacy equivalents.
 - No Marketplace-related work (signing, product code, obfuscation) is in scope.
 
-### YAML view config (REQ-070, REQ-071, REQ-076, ADR-003, ADR-014)
+### YAML view config (REQ-070, REQ-071, REQ-075, REQ-076, ADR-003, ADR-020)
 
 Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering the
-expand/collapse state, per-node custom icons, and the view settings (module grouping + exclude/include):
+expand/collapse state, per-node custom icons, hidden nodes, and the module-grouping default:
 - `default.yaml` — team-wide default, created once if missing (`TaskViewConfigYaml.createStarterIfMissing`),
   never overwritten if it already exists. Meant to be checked into version control.
 - `custom.yaml` — personal overrides, written automatically on manual expand/collapse and by the module
-  toggle; takes precedence over `default.yaml`. Cleared via the toolbar "Reset to Default" action, which
-  therefore also resets the module toggle and personal exclude/include lists.
+  toggle; takes precedence over `default.yaml`. It records **only deviations**: an entry is written when
+  it differs from what would apply without it, and disappears once it matches again. Cleared via the
+  toolbar "Reset to Default" action, which therefore also resets the module toggle and personal
+  hidden nodes.
 - `icons/` — custom icon files that the YAML entries reference by file name.
 
-Three kinds of key sit side by side at the top level, and node entries stay flat (no `groups:` wrapper)
-so existing files keep working unchanged — the plugin never rewrites `default.yaml`, so migration is not
-an option. A node value is either a bare boolean (short form, expand state only) or a mapping with the
-optional keys `expanded` and `icon`:
+The top level has exactly four fixed keys — `settings`, `groups`, `tasks`, `modules` — so nothing below
+is recognised by convention. Crucially, group paths and task names have **separate namespaces**: `build`
+is both a common Gradle group and a common task name, and a shared key would let `hidden` on the task
+silently take the whole group with it (ADR-020, which supersedes ADR-014's flat key space). A node value
+is either a bare boolean (short form, expand state only) or a mapping with `expanded`, `icon`, `hidden`
+and `modes`:
 
 ```yaml
-gradle_tasks_extended:            # reserved key: view settings
+settings:
   showModules: true
-  exclude:
-    - ":legacy"                   # hides the module and its submodules
-  include:
-    ":legacy":                    # ... except these group paths
-      - docker/gui
-  modes:
-    sort:
-      exclude:
-        - ":sandbox"              # only in Sort mode
 
-docker/gui: false                 # short form, unchanged — applies to every module
-docker/gui/jsp:
-  icon: smile.svg                 # replaces the built-in folder icon
-printGroup-docker-server-gui:
-  icon: smile.svg                 # tasks are keyed by task name
+groups:                           # group/folder paths, apply in every module
+  docker/gui: false               # short form: expand state only
+  docker/gui/jsp:
+    icon: smile.svg               # replaces the built-in folder icon
 
-":app":                           # leading colon = module block; root project is ":"
-  expanded: false                 #   reserved: the module node itself
-  icon: app.svg
-  docker/gui/jsp:                 #   anything else: a group path only inside :app
-    expanded: true
+tasks:                            # own namespace, keyed by task name
+  printGroup-docker-server-gui:
+    icon: smile.svg
+
+modules:
+  ":app":                         # the module node itself; root project is ":"
+    expanded: false
+    icon: app.svg
+    groups:                       # only inside :app
+      docker/gui/jsp:
+        expanded: true
+  ":legacy":
+    hidden: true                  # hides the module and its submodules ...
+    groups:
+      docker/gui:
+        hidden: false             # ... except this group path
+  ":sandbox":
+    modes:
+      sort:
+        hidden: true              # only in Sort mode
 ```
 
-Expand state and icons apply to **all three view modes**, not just `Nested` — group paths (`Sort`) and
-folder paths (`Default`/`Nested`) share the same human-readable, slash-separated key space
-via `GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. The `Tasks` node of the `Default`
-mode is the one exception: it is pure structure, has no key at all (`configKeyOf` returns `null`), and
-follows its module's expand state (REQ-077). Task entries share that key space
-but are keyed by `taskName`, module nodes by their Gradle project path; no ambiguity arises because each
-node type only ever looks up its own key, and module paths are recognisable by the leading `:`.
-Exclude/include are the exception: they are explicitly **per mode** (this amends ADR-003).
+Expand state, icons and visibility apply to **all three view modes** unless a `modes` entry says
+otherwise — group paths (`Sort`) and folder paths (`Default`/`Nested`) share the same human-readable,
+slash-separated key space via `GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. The
+`Tasks` node of the `Default` mode is the one exception: it is pure structure, has no key at all
+(`configKeyOf` returns `null`), and follows its module's expand state (REQ-077).
 
-Three format rules are worth remembering (full reasoning in ADR-014): the reserved key is named after the
-plugin so it cannot collide with a real Gradle group; `:` distinguishes module from group because Gradle
-project paths always start with one; and module keys stay **absolute** (`":app:core"` is a top-level key,
-not nested inside `":app"`) even though the *display* is nested — otherwise a sub-key inside a module
-block could not be told apart from a group path.
+Module keys stay **absolute** (`":app:core"` sits next to `":app"`, not inside it) even though the
+*display* is nested — otherwise a sub-key inside a module block could not be told apart from a module
+path.
 
-Resolution per node, most specific first: module-scoped `custom.yaml` > module-scoped `default.yaml` >
-module-independent `custom.yaml` > module-independent `default.yaml` > built-in default. The
-exclude/include **lists** follow the opposite idea — they are unioned rather than overridden, so a team
-default can never silently disappear; precedence between conflicting rules is specificity, then
-mode-specific, then include (ADR-016).
+Resolution per node **and field**: module-scoped before module-independent, mode-specific before
+all-modes, `custom.yaml` before `default.yaml`, then the built-in default. Visibility (`hidden`) uses the
+same order with one criterion in front — how precisely the entry names the node: task, then folders from
+the inside out, then module. Only `hidden` is inherited along paths (a hidden folder takes its subtree);
+`expanded` and `icon` are per node. `exclude`/`include` no longer exist — they were folded into `hidden`,
+which also retired ADR-016's union rule, so a personal `hidden: false` can now take back a team default
+(REQ-075, ADR-020).
 
 Icon rules: the value is a file name relative to `gradle/gradle_tasks_extended/icons/`, loaded via
 `IconLoader.findIcon(URL)`. A sibling `<name>_dark.<ext>` is preferred automatically under dark themes
