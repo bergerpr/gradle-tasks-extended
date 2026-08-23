@@ -1,0 +1,28 @@
+settings:
+  showModules: true          # the module level toggle
+
+groups:                      # group and folder paths, in every module
+  docker/gui: false          # short form: expand state only
+  docker/gui/jsp:
+    icon: smile.svg
+    hidden: false
+
+tasks:                       # keyed by bare task name
+  printGroup-docker-gui:
+    icon: smile.svg
+
+modules:                     # keys stay absolute: ":app:core" sits next to ":app"
+  ":app":
+    expanded: false
+    groups:                  # only inside :app
+      docker/gui/jsp:
+        expanded: true
+  ":legacy":
+    hidden: true             # hides the module and everything below it ...
+    groups:
+      docker/gui:
+        hidden: false        # ... except this group path
+  ":sandbox":
+    modes:
+      sort:
+        hidden: true         # only in the Sort view mode

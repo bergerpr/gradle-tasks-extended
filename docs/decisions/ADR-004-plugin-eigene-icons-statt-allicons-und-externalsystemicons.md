@@ -9,8 +9,11 @@ ersetzt_vorgabe: Plan.md gab AllIcons.Nodes.Folder vor
 quelle: Erweiterung ueber Plan.md hinaus
 ---
 
-Die Baum- und ToolWindow-Icons kommen als eigene SVG-Ressourcen aus
-`src/main/resources/icons/` (abgeleitet von einer Icon-Sammlung, MIT), je mit `_dark`-Variante.
+Die Baum-Icons kommen als eigene SVG-Ressourcen aus `src/main/resources/icons/` (abgeleitet
+von einer Icon-Sammlung, MIT), je mit `_dark`-Variante. Das Streifen-Icon des ToolWindows ist davon
+ausgenommen: Dort steht seit REQ-005 der Elefant des Plugins als PNG in 13 und 26 px, weil die
+Vorlage ein Bild und keine Vektorgrafik ist; eine `_dark`-Variante gibt es nicht, das farbige
+Icon passt in beide Themes.
 
 So haengt die Darstellung weder davon ab, unter welchem Plattformmodul ein Icon gerade
 ausgeliefert wird, noch davon, ob eine `AllIcons`-Konstante in der jeweiligen IDE-Version noch

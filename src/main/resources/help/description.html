@@ -1,0 +1,36 @@
+<html>
+<head>
+<style>
+  body   { color: {{textColor}}; font-family: sans-serif; margin: 10px 14px 0 14px; }
+  p      { line-height: 1.4; margin: 0 0 8px 0; }
+  ul     { margin: 0 0 4px 18px; }
+  li     { line-height: 1.4; }
+  .muted { color: {{mutedColor}}; }
+</style>
+</head>
+<body>
+
+<p>A standalone tool window for browsing and running the Gradle tasks of the opened project.
+It reads what the IDE has already imported &mdash; it never triggers a Gradle sync of its
+own.</p>
+
+<ul>
+  <li><b>Three view modes.</b> <i>Default</i> rebuilds the IDE's own Gradle view but turns the
+      group rows into a folder tree; <i>Sort</i> lists the full group paths alphabetically;
+      <i>Nested</i> builds the folder hierarchy from slash-separated task groups.</li>
+  <li><b>An optional module level</b> on top of Sort and Nested, so tasks of the same name in
+      different subprojects stay apart. Tasks always run with their qualified path.</li>
+  <li><b>Hide what you never use</b> &mdash; per node, per module, and per view mode if you
+      want. <i>Show Hidden</i> brings them back greyed out.</li>
+  <li><b>Own icons</b> per group, folder or task, read from the project directory, with a dark
+      variant picked up automatically.</li>
+  <li><b>Run, Debug and Run with Coverage</b> from the context menu, plus <i>Modify Run
+      Configuration</i> &mdash; the same actions the original view offers.</li>
+</ul>
+
+<p class="muted">Expand state, icons, hidden nodes and the module toggle live in two YAML files
+inside the project: a team default that is checked in, and personal overrides on top. The
+<i>Configuration</i> tab explains where they are and how they are written.</p>
+
+</body>
+</html>

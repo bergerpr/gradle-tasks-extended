@@ -1,4 +1,5 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import java.time.LocalDateTime
 
 // Alle Versionen stehen zentral in `gradle/libs.versions.toml` (Gradle Version Catalog).
 // In dieser Datei darf deshalb keine Versionsnummer mehr hartkodiert werden.
@@ -75,6 +76,14 @@ intellijPlatform {
         name = providers.gradleProperty("pluginName")
         version = providers.gradleProperty("pluginVersion")
 
+        // Einzige Quelle fuer den Herausgeber: patchPluginXml schreibt ihn in die plugin.xml,
+        // dieselben Werte landen ueber generateBuildInfo im Info-Dialog (REQ-080).
+        vendor {
+            name = providers.gradleProperty("pluginVendor")
+            email = providers.gradleProperty("pluginVendorEmail")
+            url = providers.gradleProperty("pluginVendorUrl")
+        }
+
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
             // Bewusst kein untilBuild: laut Plan wird ausschliesslich die
@@ -91,6 +100,97 @@ tasks {
         useJUnitPlatform()
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+// Build-Infos fuer den Info-Dialog der Ansicht (REQ-080)
+//
+// Version, Plugin-ID und Zielplattform stehen in gradle.properties bzw. im Version Catalog,
+// nicht im Quellcode - der Dialog liest sie deshalb aus einer beim Build erzeugten
+// `build-info.properties` im Ressourcen-Wurzelverzeichnis. Die Plattform-API waere der
+// naheliegende Weg gewesen, aber alle Zugaenge zum eigenen Plugin-Deskriptor
+// (`PluginManagerCore.getPlugin`, `PluginManager.getPluginByClass`, `findEnabledPlugin`) sind
+// mit @ApiStatus.Internal markiert und damit nach ADR-008 tabu.
+//
+// Der Zeitstempel ist bewusst KEIN Task-Input: Sonst waere die Aufgabe bei jedem Build
+// veraltet und zoege Jar und Plugin-ZIP jedes Mal mit. So steht dort der Zeitpunkt, zu dem die
+// Datei zuletzt wirklich neu erzeugt wurde.
+// ---------------------------------------------------------------------------------------------
+
+abstract class GenerateBuildInfo : DefaultTask() {
+    @get:Input abstract val pluginId: Property<String>
+    @get:Input abstract val pluginName: Property<String>
+    @get:Input abstract val pluginVersion: Property<String>
+    @get:Input abstract val sinceBuild: Property<String>
+    @get:Input abstract val pluginVendor: Property<String>
+    @get:Input abstract val pluginVendorEmail: Property<String>
+    @get:Input abstract val pluginVendorUrl: Property<String>
+    @get:Input abstract val gitBranch: Property<String>
+
+    /**
+     * Nur das Ja/Nein, nicht die Liste der geaenderten Dateien: Sonst waere die Aufgabe bei
+     * jeder Bearbeitung im Arbeitsverzeichnis veraltet.
+     */
+    @get:Input abstract val gitDirty: Property<Boolean>
+    @get:Input abstract val targetPlatform: Property<String>
+    @get:Input abstract val gitCommit: Property<String>
+    @get:OutputFile abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val file = outputFile.get().asFile
+        file.parentFile.mkdirs()
+        file.writeText(
+            buildString {
+                appendLine("# Erzeugt von der Gradle-Aufgabe generateBuildInfo - nicht von Hand bearbeiten.")
+                appendLine("pluginId=" + pluginId.get())
+                appendLine("pluginName=" + pluginName.get())
+                appendLine("version=" + pluginVersion.get())
+                appendLine("sinceBuild=" + sinceBuild.get())
+                appendLine("vendor=" + pluginVendor.get())
+                appendLine("vendorEmail=" + pluginVendorEmail.get())
+                appendLine("vendorUrl=" + pluginVendorUrl.get())
+                appendLine("gitBranch=" + gitBranch.get())
+                appendLine("gitDirty=" + gitDirty.get())
+                appendLine("targetPlatform=" + targetPlatform.get())
+                appendLine("gitCommit=" + gitCommit.get())
+                appendLine("buildTime=" + LocalDateTime.now().withNano(0))
+            }
+        )
+    }
+}
+
+val buildInfoDir = layout.buildDirectory.dir("generated/buildInfo")
+
+val generateBuildInfo = tasks.register<GenerateBuildInfo>("generateBuildInfo") {
+    group = "build"
+    description = "Schreibt Version, Plugin-ID und Git-Commit fuer den Info-Dialog des Plugins."
+    pluginId = providers.gradleProperty("pluginGroup")
+    pluginName = providers.gradleProperty("pluginName")
+    pluginVersion = providers.gradleProperty("pluginVersion")
+    sinceBuild = providers.gradleProperty("pluginSinceBuild")
+    pluginVendor = providers.gradleProperty("pluginVendor")
+    pluginVendorEmail = providers.gradleProperty("pluginVendorEmail").orElse("")
+    pluginVendorUrl = providers.gradleProperty("pluginVendorUrl").orElse("")
+    targetPlatform = providers.gradleProperty("platformType")
+        .zip(libs.versions.intellijIdea) { type, ide -> "$type $ide" }
+    // `isIgnoreExitValue`, damit ein Export ohne .git-Verzeichnis den Build nicht kippt.
+    gitCommit = providers.exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
+    gitBranch = providers.exec {
+        commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map { it.trim().ifEmpty { "unknown" } }
+    gitDirty = providers.exec {
+        commandLine("git", "status", "--porcelain")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map { it.isNotBlank() }
+    outputFile = buildInfoDir.map { it.file("build-info.properties") }
+}
+
+sourceSets["main"].resources.srcDir(buildInfoDir)
+tasks.named("processResources") { dependsOn(generateBuildInfo) }
 
 // ---------------------------------------------------------------------------------------------
 // Versions-Updates fuer gradle/libs.versions.toml

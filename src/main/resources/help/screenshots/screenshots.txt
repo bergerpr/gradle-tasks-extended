@@ -1,0 +1,13 @@
+# Bildstrecke im Info-Dialog, Reiter "Description" (REQ-081).
+#
+# Ein Eintrag pro Zeile:   dateiname.png | Bildunterschrift
+# Zeilen mit # sind Kommentar, Leerzeilen werden uebersprungen.
+#
+# Die Dateien liegen neben dieser Datei in src/main/resources/help/screenshots/.
+# Ein Eintrag ohne passende Datei wird still uebersprungen - hier duerfen also
+# geplante Bilder stehen, bevor es sie gibt.
+
+01-view-modes.png    | Three view modes: Default, Sort and Nested
+02-module-level.png  | An optional module level on top of Sort and Nested
+03-hidden-nodes.png  | Hiding single nodes per module, shown greyed out via "Show Hidden"
+04-custom-icons.png  | Custom icons per group and task, taken from the project directory

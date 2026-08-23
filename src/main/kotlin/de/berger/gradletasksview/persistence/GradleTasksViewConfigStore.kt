@@ -56,6 +56,22 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
     private val customFile: File get() = File(configDir, "custom.yaml")
     private val iconDir: File get() = File(configDir, "icons")
 
+    /**
+     * Die drei Orte der Konfiguration nach aussen, fuer die Toolbar-Aktionen "Edit Default
+     * Configuration" und "Configuration Help" (REQ-080). Sie zeigen dieselben Pfade an, die
+     * dieser Store benutzt - sonst koennte die Hilfe auf ein Verzeichnis verweisen, aus dem
+     * gar nicht gelesen wird.
+     */
+    val defaultConfigFile: File get() = defaultFile
+    val customConfigFile: File get() = customFile
+    val iconsDirectory: File get() = iconDir
+
+    /**
+     * Legt `default.yaml` mit dem kommentierten Startinhalt an, falls sie fehlt, und liefert
+     * sie zurueck. Vorhandene Dateien bleiben unberuehrt (REQ-070).
+     */
+    fun ensureDefaultConfigExists(): File = defaultFile.also(TaskViewConfigYaml::createStarterIfMissing)
+
     @Volatile private var defaultState: TaskViewConfig = TaskViewConfig()
     @Volatile private var customState: TaskViewConfig = TaskViewConfig()
 

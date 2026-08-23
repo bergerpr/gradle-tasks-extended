@@ -1,0 +1,96 @@
+<html>
+<head>
+<style>
+  body   { color: {{textColor}}; font-family: sans-serif; margin: 12px 14px; }
+  h2     { font-size: 115%; margin: 18px 0 6px 0; }
+  h2:first-of-type { margin-top: 0; }
+  p, li  { line-height: 1.4; }
+  ul     { margin: 4px 0 4px 18px; }
+  a      { color: {{linkColor}}; }
+  code   { font-family: monospace; }
+  pre    { font-family: monospace; margin: 8px 0 8px 2px; padding: 8px 10px;
+           background-color: {{codeBackground}};
+           border-left: 3px solid {{mutedColor}}; }
+  .path  { font-family: monospace; }
+  .muted { color: {{mutedColor}}; }
+  td     { text-align: left; }
+</style>
+</head>
+<body>
+
+<h2>Where the configuration lives</h2>
+<p>Everything this view remembers &mdash; expand state, custom icons, hidden nodes and the
+module toggle &mdash; is stored in two YAML files inside the opened project. Click a path to
+open it.</p>
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td valign="top"><b>Team&nbsp;default</b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top"><a class="path" href="{{defaultFile}}">{{defaultFileShort}}</a><br>
+        <span class="muted">Checked into version control, never overwritten by the plugin.</span></td>
+  </tr>
+  <tr><td colspan="2" height="8"></td></tr>
+  <tr>
+    <td valign="top"><b>Personal&nbsp;overrides</b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top"><a class="path" href="{{customFile}}">{{customFileShort}}</a><br>
+        <span class="muted">Written automatically, takes precedence, and records only what
+        deviates from the default.</span></td>
+  </tr>
+  <tr><td colspan="2" height="8"></td></tr>
+  <tr>
+    <td valign="top"><b>Icons</b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top"><a class="path" href="{{iconsDir}}">{{iconsDirShort}}</a><br>
+        <span class="muted">Image files referenced by name from either YAML file.</span></td>
+  </tr>
+</table>
+<p class="muted">The toolbar's <i>Reset to Default</i> deletes the personal file, so the team
+default applies again. Hand edits to either file are picked up on the next refresh &mdash; no
+IDE restart needed.</p>
+
+<h2>Shape of a file</h2>
+<p>The top level has exactly four keys. Group paths and task names live in separate
+namespaces, so a task called <code>build</code> and a group called <code>build</code> never
+affect each other.</p>
+<pre>{{example}}</pre>
+
+<h2>What a node entry may contain</h2>
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td valign="top"><code>expanded</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Expand state. A bare <code>true</code>/<code>false</code> instead of a
+        mapping is the short form for exactly this field.</td>
+  </tr>
+  <tr>
+    <td valign="top"><code>icon</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">File name relative to the icons directory. A sibling
+        <code>&lt;name&gt;_dark.&lt;ext&gt;</code> is preferred automatically under dark themes.
+        A missing file falls back to the built-in icon and logs a warning.</td>
+  </tr>
+  <tr>
+    <td valign="top"><code>hidden</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Hides the node. The only field inherited along a path: a hidden folder
+        takes its whole subtree with it, and a more precise entry can take it back.</td>
+  </tr>
+  <tr>
+    <td valign="top"><code>modes</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">The same fields again, but only for <code>default</code>,
+        <code>sort</code> or <code>nested</code>.</td>
+  </tr>
+</table>
+
+<h2>Which entry wins</h2>
+<p>Resolved per node <i>and per field</i>, in this order:</p>
+<ul>
+  <li>module-scoped before module-independent,</li>
+  <li>mode-specific before all-modes,</li>
+  <li>personal file before team default,</li>
+  <li>then the built-in default (expanded, plugin icon, visible).</li>
+</ul>
+<p><code>hidden</code> uses the same order with one criterion in front: how precisely the entry
+names the node &mdash; task, then folders from the inside out, then module.</p>
+<p class="muted">Folder paths are the slash-separated group paths shown in the tree
+(<code>docker/server/gui</code>). A folder that is compacted into one row keeps its full path
+as the key, so an entry for a compacted-away intermediate node has no effect. The
+<code>Tasks</code> node of the Default view has no key at all and follows its module.</p>
+
+</body>
+</html>

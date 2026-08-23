@@ -57,6 +57,11 @@ version catalog) — never hardcode a version in `build.gradle.kts`. This needs 
 Gradle picks the file up by its path and exposes it as the typed `libs` accessor. Bumping the
 target IDE therefore means editing `intellijIdea` in the catalog, not `gradle.properties`.
 
+The `generateBuildInfo` task writes `build-info.properties` (version, plugin id, since-build,
+target platform, git commit, build time) into the generated resources; the plugin's info dialog
+reads it because every platform API for a plugin's own descriptor is `@ApiStatus.Internal`
+(REQ-080). Its build timestamp is deliberately not a task input, so the jar stays cacheable.
+
 `gradle.properties` keeps only what is not a dependency: `pluginGroup`, `pluginName`,
 `pluginVersion`, `pluginSinceBuild`, and `platformType` (`IU` — a product code, not a version).
 
@@ -112,6 +117,8 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
 - `actions/` — toolbar dropdown (mode switch), the two toolbar toggles (module grouping, show hidden),
+  the two right-hand config buttons (gear opens `default.yaml`, info opens the configuration help
+  dialog whose text lives in `src/main/resources/help/configuration.html` — REQ-080),
   and context menu actions (copy name/path, hide/show, expand/collapse all).
   The run/debug/coverage entries are *not* ours: `GradleTaskRunActionGroup` pulls the platform's
   context actions from the executor extension list (REQ-079, ADR-022).

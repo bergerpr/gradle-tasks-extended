@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>de.berger.gradletasksview</id>
     <name>Gradle Tasks Extended</name>
-    <vendor>Privat</vendor>
+    <!-- Name, Version und Herausgeber traegt patchPluginXml aus gradle.properties ein. -->
 
     <description><![CDATA[
         Eigenstaendige ToolWindow-Ansicht fuer Gradle-Tasks mit drei Darstellungsmodi:
@@ -20,10 +20,12 @@
     <resource-bundle>messages.GradleTasksViewBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Streifen-Icon: der Elefant aus dem Info-Dialog, auf den Kopf zugeschnitten -
+             die ganze Figur zerfaellt bei 13 px zu einem Fleck (REQ-005, ADR-004). -->
         <toolWindow id="GradleTasksExtended"
                     factoryClass="de.berger.gradletasksview.toolwindow.GradleTasksExtendedToolWindowFactory"
                     anchor="right"
-                    icon="/icons/gradleTasksToolWindow.svg"/>
+                    icon="/icons/toolWindowElefant.png"/>
 
         <!-- GradleTaskViewSettings und GradleTaskViewRefresher sind ueber @Service(Service.Level.PROJECT)
              bereits als "Light Services" registriert und werden hier bewusst NICHT zusaetzlich

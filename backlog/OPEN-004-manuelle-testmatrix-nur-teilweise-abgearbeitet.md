@@ -10,6 +10,8 @@ betrifft_anforderung:
   - REQ-075
   - REQ-077
   - REQ-079
+  - REQ-080
+  - REQ-081
 betrifft:
   - build.gradle.kts
 quelle: Plan.md, Abschnitt "Manuelle Tests"; OPEN-007
@@ -96,3 +98,46 @@ Unit-Tests gibt es dafuer nicht:
 - "Modify Run Configuration" oeffnet den Konfigurationsdialog mit vorbelegtem Taskpfad.
 - Mehrere Tasks desselben Moduls selektiert: ein Aufruf mit beiden Tasknamen. Tasks aus
   verschiedenen Modulen selektiert: die Ausfuehrungseintraege sind inaktiv.
+
+## Mit den Konfigurationsknoepfen hinzugekommen
+
+- Zahnrad und Info stehen ganz rechts in der Toolbar, das Info-Symbol rechts vom Zahnrad.
+- Das Zahnrad oeffnet die `default.yaml` des Testprojekts im Editor; nach dem Loeschen der
+  Datei legt derselbe Klick sie mit dem kommentierten Startinhalt neu an.
+- Der Info-Dialog zeigt die drei Pfade des geoeffneten Projekts - nicht die eines anderen -,
+  ist in hellem und dunklem Theme lesbar und laesst sich scrollen.
+- Ein Klick auf `default.yaml` oder `custom.yaml` schliesst den Dialog und oeffnet die Datei;
+  der Klick auf `icons/` oeffnet das Verzeichnis im Dateimanager.
+- Bei zwei gleichzeitig geoeffneten Projekten zeigt jede Ansicht ihre eigenen Pfade (REQ-042).
+- Im Kopf steht das Logo links, ohne hellen Kasten um den Elefanten - der Hintergrund muss in
+  hellem **und** dunklem Theme durchscheinen.
+- Rechts daneben Name und eine Zeile mit Version, Commit und Branch; "Details" ist beim
+  Oeffnen zugeklappt und der Kopf nimmt hoechstens ein Viertel des Dialogs ein.
+- Aufgeklappt zeigt "Details" alle Kenndaten, die mit `gradle.properties` bzw. der Sandbox-IDE
+  uebereinstimmen und nirgends `?` zeigen; die Beschreibung darunter weicht dabei nach unten,
+  ohne dass der Dialog springt.
+- Der Kopf bleibt stehen, waehrend die Beschreibung darunter scrollt.
+- Auf einem hochaufloesenden Bildschirm ist das Logo scharf (dann greift `elefant@2x.png`).
+- Die Zeile "Branch" zeigt den Branch des Builds und bei nicht eingecheckten Aenderungen den
+  Zusatz; "Installed at" zeigt das Sandbox-Verzeichnis, oeffnet es per Klick im Dateimanager
+  und haelt den vollen Pfad im Tooltip.
+- Die Tabellen im beschreibenden Teil stehen linksbuendig, und der Dialog braucht keinen
+  waagerechten Bildlauf.
+- Das YAML-Beispiel ist eingefaerbt und die Kommentarspalte bleibt ausgerichtet; nach einem
+  Wechsel des Editor-Farbschemas (hell/dunkel) passt sich die Faerbung beim naechsten Oeffnen
+  des Dialogs an.
+
+## Mit den Reitern und der Bildstrecke hinzugekommen
+
+- Der Dialog oeffnet auf `Description`; der Text beschreibt die Ansichtsmodi, das Ausblenden,
+  eigene Icons und die Ausfuehrungsarten.
+- Die Bildstrecke blaettert mit beiden Schaltern zyklisch durch alle Bilder, Zaehler und
+  Bildunterschrift wandern mit, und die Bilder werden nie ueber ihre Groesse hinaus
+  aufgeblasen.
+- Solange keine Screenshots mitgeliefert sind, steht dort der Hinweis auf das
+  Ressourcenverzeichnis - kein leerer Rahmen.
+- Ein Eintrag in `screenshots.txt` ohne passende Datei laesst den Dialog unveraendert
+  funktionieren.
+- Der Reiter `Configuration` zeigt unveraendert Pfade, Beispiel und Vorrangreihenfolge.
+- Am seitlichen Streifen steht der Elefant statt des alten Baumsymbols, in hellem und dunklem
+  Theme erkennbar und auf einem hochaufloesenden Bildschirm scharf.
