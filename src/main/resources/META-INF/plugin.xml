@@ -3,12 +3,19 @@
     <name>Gradle Tasks Extended</name>
     <!-- Name, Version und Herausgeber traegt patchPluginXml aus gradle.properties ein. -->
 
+    <!-- Sichtbar in der Plugin-Liste der IDE, deshalb englisch wie die uebrige Oberflaeche.
+         Aendert sich der Funktionsumfang, gehoert dieser Text mit nachgezogen. -->
     <description><![CDATA[
-        Eigenstaendige ToolWindow-Ansicht fuer Gradle-Tasks mit drei Darstellungsmodi:
-        Default (Nachbau der originalen Gradle-Ansicht, mit Ordnerbaum statt flacher
-        Gruppenzeilen), Sort (flache Gruppenliste, alphabetisch sortiert) und Nested
-        (hierarchische Ordneransicht aus Slash-getrennten Task-Gruppen).
-        Nur fuer den privaten Gebrauch bestimmt, kein Marketplace-Vertrieb.
+        A standalone tool window for the Gradle tasks of the opened project, with three view
+        modes: <em>Default</em> rebuilds the IDE's own Gradle view but turns the group rows
+        into a folder tree, <em>Sort</em> lists the full group paths alphabetically, and
+        <em>Nested</em> builds a folder hierarchy from slash-separated task groups. An
+        optional module level can be switched on top of Sort and Nested.<br><br>
+        Nodes can be hidden per module and per view mode, groups and tasks can carry their own
+        icons, and Run, Debug and Run with Coverage are available from the context menu.
+        Expand state, icons and hidden nodes are stored in two YAML files inside the project:
+        a team default that is checked in, and personal overrides on top.<br><br>
+        Built for private use; not distributed through the JetBrains Marketplace.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

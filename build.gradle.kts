@@ -1,4 +1,5 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 import java.time.LocalDateTime
 
 // Alle Versionen stehen zentral in `gradle/libs.versions.toml` (Gradle Version Catalog).
@@ -93,6 +94,48 @@ intellijPlatform {
 
     // Kein Marketplace-Vertrieb -> kein publishPlugin{} / kein signPlugin{} Setup.
     // Verteilung erfolgt ausschliesslich per "Install Plugin from Disk" (siehe docs/INSTALLATION.md).
+
+    // `./gradlew verifyPlugin` laesst den IntelliJ Plugin Verifier ueber die gebaute ZIP laufen
+    // und meldet Aufrufe entfernter oder interner API. Gegen WELCHE IDEs geprueft wird, muss
+    // man ihm sagen - er leitet es nicht aus der plugin.xml ab. Hier ist das genau die eine
+    // Zielversion aus dem Version Catalog (REQ-050): Sie liegt durch den Build ohnehin lokal
+    // vor, und mehr Versionen zu pruefen haette ohne Rueckwaertskompatibilitaet keinen Zweck.
+    pluginVerification {
+        ides {
+            // `current()` = genau die Plattform, gegen die auch uebersetzt wird. Sie liegt
+            // durch den Build ohnehin lokal vor, es wird also nichts zusaetzlich geladen.
+            // Alternativen waeren `recommended()` (alle Releases im since/until-Bereich der
+            // plugin.xml) oder `create(IntellijIdeaUltimate, "<version>")` - beides zieht
+            // weitere IDE-Distributionen und lohnt nur mit Rueckwaertskompatibilitaet.
+            current()
+        }
+
+        // Woran der Build scheitern soll, ausdruecklich aufgezaehlt statt ueber `ALL`:
+        // Drei Kategorien meldet der Verifier hier bekanntermassen und unvermeidbar.
+        //
+        //   DEPRECATED_API_USAGES   - Kotlin erzeugt fuer die Java-Default-Methoden von
+        //                             ToolWindowFactory (isApplicable, isDoNotActivateOnStart)
+        //                             automatisch Ueberschreibungen; im Quellcode steht davon
+        //                             nichts, und der Compiler warnt entsprechend auch nicht.
+        //   EXPERIMENTAL_API_USAGES - dieselben automatischen Ueberschreibungen (manage,
+        //                             getAnchor, getIcon) plus IconUtil.downscaleIconToSize.
+        //   INTERNAL_API_USAGES     - ExternalSystemTaskLocation, der einzige Typ, den der
+        //                             Gradle-Producer der Plattform aus dem
+        //                             ConfigurationContext akzeptiert (REQ-079, ADR-022).
+        //
+        // Sie bleiben im Bericht sichtbar, brechen den Build aber nicht ab. Alles Uebrige -
+        // echte Kompatibilitaetsprobleme, fehlende Abhaengigkeiten, zur Entfernung
+        // vorgemerkte oder nicht ueberschreibbare API - laesst ihn scheitern.
+        failureLevel = listOf(
+            VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+            VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,
+            VerifyPluginTask.FailureLevel.INVALID_PLUGIN,
+            VerifyPluginTask.FailureLevel.PLUGIN_STRUCTURE_WARNINGS,
+            VerifyPluginTask.FailureLevel.SCHEDULED_FOR_REMOVAL_API_USAGES,
+            VerifyPluginTask.FailureLevel.OVERRIDE_ONLY_API_USAGES,
+            VerifyPluginTask.FailureLevel.NON_EXTENDABLE_API_USAGES,
+        )
+    }
 }
 
 tasks {

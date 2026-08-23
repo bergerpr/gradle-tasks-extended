@@ -55,6 +55,26 @@ Veroeffentlicht wird ueber `DataSink.lazy`, weil `ExternalSystemTaskLocation.cre
 `PsiDirectory` zum Projektpfad nachschlaegt und das nur laufen soll, wenn eine Aktion die
 Location wirklich anfragt. `ExternalProjectsViewImpl` haelt es genauso.
 
+### `ExternalSystemTaskLocation` ist intern
+
+Der Plugin Verifier hat gemeldet, was eine Sichtprufung der Klassendatei zunaechst nicht
+hergab: `ExternalSystemTaskLocation` traegt `@ApiStatus.Internal`. Das kollidiert mit ADR-008
+und REQ-052, ist hier aber nicht zu umgehen - der Producer der Plattform castet die `Location`
+genau auf diesen Typ, ein anderer Typ wird also nie akzeptiert.
+
+Geprueft und verworfen:
+
+- **Zurueck zu eigenen Aktionen ueber `ExternalSystemUtil.runTask`.** Kostet den Eintrag im
+  Konfigurations-Widget und laesst Coverage gar nicht laufen - genau die Gruende, aus denen
+  dieser ADR entstanden ist.
+- **Eigener `RunConfigurationProducer`.** Waere der saubere Ausweg: Ein eigener Producer
+  koennte aus einem plugin-eigenen Datenschluessel eine `ExternalSystemRunConfiguration`
+  bauen, ohne die interne Location. Das ist eine echte Alternative und bleibt offen; sie
+  bedeutet eine zusaetzliche Erweiterung samt Registrierung und eigener Kontextlogik.
+
+Offengelegt statt versteckt: `verifyPlugin` laesst `INTERNAL_API_USAGES` deshalb bewusst nicht
+scheitern, meldet die Stelle aber weiterhin im Bericht (siehe Kommentar in `build.gradle.kts`).
+
 ## Was von ADR-006 bleibt
 
 Die Aussage "niemals eigene Prozess- oder Kommandozeilenaufrufe" gilt unveraendert, ebenso das

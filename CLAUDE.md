@@ -39,7 +39,19 @@ compacted-away intermediate node has no effect (REQ-004).
 ./gradlew buildPlugin   # build the plugin ZIP -> build/distributions/gradle-tasks-extended-<version>.zip
 ./gradlew test          # run unit tests (JUnit 5 via kotlin-test)
 ./gradlew runIde        # launch a sandbox IDE with the plugin installed (also: run-ide.bat)
+./gradlew verifyPlugin  # IntelliJ Plugin Verifier over the built ZIP (~2 min, see below)
 ```
+
+**`plugin.xml` is part of every feature change.** Its `<description>` is what the IDE shows in
+the plugin list, so a new or changed capability belongs in that text as well — same for actions,
+extension points and dependencies declared there. It is not a file that only gets touched when
+something breaks; treat it like the requirement files under `docs/`.
+
+`verifyPlugin` runs against the platform the plugin is compiled against (`ides { current() }`);
+which IDEs get checked is configured in `build.gradle.kts`, the verifier does not derive it from
+`plugin.xml`. Three finding categories are known and deliberately do not fail the build
+(deprecated/experimental auto-generated `ToolWindowFactory` overrides, and the internal
+`ExternalSystemTaskLocation` — REQ-052, ADR-022); everything else does.
 
 Run a single test class/method the normal Gradle way, e.g.:
 ```bash
