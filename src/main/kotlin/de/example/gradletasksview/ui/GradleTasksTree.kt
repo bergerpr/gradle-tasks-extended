@@ -18,6 +18,7 @@ import de.example.gradletasksview.execution.GradleTaskExecutor
 import de.example.gradletasksview.model.GradleTaskDescriptor
 import de.example.gradletasksview.model.NestedFolderNode
 import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
+import de.example.gradletasksview.persistence.TaskViewConfigKey
 import java.awt.datatransfer.StringSelection
 import java.awt.event.HierarchyEvent
 import java.awt.event.MouseAdapter
@@ -139,6 +140,15 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
     fun selectedTaskDescriptors(): List<GradleTaskDescriptor> =
         selectionPaths.orEmpty().mapNotNull { path ->
             ((path.lastPathComponent as? DefaultMutableTreeNode)?.userObject as? TaskNodeData)?.descriptor
+        }
+
+    /**
+     * Konfigurationsschluessel aller selektierten Knoten. Knoten ohne Schluessel - der
+     * `Tasks`-Strukturknoten des `Default`-Modus (REQ-077) - fallen dabei heraus.
+     */
+    fun selectedConfigKeys(): List<TaskViewConfigKey> =
+        selectionPaths.orEmpty().mapNotNull { path ->
+            (path.lastPathComponent as? DefaultMutableTreeNode)?.let(::configKeyOf)
         }
 
     fun selectedFolder(): NestedFolderNode? {

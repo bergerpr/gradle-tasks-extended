@@ -7,6 +7,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import de.example.gradletasksview.model.GradleTaskViewMode
 import de.example.gradletasksview.model.VisibilityRule
+import de.example.gradletasksview.model.isNodeHidden
 import de.example.gradletasksview.model.VisibilityTarget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -122,29 +123,87 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
      * Die Reihenfolge der Liste spielt keine Rolle - welche Regel gewinnt, entscheidet der
      * Vergleich in [de.example.gradletasksview.model.filterHiddenTasks].
      */
-    fun visibilityRules(mode: GradleTaskViewMode): List<VisibilityRule> =
-        rulesOf(defaultState, mode, fromCustomFile = false) + rulesOf(customState, mode, fromCustomFile = true)
+    fun visibilityRules(mode: GradleTaskViewMode): List<VisibilityRule> = visibilityRules(mode, skipCustomEntryFor = null)
+
+    /**
+     * @param skipCustomEntryFor laesst den Eintrag aus `custom.yaml` aus, den dieser
+     *   Schluessel selbst adressiert - die Grundlage dafuer, nur echte Abweichungen zu
+     *   speichern (siehe [setHidden]).
+     */
+    private fun visibilityRules(
+        mode: GradleTaskViewMode,
+        skipCustomEntryFor: TaskViewConfigKey?
+    ): List<VisibilityRule> =
+        rulesOf(defaultState, mode, fromCustomFile = false, skip = null) +
+            rulesOf(customState, mode, fromCustomFile = true, skip = skipCustomEntryFor)
+
+    /** Ist der von [key] beschriebene Knoten im aktuellen Modus ausgeblendet? */
+    fun isHidden(key: TaskViewConfigKey): Boolean = isHidden(key, skipOwnCustomEntry = false)
+
+    private fun isHidden(key: TaskViewConfigKey, skipOwnCustomEntry: Boolean): Boolean {
+        val mode = GradleTaskViewSettings.getInstance(project).state.selectedMode
+        val rules = visibilityRules(mode, skipCustomEntryFor = key.takeIf { skipOwnCustomEntry })
+        return isNodeHidden(
+            rules,
+            modulePath = when (key) {
+                is TaskViewConfigKey.Module -> key.modulePath
+                is TaskViewConfigKey.Group -> key.modulePath
+                is TaskViewConfigKey.Task -> key.modulePath
+            },
+            groupName = (key as? TaskViewConfigKey.Group)?.groupPath,
+            taskName = (key as? TaskViewConfigKey.Task)?.taskName
+        )
+    }
+
+    /**
+     * Blendet den von [key] beschriebenen Knoten aus oder wieder ein.
+     *
+     * Wie [setExpanded] wird nur festgehalten, was von dem abweicht, was ohne diesen Eintrag
+     * ohnehin gaelte. Ein Knoten, der bereits durch ein ausgeblendetes Modul verschwindet,
+     * bekommt also keinen eigenen Eintrag, und ein Wiedereinblenden traegt `hidden: false`
+     * genau dann ein, wenn eine allgemeinere Regel dagegensteht.
+     */
+    fun setHidden(key: TaskViewConfigKey, hidden: Boolean) {
+        val withoutOwnEntry = isHidden(key, skipOwnCustomEntry = true)
+        customState = if (hidden == withoutOwnEntry) {
+            customState.withNode(key) { it.copy(hidden = null) }.withoutEmptyEntries()
+        } else {
+            customState.withNode(key) { it.copy(hidden = hidden) }
+        }
+        persistCustomState()
+    }
 
     private fun rulesOf(
         config: TaskViewConfig,
         mode: GradleTaskViewMode,
-        fromCustomFile: Boolean
+        fromCustomFile: Boolean,
+        skip: TaskViewConfigKey?
     ): List<VisibilityRule> = buildList {
         config.groups.forEach { (path, entry) ->
-            addRules(entry, VisibilityTarget.Group(path), scope = null, mode, fromCustomFile)
+            if (skip != TaskViewConfigKey.group(path, null)) {
+                addRules(entry, VisibilityTarget.Group(path), scope = null, mode, fromCustomFile)
+            }
         }
         config.tasks.forEach { (name, entry) ->
-            addRules(entry, VisibilityTarget.Task(name), scope = null, mode, fromCustomFile)
+            if (skip != TaskViewConfigKey.task(name, null)) {
+                addRules(entry, VisibilityTarget.Task(name), scope = null, mode, fromCustomFile)
+            }
         }
         config.modules.forEach { (path, block) ->
             // Der Modulknoten selbst: Sein Geltungsbereich ist das Modul, das er benennt -
             // ein zusaetzlicher Scope waere dieselbe Angabe doppelt.
-            addRules(block.node, VisibilityTarget.Module(path), scope = null, mode, fromCustomFile)
+            if (skip != TaskViewConfigKey.module(path)) {
+                addRules(block.node, VisibilityTarget.Module(path), scope = null, mode, fromCustomFile)
+            }
             block.groups.forEach { (group, entry) ->
-                addRules(entry, VisibilityTarget.Group(group), scope = path, mode, fromCustomFile)
+                if (skip != TaskViewConfigKey.group(group, path)) {
+                    addRules(entry, VisibilityTarget.Group(group), scope = path, mode, fromCustomFile)
+                }
             }
             block.tasks.forEach { (task, entry) ->
-                addRules(entry, VisibilityTarget.Task(task), scope = path, mode, fromCustomFile)
+                if (skip != TaskViewConfigKey.task(task, path)) {
+                    addRules(entry, VisibilityTarget.Task(task), scope = path, mode, fromCustomFile)
+                }
             }
         }
     }

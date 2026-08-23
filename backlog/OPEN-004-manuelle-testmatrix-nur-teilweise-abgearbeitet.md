@@ -4,6 +4,7 @@ titel: Manuelle Testmatrix nur teilweise abgearbeitet
 prioritaet: niedrig
 betrifft_anforderung:
   - REQ-042
+  - REQ-078
   - REQ-031
   - REQ-074
   - REQ-075
@@ -57,3 +58,22 @@ ist der eigentliche Nachweis dieser Anforderung:
   ist er wieder wirksam und steht auf dem zuvor gespeicherten Wert.
 - Der `Tasks`-Knoten laesst sich nicht getrennt von seinem Modul zuklappen und taucht in der
   Speed-Search nicht als Treffer auf.
+
+## Mit dem neuen Konfigurationsformat hinzugekommen
+
+Format, Aufloesung und Sichtbarkeitsregeln sind durch Unit-Tests abgedeckt (REQ-075, REQ-076);
+was nur in einer laufenden IDE sichtbar wird, ist es nicht. Die `default.yaml` des Testprojekts
+ist bereits im neuen Format geschrieben:
+
+- Der Baum sieht aus wie vorher: `:legacy` nur mit `docker/gui`, `:tools` als Behaelter ohne
+  eigene Tasks, `:app:core` im `Sort`-Modus ausgeblendet.
+- Ein `Collapse All` erzeugt eine **kurze** `custom.yaml` - nur noch die Knoten, die vom
+  aufgeloesten Wert abweichen. Klappt man denselben Knoten wieder auf, verschwindet sein
+  Eintrag.
+- **Hide** auf `docker/gui` in `:app` laesst die Gruppe in `:lib` stehen; der Eintrag landet
+  im Modulblock von `:app`.
+- **Hide** auf einem Task, dessen Name auch als Gruppe vorkommt, trifft nur den Task - dafuer
+  gibt es die getrennten Namensraeume (REQ-078, ADR-020).
+- **Show Hidden** zeigt die ausgeblendeten Knoten ausgegraut; **Show Again** holt sie zurueck,
+  auch die aus `default.yaml` stammenden (dann steht ein `hidden: false` in `custom.yaml`).
+- Bei ausgeschalteter Modulgliederung blendet **Hide** den Knoten in allen Modulen aus.

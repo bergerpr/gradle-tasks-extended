@@ -36,6 +36,14 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
     private var filterText: String = ""
     private var refreshJob: Job? = null
 
+    /**
+     * Zeigt ausgeblendete Knoten ausgegraut mit an, damit sie ueberhaupt wieder einblendbar
+     * sind (REQ-078). Reine Ansichtssache und deshalb bewusst **nicht** persistiert: Beim
+     * naechsten Start ist der Baum wieder aufgeraeumt.
+     */
+    var showHidden: Boolean = false
+        private set
+
     init {
         project.messageBus.connect(project).subscribe(
             ProjectDataImportListener.TOPIC,
@@ -80,6 +88,15 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
         project.service<GradleTasksViewConfigStore>().setShowModules(showModules)
         scheduleRefresh(debounce = false)
     }
+
+    /** Schaltet die Anzeige ausgeblendeter Knoten um (REQ-078). */
+    fun setShowHidden(showHidden: Boolean) {
+        this.showHidden = showHidden
+        scheduleRefresh(debounce = false)
+    }
+
+    /** Baut die Ansicht neu auf, nachdem sich die Konfiguration geaendert hat. */
+    fun requestRefresh() = scheduleRefresh(debounce = false)
 
     /** Setzt alle persoenlichen Expand/Collapse-Abweichungen zurueck auf `default.yaml`. */
     fun resetExpandStateToDefault() {
@@ -143,7 +160,11 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
 
         // Reihenfolge ist bedeutsam: Das Ausblenden wirkt VOR der Textsuche, sonst lieferte
         // die Suche Treffer, die im Baum gar nicht existieren (siehe REQ-075).
-        val visibleTasks = filterHiddenTasks(allTasks, configStore.visibilityRules(mode))
+        val visibleTasks = if (showHidden) {
+            allTasks
+        } else {
+            filterHiddenTasks(allTasks, configStore.visibilityRules(mode))
+        }
         val filtered = if (filterText.isBlank()) {
             visibleTasks
         } else {

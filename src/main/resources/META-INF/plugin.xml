@@ -43,6 +43,9 @@
             <action id="GradleTasksExtended.CopyFolderPath"
                     class="de.example.gradletasksview.actions.GradleTaskCopyFolderPathAction"/>
             <separator/>
+            <action id="GradleTasksExtended.ToggleHidden"
+                    class="de.example.gradletasksview.actions.GradleTaskToggleHiddenAction"/>
+            <separator/>
             <action id="GradleTasksExtended.ExpandAll"
                     class="de.example.gradletasksview.actions.GradleTaskExpandAllAction"/>
             <action id="GradleTasksExtended.CollapseAll"

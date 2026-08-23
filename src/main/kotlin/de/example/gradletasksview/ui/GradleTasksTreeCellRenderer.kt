@@ -36,6 +36,12 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
     ) {
         val node = value as? DefaultMutableTreeNode
         val modulePath = enclosingModulePath(node)
+        // Ausgeblendete Knoten sind normalerweise gar nicht im Baum; sichtbar werden sie nur
+        // ueber den Umschalter "Show Hidden" - dann ausgegraut, damit der Unterschied zum
+        // regulaeren Inhalt sofort erkennbar ist (REQ-078).
+        val hidden = node?.let(::configKeyOf)?.let(configStore::isHidden) == true
+        val bold = if (hidden) SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES else SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES
+        val regular = if (hidden) SimpleTextAttributes.GRAYED_ATTRIBUTES else SimpleTextAttributes.REGULAR_ATTRIBUTES
 
         when (val userObject = node?.userObject) {
             // Modulknoten: der Gradle-Projektpfad ist der Anzeigetext, der IDE-Modulname steht
@@ -44,7 +50,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             is ModuleNodeData -> {
                 icon = configStore.iconFor(TaskViewConfigKey.module(userObject.gradlePath))
                     ?: GradleTasksIcons.Module
-                append(userObject.gradlePath, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                append(userObject.gradlePath, bold)
                 userObject.moduleName
                     .takeIf { it.isNotEmpty() && it != userObject.gradlePath }
                     ?.let { append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES) }
@@ -66,7 +72,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             is GroupHeaderNodeData -> {
                 icon = configStore.iconFor(TaskViewConfigKey.group(userObject.groupPath, modulePath))
                     ?: folderIcon(expanded)
-                append(userObject.groupPath.ifEmpty { "(default)" }, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                append(userObject.groupPath.ifEmpty { "(default)" }, bold)
             }
 
             is FolderNodeData -> {
@@ -75,7 +81,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
                 // compactedName statt displayName: Ordner ohne eigene Tasks sind mit ihrem
                 // einzigen Kind zu einer Zeile zusammengefasst und heissen dann "server/gui"
                 // (REQ-004). Der Schluessel fuer Icon und Expand-Zustand bleibt der volle Pfad.
-                append(userObject.folder.compactedName, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                append(userObject.folder.compactedName, bold)
             }
 
             is TaskNodeData -> {
@@ -83,7 +89,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
                 // den ein Benutzer in die YAML-Datei schreiben wuerde.
                 icon = configStore.iconFor(TaskViewConfigKey.task(userObject.descriptor.taskName, modulePath))
                     ?: GradleTasksIcons.Task
-                append(userObject.descriptor.taskName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+                append(userObject.descriptor.taskName, regular)
                 userObject.descriptor.description?.let {
                     append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES)
                 }

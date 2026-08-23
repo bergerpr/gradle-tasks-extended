@@ -10,6 +10,7 @@ import com.intellij.ui.components.JBScrollPane
 import de.example.gradletasksview.actions.GradleTaskCollapseAllAction
 import de.example.gradletasksview.actions.GradleTaskExpandAllAction
 import de.example.gradletasksview.actions.GradleTaskResetExpandStateAction
+import de.example.gradletasksview.actions.GradleTaskShowHiddenToggleAction
 import de.example.gradletasksview.actions.GradleTaskShowModulesToggleAction
 import de.example.gradletasksview.actions.GradleTaskViewModeActionGroup
 import de.example.gradletasksview.ui.GradleTasksTree
@@ -32,6 +33,7 @@ class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
             // Direkt neben dem Modus-Dropdown, weil beide zusammen bestimmen, wie der Baum
             // gegliedert ist - aber als eigener Feststellbutton, da orthogonal (siehe REQ-074).
             add(GradleTaskShowModulesToggleAction())
+            add(GradleTaskShowHiddenToggleAction())
             addSeparator()
             add(GradleTaskExpandAllAction())
             add(GradleTaskCollapseAllAction())

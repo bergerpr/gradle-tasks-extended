@@ -94,5 +94,6 @@ fun configKeyOf(node: DefaultMutableTreeNode): TaskViewConfigKey? =
         is ModuleNodeData -> TaskViewConfigKey.module(data.gradlePath)
         is GroupHeaderNodeData -> TaskViewConfigKey.group(data.groupPath, enclosingModulePath(node))
         is FolderNodeData -> TaskViewConfigKey.group(data.folder.fullPath, enclosingModulePath(node))
+        is TaskNodeData -> TaskViewConfigKey.task(data.descriptor.taskName, enclosingModulePath(node))
         else -> null
     }

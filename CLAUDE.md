@@ -110,8 +110,8 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
   `GradleTaskViewRefresher` (owns rebuild-on-reimport + debouncing + initial-load retry logic).
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
-- `actions/` — toolbar dropdown (mode switch) and context menu actions (execute, copy name/path,
-  expand/collapse all).
+- `actions/` — toolbar dropdown (mode switch), the two toolbar toggles (module grouping, show hidden),
+  and context menu actions (execute, copy name/path, hide/show, expand/collapse all).
 - `persistence/` — per-project persisted state: selected view mode via `PersistentStateComponent`;
   everything else (expand/collapse state, icons, hidden nodes, module grouping toggle) via the
   two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — a sealed
