@@ -7,24 +7,23 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 
 private val STARTER_DEFAULT_YAML = """
-    # Gradle Tasks Extended - Standard-Konfiguration der Baumansicht: Aufklappzustand,
-    # eigene Icons und Ansichtseinstellungen. Diese Datei kann versioniert und im Team
-    # geteilt werden; das Plugin ueberschreibt sie nie.
+    # Gradle Tasks Extended - default configuration of the task tree: expand state, custom
+    # icons and view settings. This file is meant to be checked into version control and
+    # shared with the team; the plugin never overwrites it.
     #
-    # Die oberste Ebene hat genau vier Schluessel:
+    # The top level has exactly four keys:
     #
-    #   settings:   Ansichtseinstellungen
-    #   groups:     Gruppen-/Ordnerpfade, gelten in allen Modulen
-    #   tasks:      Tasknamen, gelten in allen Modulen
-    #   modules:    Bloecke je Gradle-Projektpfad
+    #   settings:   view settings
+    #   groups:     group and folder paths, apply in every module
+    #   tasks:      task names, apply in every module
+    #   modules:    one block per Gradle project path
     #
-    # Gruppen und Tasks haben getrennte Namensraeume, weil ein Name wie "build" in Gradle
-    # beides sein kann.
+    # Groups and tasks have separate namespaces, because a name like "build" can be either
+    # of them in Gradle.
     #
-    # --- Knoteneintraege ----------------------------------------------------------------
+    # --- Node entries -------------------------------------------------------------------
     #
-    # Ein Eintrag ist entweder eine Abbildung oder - wenn er nur den Aufklappzustand setzt -
-    # ein blanker Boolean:
+    # An entry is either a mapping or - if it only sets the expand state - a bare boolean:
     #
     #   groups:
     #     docker/gui: false
@@ -32,19 +31,19 @@ private val STARTER_DEFAULT_YAML = """
     #       expanded: true
     #       icon: smile.svg
     #
-    # Moegliche Felder:
-    #   expanded   Aufklappzustand (bei Tasks ohne Wirkung)
-    #   icon       Dateiname relativ zu gradle/gradle_tasks_extended/icons/. Existiert
-    #              daneben eine Datei mit dem Zusatz "_dark" (z. B. smile_dark.svg), wird
-    #              sie bei dunklen Themes automatisch bevorzugt.
-    #   modes      abweichende Werte je Ansichtsmodus (default, sort, nested)
+    # Possible fields:
+    #   expanded   expand state (no effect on tasks)
+    #   icon       file name relative to gradle/gradle_tasks_extended/icons/. If a sibling
+    #              file with the suffix "_dark" exists (e.g. smile_dark.svg), it is
+    #              preferred automatically under dark themes.
+    #   modes      values that differ per view mode (default, sort, nested)
     #
-    # Nicht aufgefuehrte Knoten gelten als aufgeklappt und nutzen das eingebaute Icon.
+    # Nodes that are not listed count as expanded and use the built-in icon.
     #
-    # --- Modulbloecke -------------------------------------------------------------------
+    # --- Module blocks ------------------------------------------------------------------
     #
     #   modules:
-    #     ":":                  # Wurzelprojekt
+    #     ":":                  # root project
     #       icon: smile.svg
     #     ":app":
     #       expanded: false
@@ -55,32 +54,32 @@ private val STARTER_DEFAULT_YAML = """
     #         buildImage:
     #           icon: smile.svg
     #
-    # Die Felder direkt im Block gelten fuer den Modulknoten selbst, "groups" und "tasks"
-    # nur innerhalb dieses Moduls - sie gehen den gleichnamigen Eintraegen auf oberster
-    # Ebene vor. Modulschluessel bleiben absolut: ":app:core" steht neben ":app", auch wenn
-    # es in der Ansicht darunter erscheint.
+    # Fields directly inside the block apply to the module node itself, while "groups" and
+    # "tasks" apply inside that module only - they take precedence over the entries of the
+    # same name at the top level. Module keys stay absolute: ":app:core" sits next to
+    # ":app", even though the tree shows it below.
     #
-    # --- Ansichtseinstellungen ----------------------------------------------------------
+    # --- View settings ------------------------------------------------------------------
     #
     #   settings:
-    #     showModules: true     # Vorgabe fuer den Feststellbutton der Modulgliederung
+    #     showModules: true     # default for the module grouping toggle
     #
-    # --- Ausblenden ---------------------------------------------------------------------
+    # --- Hiding nodes -------------------------------------------------------------------
     #
-    # "hidden" blendet einen Knoten samt allem darunter aus und wirkt immer, auch bei
-    # ausgeschalteter Modulgliederung. Der genauere Eintrag gewinnt, ein "hidden: false"
-    # nimmt eine allgemeinere Ausblendung also wieder zurueck:
+    # "hidden" hides a node together with everything below it and always applies, even with
+    # module grouping switched off. The more precise entry wins, so a "hidden: false" takes
+    # back a more general one:
     #
     #   modules:
     #     ":legacy":
-    #       hidden: true        # Modul samt Untermodulen ausblenden ...
+    #       hidden: true        # hide the module and its submodules ...
     #       groups:
     #         docker/gui:
-    #           hidden: false   # ... ausser diesem Gruppenpfad
+    #           hidden: false   # ... except this group path
     #     ":sandbox":
     #       modes:
     #         sort:
-    #           hidden: true    # nur im Sort-Modus ausblenden
+    #           hidden: true    # hide in Sort mode only
 """.trimIndent() + "\n"
 
 /**
