@@ -1,5 +1,6 @@
 package de.example.gradletasksview.ui
 
+import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.ide.CopyProvider
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
@@ -156,8 +157,13 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         return ((path.lastPathComponent as? DefaultMutableTreeNode)?.userObject as? FolderNodeData)?.folder
     }
 
-    fun runSelectedTask() {
-        selectedTaskDescriptors().firstOrNull()?.let { executor.execute(it) }
+    /**
+     * Fuehrt den ersten selektierten Task aus - mit [executorId] laesst sich zwischen Run,
+     * Debug und Run with Coverage waehlen (REQ-079). Ohne Angabe bleibt es beim normalen
+     * Run-Executor, so wie beim Doppelklick (REQ-010).
+     */
+    fun runSelectedTask(executorId: String = DefaultRunExecutor.EXECUTOR_ID) {
+        selectedTaskDescriptors().firstOrNull()?.let { executor.execute(it, executorId) }
     }
 
     /**

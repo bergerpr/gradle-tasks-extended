@@ -15,6 +15,10 @@ aus - niemals ueber eigene Prozess- oder Kommandozeilenaufrufe.
 Verwendet wird ausschliesslich die `TaskExecutionSpec`-Ueberladung von
 `ExternalSystemUtil.runTask`, siehe ADR-006.
 
+Der Doppelklick bleibt beim normalen Run-Executor. Dass `GradleTaskExecutor.execute` seit
+REQ-079 auch Debug und Coverage kann, aendert daran nichts: Die Executor-ID ist ein Parameter
+mit `DefaultRunExecutor.EXECUTOR_ID` als Vorgabe, und der Doppelklick uebergibt keine.
+
 Bei Gradle ankommen muss der **qualifizierte** Taskpfad (`:app:buildImage`), sonst laesst
 Gradle den gleichnamigen Task in jedem passenden Projekt laufen statt nur im gemeinten. Woher
 die Modulzugehoerigkeit stammt, steht in ADR-015.

@@ -111,7 +111,8 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
 - `actions/` — toolbar dropdown (mode switch), the two toolbar toggles (module grouping, show hidden),
-  and context menu actions (execute, copy name/path, hide/show, expand/collapse all).
+  and context menu actions (run/debug/run with coverage, copy name/path, hide/show,
+  expand/collapse all).
 - `persistence/` — per-project persisted state: selected view mode via `PersistentStateComponent`;
   everything else (expand/collapse state, icons, hidden nodes, module grouping toggle) via the
   two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — a sealed
@@ -119,6 +120,9 @@ Source root: `src/main/kotlin/de/example/gradletasksview/`
 - `execution/` — `GradleTaskExecutor`, which runs tasks exclusively via
   `ExternalSystemUtil.runTask(TaskExecutionSpec)` (the current, non-deprecated API — never the
   `@ApiStatus.Obsolete` 4-parameter overload, and never a hand-rolled process/command-line invocation).
+  Run, Debug and Run with Coverage differ only in the executor id passed to `withExecutorId`;
+  `CoverageExecutor` needs the `intellij.platform.coverage` module in both `build.gradle.kts` and
+  `plugin.xml` (ADR-021).
 - `util/` — path/tree helpers (`GradleTaskPathUtil`, `TreePathUtil`).
 
 ### Key invariants (see `docs/decisions/`)

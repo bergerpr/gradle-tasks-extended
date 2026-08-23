@@ -6,14 +6,12 @@ verifiziert: manuell
 betrifft:
   - src/main/kotlin/de/example/gradletasksview/actions/GradleTasksTreeContextActions.kt
   - src/main/resources/META-INF/plugin.xml
-offene_punkte:
-  - OPEN-010
 quelle: Plan.md, Abschnitt "Kontextmenue"
 ---
 
-Rechtsklick oeffnet ein eigenes Kontextmenue mit: Task ausfuehren, Task-Namen kopieren,
-Task-Pfad kopieren, Ordnerpfad kopieren, Hide bzw. Show Again (REQ-078), Expand All,
-Collapse All.
+Rechtsklick oeffnet ein eigenes Kontextmenue mit: den drei Ausfuehrungsarten Run, Debug und
+Run with Coverage (REQ-079), Task-Namen kopieren, Task-Pfad kopieren, Ordnerpfad kopieren,
+Hide bzw. Show Again (REQ-078), Expand All, Collapse All.
 
 Die Aktionen lesen die Selektion direkt vom Baum, statt an eine fremde Action-Instanz zu
 delegieren (Folge von ADR-001). Aktionen, die fuer den selektierten Knotentyp nicht sinnvoll

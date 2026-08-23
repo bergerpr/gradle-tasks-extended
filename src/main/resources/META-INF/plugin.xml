@@ -17,6 +17,14 @@
          inzwischen zum optionalen "Gradle for Java"-Sub-Plugin). Siehe ADR-002. -->
     <depends>com.intellij.gradle</depends>
 
+    <!-- Coverage steckt in einem eigenen Plattform-Modul, nicht im Plattform-Kern. Ohne
+         diese Abhaengigkeit faende der Plugin-Klassenlader `com.intellij.coverage.CoverageExecutor`
+         zur Laufzeit nicht (REQ-079). Modul-Abhaengigkeiten stehen im <dependencies>-Element,
+         die klassischen Plugin-Abhaengigkeiten oben bleiben davon unberuehrt. -->
+    <dependencies>
+        <module name="intellij.platform.coverage"/>
+    </dependencies>
+
     <resource-bundle>messages.GradleTasksViewBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -35,6 +43,10 @@
         <group id="GradleTasksExtended.ContextMenu">
             <action id="GradleTasksExtended.ExecuteTask"
                     class="de.example.gradletasksview.actions.GradleTaskExecuteAction"/>
+            <action id="GradleTasksExtended.DebugTask"
+                    class="de.example.gradletasksview.actions.GradleTaskDebugAction"/>
+            <action id="GradleTasksExtended.RunTaskWithCoverage"
+                    class="de.example.gradletasksview.actions.GradleTaskRunWithCoverageAction"/>
             <separator/>
             <action id="GradleTasksExtended.CopyTaskName"
                     class="de.example.gradletasksview.actions.GradleTaskCopyNameAction"/>

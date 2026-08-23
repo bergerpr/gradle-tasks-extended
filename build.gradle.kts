@@ -36,6 +36,11 @@ dependencies {
         // Sub-Plugin. Die Basis-Gradle-Integration (u. a. GradleConstants, Sync-Datenmodell)
         // wurde unter der ID "com.intellij.gradle" ausgelagert - siehe ADR-002.
         bundledPlugin("com.intellij.gradle")
+        // Fuer CoverageExecutor.EXECUTOR_ID (Kontextmenue "Run Task with Coverage", REQ-079).
+        // Die Coverage-Unterstuetzung liegt in einem eigenen Plattform-Modul und ist trotz
+        // ihres Ablageorts in `lib/` nicht Teil des Standard-Compile-Classpath; passend dazu
+        // steht in plugin.xml ein <dependencies><module .../>-Eintrag.
+        bundledModule("intellij.platform.coverage")
         // Bewusst KEIN testFramework(TestFrameworkType.Platform) hier: die bisherigen Tests
         // sind reine Modelllogik-Unit-Tests ohne Platform-Testframework (siehe REQ-060,
         // Abschnitt "Testing"). testFramework(Platform) zieht einen JUnit5-Launcher-Listener
