@@ -25,3 +25,8 @@ veralteten API zu bleiben.
   unveraendert als Zielplattform-Typ.
 - Das IntelliJ Platform Gradle Plugin 2.18.1 benoetigt **Gradle >= 9.0** - nicht 8.13, wie
   aeltere Dokumentation vereinzelt behauptet. Der Projekt-Wrapper ist auf 9.7.1 fixiert.
+- Die JVM-Toolchain folgt der Zielplattform: 2026.2 laeuft auf **Java 25**, das Projekt setzt
+  daher `jvmToolchain(25)`. Weicht sie ab, meldet `./gradlew verifyPluginProjectConfiguration`
+  das als "Java sourceCompatibility too low for target platform". Weil es keine
+  Rueckwaertskompatibilitaet zu geben braucht, wird die Toolchain beim Anheben der IDE-Version
+  einfach mitgezogen statt auf der aelteren LTS-Version gehalten.
