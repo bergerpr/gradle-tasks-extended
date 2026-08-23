@@ -81,3 +81,24 @@ data class TaskViewConfig(
     val tasks: Map<String, TaskViewNodeConfig> = emptyMap(),
     val modules: Map<String, TaskViewModuleConfig> = emptyMap()
 )
+
+/**
+ * Entfernt Eintraege, die nichts mehr aussagen - leere Knoteneintraege und danach leere
+ * Modulbloecke.
+ *
+ * Gebraucht wird das, weil `custom.yaml` nur echte Abweichungen festhaelt: Stimmt ein Knoten
+ * wieder mit dem aufgeloesten Wert ueberein, wird sein Feld auf `null` gesetzt, und was dann
+ * uebrig bleibt, soll nicht als leerer Rumpf in der Datei stehen.
+ */
+fun TaskViewConfig.withoutEmptyEntries(): TaskViewConfig = copy(
+    groups = groups.filterValues { !it.isEmpty },
+    tasks = tasks.filterValues { !it.isEmpty },
+    modules = modules
+        .mapValues { (_, module) ->
+            module.copy(
+                groups = module.groups.filterValues { !it.isEmpty },
+                tasks = module.tasks.filterValues { !it.isEmpty }
+            )
+        }
+        .filterValues { !it.isEmpty }
+)

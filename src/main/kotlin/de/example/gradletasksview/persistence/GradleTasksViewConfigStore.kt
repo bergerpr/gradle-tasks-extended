@@ -111,8 +111,9 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         customState.settings.showModules ?: defaultState.settings.showModules ?: false
 
     fun setShowModules(showModules: Boolean) {
-        val settings = customState.settings.copy(showModules = showModules)
-        customState = customState.copy(settings = settings)
+        // Nur festhalten, was von der Vorgabe abweicht - siehe [setExpanded].
+        val fallback = defaultState.settings.showModules ?: false
+        customState = customState.copy(settings = TaskViewSettings(showModules.takeIf { it != fallback }))
         persistCustomState()
     }
 
@@ -163,10 +164,26 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         }
     }
 
+    /**
+     * Haelt den Aufklappzustand von [key] fest - aber nur, wenn er von dem abweicht, was ohne
+     * diesen Eintrag ohnehin gaelte. Stimmt er wieder mit ihm ueberein, verschwindet der
+     * Eintrag stattdessen.
+     *
+     * Sonst schriebe ein einziges "Collapse All" eine Wand aus Eintraegen in die Datei, die
+     * fast alle nur den Standard wiederholen. Der Preis ist bewusst in Kauf genommen: Aendert
+     * sich spaeter die `default.yaml`, verschiebt sich der persoenliche Zustand mit - er ist
+     * als Abweichung davon definiert, nicht als Momentaufnahme.
+     *
+     * Die uebrigen Felder des Eintrags bleiben unberuehrt, sonst wuerde das erste
+     * Auf-/Zuklappen eine in `custom.yaml` gepflegte Icon-Zuordnung loeschen.
+     */
     fun setExpanded(key: TaskViewConfigKey, expanded: Boolean) {
-        // Die uebrigen Felder des Eintrags bleiben erhalten - sonst wuerde das erste
-        // Auf-/Zuklappen eine in custom.yaml gepflegte Icon-Zuordnung loeschen.
-        customState = customState.withNode(key) { it.copy(expanded = expanded) }
+        val withoutOwnEntry = resolve(key, skipCustomEntry = true) { it.expanded } ?: true
+        customState = if (expanded == withoutOwnEntry) {
+            customState.withNode(key) { it.copy(expanded = null) }.withoutEmptyEntries()
+        } else {
+            customState.withNode(key) { it.copy(expanded = expanded) }
+        }
         persistCustomState()
     }
 
@@ -245,13 +262,33 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
      * ueberhaupt einen Wert fuer die gefragte Eigenschaft hat, gewinnt - ein Eintrag, der nur
      * ein Icon setzt, verdeckt also keinen Expand-Zustand einer allgemeineren Ebene.
      */
-    private fun <T> resolve(key: TaskViewConfigKey, property: (TaskViewNodeConfig) -> T?): T? =
-        candidatesFor(key).firstNotNullOfOrNull(property)
+    private fun <T> resolve(
+        key: TaskViewConfigKey,
+        skipCustomEntry: Boolean = false,
+        property: (TaskViewNodeConfig) -> T?
+    ): T? = candidatesFor(key, skipCustomEntry).firstNotNullOfOrNull(property)
 
-    private fun candidatesFor(key: TaskViewConfigKey): List<TaskViewNodeConfig> {
+    /**
+     * @param skipCustomEntry laesst den Eintrag aus `custom.yaml` aus, den [key] **selbst**
+     *   adressiert. Damit laesst sich fragen, was ohne ihn gaelte - die Grundlage dafuer, nur
+     *   echte Abweichungen zu speichern.
+     */
+    private fun candidatesFor(key: TaskViewConfigKey, skipCustomEntry: Boolean = false): List<TaskViewNodeConfig> {
         val mode = GradleTaskViewSettings.getInstance(project).state.selectedMode
-        val scoped = listOfNotNull(entryOf(customState, key, scoped = true), entryOf(defaultState, key, scoped = true))
-        val global = listOfNotNull(entryOf(customState, key, scoped = false), entryOf(defaultState, key, scoped = false))
+        val ownScopeIsModule = when (key) {
+            is TaskViewConfigKey.Module -> true
+            is TaskViewConfigKey.Group -> key.modulePath != null
+            is TaskViewConfigKey.Task -> key.modulePath != null
+        }
+
+        val scoped = listOfNotNull(
+            entryOf(customState, key, scoped = true)?.takeUnless { skipCustomEntry && ownScopeIsModule },
+            entryOf(defaultState, key, scoped = true)
+        )
+        val global = listOfNotNull(
+            entryOf(customState, key, scoped = false)?.takeUnless { skipCustomEntry && !ownScopeIsModule },
+            entryOf(defaultState, key, scoped = false)
+        )
 
         // Modulbezug vor modulunabhaengig, darin modusbezogen vor modusuebergreifend,
         // darin custom.yaml vor default.yaml.
