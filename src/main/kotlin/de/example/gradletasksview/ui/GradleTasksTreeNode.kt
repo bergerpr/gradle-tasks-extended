@@ -92,7 +92,7 @@ fun enclosingModulePath(node: TreeNode?): String? {
 fun configKeyOf(node: DefaultMutableTreeNode): TaskViewConfigKey? =
     when (val data = node.userObject) {
         is ModuleNodeData -> TaskViewConfigKey.module(data.gradlePath)
-        is GroupHeaderNodeData -> TaskViewConfigKey.scopedNode(data.groupPath, enclosingModulePath(node))
-        is FolderNodeData -> TaskViewConfigKey.scopedNode(data.folder.fullPath, enclosingModulePath(node))
+        is GroupHeaderNodeData -> TaskViewConfigKey.group(data.groupPath, enclosingModulePath(node))
+        is FolderNodeData -> TaskViewConfigKey.group(data.folder.fullPath, enclosingModulePath(node))
         else -> null
     }

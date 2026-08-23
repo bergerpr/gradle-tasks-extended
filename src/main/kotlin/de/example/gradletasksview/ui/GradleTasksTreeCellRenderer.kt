@@ -64,13 +64,13 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             // gleich aussehen. Nur die Beschriftung unterscheidet sich (voller Gruppenpfad in
             // Sort, zusammengefasster Pfad in Default/Nested).
             is GroupHeaderNodeData -> {
-                icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.groupPath, modulePath))
+                icon = configStore.iconFor(TaskViewConfigKey.group(userObject.groupPath, modulePath))
                     ?: folderIcon(expanded)
                 append(userObject.groupPath.ifEmpty { "(default)" }, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
             is FolderNodeData -> {
-                icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.folder.fullPath, modulePath))
+                icon = configStore.iconFor(TaskViewConfigKey.group(userObject.folder.fullPath, modulePath))
                     ?: folderIcon(expanded)
                 // compactedName statt displayName: Ordner ohne eigene Tasks sind mit ihrem
                 // einzigen Kind zu einer Zeile zusammengefasst und heissen dann "server/gui"
@@ -81,7 +81,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             is TaskNodeData -> {
                 // Schluessel ist der Taskname, so wie er in der Ansicht steht - derselbe Wert,
                 // den ein Benutzer in die YAML-Datei schreiben wuerde.
-                icon = configStore.iconFor(TaskViewConfigKey.scopedNode(userObject.descriptor.taskName, modulePath))
+                icon = configStore.iconFor(TaskViewConfigKey.task(userObject.descriptor.taskName, modulePath))
                     ?: GradleTasksIcons.Task
                 append(userObject.descriptor.taskName, SimpleTextAttributes.REGULAR_ATTRIBUTES)
                 userObject.descriptor.description?.let {

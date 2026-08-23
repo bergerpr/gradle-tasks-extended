@@ -100,19 +100,34 @@ wird sie nur, wenn ein Eintrag ausser `expanded` nichts enthaelt.
 
 ## Aufloesung
 
-Pro Knoten und Feld gewinnt der spezifischste Treffer, von oben nach unten:
+Pro Knoten und Feld gewinnt der erste Kandidat, der fuer dieses Feld ueberhaupt einen Wert
+hat. Sortiert wird nach drei Kriterien in dieser Reihenfolge: **Modulbezug vor
+modulunabhaengig**, dann **modusbezogen vor modusuebergreifend**, dann **`custom.yaml` vor
+`default.yaml`**:
 
-1. `custom.yaml`, Modulblock, `modes`-Eintrag des aktiven Modus
-2. `custom.yaml`, Modulblock
-3. `custom.yaml`, modulunabhaengig, `modes`-Eintrag
-4. `custom.yaml`, modulunabhaengig
-5. dieselben vier Stufen aus `default.yaml`
-6. eingebauter Standard (aufgeklappt, eingebautes Icon, sichtbar)
+1. Modulblock, `modes`-Eintrag des aktiven Modus - erst `custom.yaml`, dann `default.yaml`
+2. Modulblock - erst `custom.yaml`, dann `default.yaml`
+3. modulunabhaengig, `modes`-Eintrag - erst `custom.yaml`, dann `default.yaml`
+4. modulunabhaengig - erst `custom.yaml`, dann `default.yaml`
+5. eingebauter Standard (aufgeklappt, eingebautes Icon, sichtbar)
 
-Innerhalb einer Stufe erbt ein Pfad von seinen Vorfahren: `docker/gui` wirkt auf
-`docker/gui/jsp`, `:legacy` auf `:legacy:child` - jeweils uebersteuerbar durch den laengeren
-Pfad. Verglichen wird segmentweise, `:applet` ist also kein Untermodul von `:app` und
-`docker/guix` kein Unterpfad von `docker/gui`.
+Dass die Spezifitaet **vor** der Datei kommt, ist die schon bestehende Regel und bleibt: Sonst
+koennte eine einmal global gesetzte persoenliche Vorliebe eine bewusst je Modul gepflegte
+Team-Vorgabe nie zur Geltung kommen lassen.
+
+Ein Eintrag, der nur ein Icon setzt, verdeckt keinen Aufklappzustand einer allgemeineren
+Ebene - entschieden wird je Feld, nicht je Eintrag.
+
+## Vererbung entlang der Pfade gilt nur fuer `hidden`
+
+`hidden` erbt an Nachfahren: `docker/gui` blendet auch `docker/gui/jsp` aus, `:legacy` auch
+`:legacy:child` - uebersteuerbar durch ein `hidden: false` auf dem laengeren Pfad. Verglichen
+wird segmentweise, `:applet` ist also kein Untermodul von `:app` und `docker/guix` kein
+Unterpfad von `docker/gui`.
+
+`expanded` und `icon` erben **nicht**. Ein geerbtes Icon wuerde jeden Unterordner mit dem
+Symbol seines Elternordners zeichnen, und ein geerbter Aufklappzustand waere ohnehin
+unsichtbar, solange der Elternknoten zu ist.
 
 ## `exclude`/`include` entfaellt
 
@@ -150,7 +165,9 @@ niemand - auch keine spaetere Sitzung - weiterarbeiten kann.
   `TaskViewConfigYaml` auf `settings`/`groups`/`tasks`/`modules` umstellen, Knoteneintraege um
   `hidden` und `modes` erweitern, Lesen und Schreiben samt Unit-Tests. `exclude`/`include`
   bleiben in diesem Schritt als Felder unter `settings` bestehen und werden unveraendert
-  ausgewertet - das Verhalten aendert sich also noch nicht.
+  ausgewertet - das Verhalten aendert sich also noch nicht. Die `default.yaml` des Testprojekts
+  zieht **hier schon** mit um: Ab AP-1 liest das Plugin das alte Format nicht mehr, eine
+  spaetere Umstellung liesse das Fixture bis dahin wirkungslos.
 - **AP-2 Sichtbarkeit vereinheitlichen.** `hidden` auswerten, `ModuleFilter` zu einer
   Sichtbarkeitsaufloesung ueber Modul-, Gruppen- und Taskpfade verallgemeinern,
   `exclude`/`include` entfernen. Die vorhandenen `ModuleFilterTest`-Faelle werden dabei auf
@@ -158,9 +175,8 @@ niemand - auch keine spaetere Sitzung - weiterarbeiten kann.
   weiter genauso aussieht.
 - **AP-3 Nur Abweichungen schreiben.** `custom.yaml` nimmt einen Eintrag nur auf, wenn er vom
   aufgeloesten Wert abweicht, und entfernt ihn wieder, sobald er ihm entspricht.
-- **AP-4 Fixture und Wissensbasis.** `default.yaml` des Testprojekts umstellen, REQ-070,
-  REQ-071, REQ-075 und REQ-076 neu fassen, ADR-014 und ADR-016 abloesen, `CLAUDE.md`
-  nachziehen.
+- **AP-4 Wissensbasis.** REQ-070, REQ-071, REQ-075 und REQ-076 neu fassen, ADR-014 und
+  ADR-016 abloesen, `CLAUDE.md` nachziehen.
 
 Danach erst OPEN-008 (Kontextmenue-Eintrag und Toolbar-Umschalter).
 

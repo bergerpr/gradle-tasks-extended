@@ -30,12 +30,12 @@ import javax.swing.Icon
  * - `<Projektwurzel>/gradle/gradle_tasks_extended/icons/`: Ablageort fuer eigene
  *   Icon-Dateien, auf die die YAML-Dateien per Dateinamen verweisen.
  *
- * Aufloesung pro Knoten, von spezifisch nach allgemein: modulbezogener Eintrag aus
- * `custom.yaml` > modulbezogener Eintrag aus `default.yaml` > modulunabhaengiger Eintrag aus
- * `custom.yaml` > modulunabhaengiger Eintrag aus `default.yaml` > eingebauter Standard
- * (aufgeklappt bzw. Plugin-Icon). Der spezifischere Schluessel gewinnt also vor der
+ * Aufloesung pro Knoten und Feld, sortiert nach drei Kriterien in dieser Reihenfolge:
+ * **Modulbezug vor modulunabhaengig**, dann **modusbezogen vor modusuebergreifend**, dann
+ * **`custom.yaml` vor `default.yaml`**. Der spezifischere Schluessel gewinnt also vor der
  * persoenlichen Datei - sonst koennte eine einmal global gesetzte Vorliebe eine bewusst pro
- * Modul gepflegte Team-Vorgabe nie zur Geltung kommen lassen.
+ * Modul gepflegte Team-Vorgabe nie zur Geltung kommen lassen. Greift nichts, gilt der
+ * eingebaute Standard (aufgeklappt bzw. Plugin-Icon).
  *
  * Die Exclude-/Include-**Listen** folgen einer anderen Regel: Sie ergaenzen einander, statt
  * sich zu ersetzen (siehe [TaskViewFilter.plus] und REQ-075).
@@ -134,36 +134,46 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
             }
 
     fun setExpanded(key: TaskViewConfigKey, expanded: Boolean) {
-        // Ein eventuell vorhandenes Icon des Eintrags muss erhalten bleiben - sonst wuerde
-        // das erste Auf-/Zuklappen eine in custom.yaml gepflegte Icon-Zuordnung loeschen.
-        customState = when {
-            key.nodeKey == null && key.modulePath != null -> {
-                val module = customState.modules[key.modulePath] ?: TaskViewModuleConfig()
-                customState.copy(
-                    modules = customState.modules +
-                        (key.modulePath to module.copy(node = module.node.copy(expanded = expanded)))
-                )
-            }
-
-            key.nodeKey != null && key.modulePath != null -> {
-                val module = customState.modules[key.modulePath] ?: TaskViewModuleConfig()
-                val previous = module.groups[key.nodeKey] ?: TaskViewNodeConfig()
-                customState.copy(
-                    modules = customState.modules + (key.modulePath to module.copy(
-                        groups = module.groups + (key.nodeKey to previous.copy(expanded = expanded))
-                    ))
-                )
-            }
-
-            key.nodeKey != null -> {
-                val previous = customState.entries[key.nodeKey] ?: TaskViewNodeConfig()
-                customState.copy(entries = customState.entries + (key.nodeKey to previous.copy(expanded = expanded)))
-            }
-
-            else -> return
-        }
+        // Die uebrigen Felder des Eintrags bleiben erhalten - sonst wuerde das erste
+        // Auf-/Zuklappen eine in custom.yaml gepflegte Icon-Zuordnung loeschen.
+        customState = customState.withNode(key) { it.copy(expanded = expanded) }
         persistCustomState()
     }
+
+    /**
+     * Aendert genau den Eintrag, den [key] adressiert, und legt ihn an, falls es ihn noch
+     * nicht gibt. Der Ort in der Datei ergibt sich allein aus der Form des Schluessels.
+     */
+    private fun TaskViewConfig.withNode(
+        key: TaskViewConfigKey,
+        update: (TaskViewNodeConfig) -> TaskViewNodeConfig
+    ): TaskViewConfig = when (key) {
+        is TaskViewConfigKey.Module -> withModule(key.modulePath) { it.copy(node = update(it.node)) }
+
+        is TaskViewConfigKey.Group -> if (key.modulePath == null) {
+            copy(groups = groups.updated(key.groupPath, update))
+        } else {
+            withModule(key.modulePath) { it.copy(groups = it.groups.updated(key.groupPath, update)) }
+        }
+
+        is TaskViewConfigKey.Task -> if (key.modulePath == null) {
+            copy(tasks = tasks.updated(key.taskName, update))
+        } else {
+            withModule(key.modulePath) { it.copy(tasks = it.tasks.updated(key.taskName, update)) }
+        }
+    }
+
+    private fun TaskViewConfig.withModule(
+        modulePath: String,
+        update: (TaskViewModuleConfig) -> TaskViewModuleConfig
+    ): TaskViewConfig = copy(
+        modules = modules + (modulePath to update(modules[modulePath] ?: TaskViewModuleConfig()))
+    )
+
+    private fun Map<String, TaskViewNodeConfig>.updated(
+        key: String,
+        update: (TaskViewNodeConfig) -> TaskViewNodeConfig
+    ): Map<String, TaskViewNodeConfig> = this + (key to update(this[key] ?: TaskViewNodeConfig()))
 
     /**
      * Liest beide Dateien neu ein, falls sich ihr Zeitstempel geaendert hat. Dadurch wirkt eine
@@ -209,18 +219,37 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         candidatesFor(key).firstNotNullOfOrNull(property)
 
     private fun candidatesFor(key: TaskViewConfigKey): List<TaskViewNodeConfig> {
-        val nodeKey = key.nodeKey ?: return listOfNotNull(
-            key.modulePath?.let { customState.modules[it]?.node },
-            key.modulePath?.let { defaultState.modules[it]?.node }
-        )
+        val mode = GradleTaskViewSettings.getInstance(project).state.selectedMode
+        val scoped = listOfNotNull(entryOf(customState, key, scoped = true), entryOf(defaultState, key, scoped = true))
+        val global = listOfNotNull(entryOf(customState, key, scoped = false), entryOf(defaultState, key, scoped = false))
 
-        return listOfNotNull(
-            key.modulePath?.let { customState.modules[it]?.groups?.get(nodeKey) },
-            key.modulePath?.let { defaultState.modules[it]?.groups?.get(nodeKey) },
-            customState.entries[nodeKey],
-            defaultState.entries[nodeKey]
-        )
+        // Modulbezug vor modulunabhaengig, darin modusbezogen vor modusuebergreifend,
+        // darin custom.yaml vor default.yaml.
+        return scoped.mapNotNull { it.modes[mode] } + scoped.map { it.allModes } +
+            global.mapNotNull { it.modes[mode] } + global.map { it.allModes }
     }
+
+    /**
+     * Der Eintrag, den [key] in [config] adressiert - entweder der modulbezogene
+     * ([scoped]` = true`) oder der modulunabhaengige. Ein Modulknoten hat keine
+     * modulunabhaengige Form, ein Schluessel ohne Modulbezug keine modulbezogene.
+     */
+    private fun entryOf(config: TaskViewConfig, key: TaskViewConfigKey, scoped: Boolean): TaskViewNodeConfig? =
+        when (key) {
+            is TaskViewConfigKey.Module -> if (scoped) config.modules[key.modulePath]?.node else null
+
+            is TaskViewConfigKey.Group -> if (scoped) {
+                key.modulePath?.let { config.modules[it]?.groups?.get(key.groupPath) }
+            } else {
+                config.groups[key.groupPath]
+            }
+
+            is TaskViewConfigKey.Task -> if (scoped) {
+                key.modulePath?.let { config.modules[it]?.tasks?.get(key.taskName) }
+            } else {
+                config.tasks[key.taskName]
+            }
+        }
 
     private fun reload() {
         val stamps = currentStamps()
