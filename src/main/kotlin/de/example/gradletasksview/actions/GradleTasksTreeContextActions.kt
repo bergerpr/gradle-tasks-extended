@@ -76,8 +76,20 @@ class GradleTaskExpandAllAction : AnAction(
     { GradleTasksViewBundle.message("action.expandAll.text") },
     AllIcons.Actions.Expandall
 ) {
+    /**
+     * Bewusst eine `while`-Schleife mit jedes Mal neu gelesenem `rowCount`: Beim Aufklappen
+     * einer Zeile schiebt der Baum deren Kinder als neue Zeilen dahinter, `rowCount` waechst
+     * also waehrend des Durchlaufs. Ein Kotlin-Bereich `0 until tree.rowCount` wertet die
+     * Obergrenze **einmal** aus und deckt damit nur die anfangs sichtbaren Zeilen ab - genau
+     * das Symptom "Expand All klappt pro Klick nur eine weitere Ebene auf".
+     */
     override fun actionPerformed(e: AnActionEvent) {
-        e.tree()?.let { tree -> for (row in 0 until tree.rowCount) tree.expandRow(row) }
+        val tree = e.tree() ?: return
+        var row = 0
+        while (row < tree.rowCount) {
+            tree.expandRow(row)
+            row++
+        }
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
