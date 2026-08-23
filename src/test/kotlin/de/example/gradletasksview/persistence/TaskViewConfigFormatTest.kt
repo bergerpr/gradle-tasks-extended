@@ -108,30 +108,15 @@ class TaskViewConfigFormatTest {
     }
 
     @Test
-    fun `settings carry showModules, exclude, include and per-mode lists`() {
+    fun `settings carry showModules and nothing else`() {
         val config = read(
             """
             settings:
               showModules: true
-              exclude:
-                - ":legacy"
-              include:
-                ":legacy":
-                  - docker/gui
-              modes:
-                sort:
-                  exclude:
-                    - ":app:core"
             """
         )
 
         assertEquals(true, config.settings.showModules)
-        assertEquals(listOf(":legacy"), config.settings.filter.exclude)
-        assertEquals(mapOf(":legacy" to listOf("docker/gui")), config.settings.filter.include)
-        assertEquals(
-            mapOf(GradleTaskViewMode.SORT to TaskViewFilter(exclude = listOf(":app:core"))),
-            config.settings.modeFilters
-        )
         // settings ist ein eigener Namensraum und darf nicht als Knoteneintrag durchschlagen.
         assertTrue(config.groups.isEmpty())
         assertTrue(config.tasks.isEmpty())
@@ -139,37 +124,45 @@ class TaskViewConfigFormatTest {
     }
 
     @Test
-    fun `module paths in the lists are normalised as well`() {
+    fun `visibility lives on the nodes themselves`() {
         val config = read(
             """
-            settings:
-              exclude:
-                - "app:core"
-              include:
-                "legacy":
-                  - docker/gui
+            modules:
+              ":legacy":
+                hidden: true
+                groups:
+                  docker/gui:
+                    hidden: false
+              ":app:core":
+                modes:
+                  sort:
+                    hidden: true
             """
         )
 
-        assertEquals(listOf(":app:core"), config.settings.filter.exclude)
-        assertEquals(setOf(":legacy"), config.settings.filter.include.keys)
+        val legacy = config.modules.getValue(":legacy")
+        assertEquals(true, legacy.node.hidden)
+        assertEquals(false, legacy.groups.getValue("docker/gui").hidden)
+        assertEquals(
+            mapOf(GradleTaskViewMode.SORT to TaskViewNodeConfig(hidden = true)),
+            config.modules.getValue(":app:core").node.modes
+        )
     }
 
     @Test
     fun `an unknown mode name is ignored instead of discarding the whole file`() {
         val config = read(
             """
-            settings:
-              showModules: true
-              modes:
-                doesNotExist:
-                  exclude:
-                    - ":legacy"
+            groups:
+              docker/gui:
+                expanded: true
+                modes:
+                  doesNotExist:
+                    hidden: true
             """
         )
 
-        assertEquals(true, config.settings.showModules)
-        assertTrue(config.settings.modeFilters.isEmpty())
+        assertEquals(TaskViewNodeConfig(expanded = true), config.groups.getValue("docker/gui"))
     }
 
     @Test
@@ -187,14 +180,7 @@ class TaskViewConfigFormatTest {
     fun `write then read round-trips every namespace`() {
         val file = tempDir.resolve("roundtrip.yaml").toFile()
         val config = TaskViewConfig(
-            settings = TaskViewSettings(
-                showModules = true,
-                filter = TaskViewFilter(
-                    exclude = listOf(":legacy"),
-                    include = mapOf(":legacy" to listOf("docker/gui"))
-                ),
-                modeFilters = mapOf(GradleTaskViewMode.SORT to TaskViewFilter(exclude = listOf(":app:core")))
-            ),
+            settings = TaskViewSettings(showModules = true),
             groups = mapOf("docker/gui" to TaskViewNodeConfig(expanded = false)),
             tasks = mapOf("buildImage" to TaskViewNodeConfig(icon = "smile.svg")),
             modules = mapOf(
@@ -203,6 +189,10 @@ class TaskViewConfigFormatTest {
                     node = TaskViewNodeConfig(expanded = false, icon = "app.svg"),
                     groups = mapOf("docker/gui/jsp" to TaskViewNodeConfig(expanded = true)),
                     tasks = mapOf("runApp" to TaskViewNodeConfig(hidden = true))
+                ),
+                ":legacy" to TaskViewModuleConfig(
+                    node = TaskViewNodeConfig(hidden = true),
+                    groups = mapOf("docker/gui" to TaskViewNodeConfig(hidden = false))
                 ),
                 ":app:core" to TaskViewModuleConfig(
                     node = TaskViewNodeConfig(

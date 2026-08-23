@@ -6,7 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import de.example.gradletasksview.model.GradleTaskViewMode
-import de.example.gradletasksview.model.ModuleFilterRule
+import de.example.gradletasksview.model.VisibilityRule
+import de.example.gradletasksview.model.VisibilityTarget
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,9 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.Icon
 
 /**
- * Zweistufige, dateibasierte Konfiguration der Baumansicht - Expand/Collapse-Zustand von
- * Modul-/Gruppen-/Ordnerknoten, eigene Icons sowie die Ansichtseinstellungen (Modulgliederung
- * und Exclude/Include):
+ * Zweistufige, dateibasierte Konfiguration der Baumansicht - Aufklappzustand von
+ * Modul-/Gruppen-/Ordnerknoten, eigene Icons, ausgeblendete Knoten und die Vorgabe fuer die
+ * Modulgliederung:
  *
  * - `<Projektwurzel>/gradle/gradle_tasks_extended/default.yaml`: Team-weite Vorgabe,
  *   die versioniert werden kann. Wird nur angelegt, wenn sie noch nicht existiert -
@@ -37,8 +38,9 @@ import javax.swing.Icon
  * Modul gepflegte Team-Vorgabe nie zur Geltung kommen lassen. Greift nichts, gilt der
  * eingebaute Standard (aufgeklappt bzw. Plugin-Icon).
  *
- * Die Exclude-/Include-**Listen** folgen einer anderen Regel: Sie ergaenzen einander, statt
- * sich zu ersetzen (siehe [TaskViewFilter.plus] und REQ-075).
+ * Fuer die Sichtbarkeit gilt dieselbe Reihenfolge, nur zusaetzlich um die Genauigkeit des
+ * Eintrags erweitert (Task vor Ordner vor Modul) - sie wird in [VisibilityRule] flachgeklopft
+ * und im Modell ausgewertet.
  *
  * `Service.Level.PROJECT`, da die Konfigurationsdateien projektbezogen sind (siehe
  * REQ-042 zu mehreren offenen Projekten).
@@ -115,23 +117,51 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
     }
 
     /**
-     * Alle im Modus [mode] wirksamen Ausschluss-/Wiedereinschlussregeln, flachgeklopft fuer die
-     * Modelllogik. Die Listen aus `custom.yaml` ergaenzen die aus `default.yaml`.
+     * Alle im Modus [mode] wirksamen Sichtbarkeitsregeln, flachgeklopft fuer die Modelllogik.
+     * Die Reihenfolge der Liste spielt keine Rolle - welche Regel gewinnt, entscheidet der
+     * Vergleich in [de.example.gradletasksview.model.filterHiddenTasks].
      */
-    fun moduleFilterRules(mode: GradleTaskViewMode): List<ModuleFilterRule> {
-        val global = defaultState.settings.filter + customState.settings.filter
-        val forMode = defaultState.settings.modeFilters[mode].orEmpty() +
-            customState.settings.modeFilters[mode].orEmpty()
-        return global.toRules(modeSpecific = false) + forMode.toRules(modeSpecific = true)
+    fun visibilityRules(mode: GradleTaskViewMode): List<VisibilityRule> =
+        rulesOf(defaultState, mode, fromCustomFile = false) + rulesOf(customState, mode, fromCustomFile = true)
+
+    private fun rulesOf(
+        config: TaskViewConfig,
+        mode: GradleTaskViewMode,
+        fromCustomFile: Boolean
+    ): List<VisibilityRule> = buildList {
+        config.groups.forEach { (path, entry) ->
+            addRules(entry, VisibilityTarget.Group(path), scope = null, mode, fromCustomFile)
+        }
+        config.tasks.forEach { (name, entry) ->
+            addRules(entry, VisibilityTarget.Task(name), scope = null, mode, fromCustomFile)
+        }
+        config.modules.forEach { (path, block) ->
+            // Der Modulknoten selbst: Sein Geltungsbereich ist das Modul, das er benennt -
+            // ein zusaetzlicher Scope waere dieselbe Angabe doppelt.
+            addRules(block.node, VisibilityTarget.Module(path), scope = null, mode, fromCustomFile)
+            block.groups.forEach { (group, entry) ->
+                addRules(entry, VisibilityTarget.Group(group), scope = path, mode, fromCustomFile)
+            }
+            block.tasks.forEach { (task, entry) ->
+                addRules(entry, VisibilityTarget.Task(task), scope = path, mode, fromCustomFile)
+            }
+        }
     }
 
-    private fun TaskViewFilter?.orEmpty(): TaskViewFilter = this ?: TaskViewFilter()
-
-    private fun TaskViewFilter.toRules(modeSpecific: Boolean): List<ModuleFilterRule> =
-        exclude.map { ModuleFilterRule(it, include = false, modeSpecific = modeSpecific) } +
-            include.map { (module, groupPaths) ->
-                ModuleFilterRule(module, groupPaths = groupPaths, include = true, modeSpecific = modeSpecific)
-            }
+    private fun MutableList<VisibilityRule>.addRules(
+        entry: TaskViewNodeConfig,
+        target: VisibilityTarget,
+        scope: String?,
+        mode: GradleTaskViewMode,
+        fromCustomFile: Boolean
+    ) {
+        entry.hidden?.let {
+            add(VisibilityRule(target, scope, hidden = it, modeSpecific = false, fromCustomFile = fromCustomFile))
+        }
+        entry.modes[mode]?.hidden?.let {
+            add(VisibilityRule(target, scope, hidden = it, modeSpecific = true, fromCustomFile = fromCustomFile))
+        }
+    }
 
     fun setExpanded(key: TaskViewConfigKey, expanded: Boolean) {
         // Die uebrigen Felder des Eintrags bleiben erhalten - sonst wuerde das erste

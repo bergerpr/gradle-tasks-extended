@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImp
 import com.intellij.openapi.project.Project
 import de.example.gradletasksview.model.GradleTaskDataProvider
 import de.example.gradletasksview.model.GradleTaskViewMode
-import de.example.gradletasksview.model.filterTasksByModule
+import de.example.gradletasksview.model.filterHiddenTasks
 import de.example.gradletasksview.persistence.GradleTaskViewSettings
 import de.example.gradletasksview.persistence.GradleTasksViewConfigStore
 import kotlinx.coroutines.CoroutineScope
@@ -141,9 +141,9 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
 
         val allTasks = readAction { dataProvider.loadTasks() }
 
-        // Reihenfolge ist bedeutsam: Der Modulausschluss wirkt VOR der Textsuche, sonst
-        // lieferte die Suche Treffer, die im Baum gar nicht existieren (siehe REQ-075).
-        val visibleTasks = filterTasksByModule(allTasks, configStore.moduleFilterRules(mode))
+        // Reihenfolge ist bedeutsam: Das Ausblenden wirkt VOR der Textsuche, sonst lieferte
+        // die Suche Treffer, die im Baum gar nicht existieren (siehe REQ-075).
+        val visibleTasks = filterHiddenTasks(allTasks, configStore.visibilityRules(mode))
         val filtered = if (filterText.isBlank()) {
             visibleTasks
         } else {

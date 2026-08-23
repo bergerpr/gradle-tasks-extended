@@ -50,48 +50,17 @@ data class TaskViewModuleConfig(
 }
 
 /**
- * Ausschluss- und Wiedereinschlussliste fuer Module.
- *
- * @property exclude Gradle-Projektpfade, die samt Untermodulen ausgeblendet werden.
- * @property include Ausnahmen dazu: Abbildung Modulpfad -> Gruppenpfade, die trotz eines
- *   Ausschlusses sichtbar bleiben. Eine leere Liste schliesst das ganze Modul wieder ein.
- *
- * Geht mit OPEN-009, AP-2 in `hidden` auf; bis dahin unveraendert in Kraft.
- */
-data class TaskViewFilter(
-    val exclude: List<String> = emptyList(),
-    val include: Map<String, List<String>> = emptyMap()
-) {
-    val isEmpty: Boolean get() = exclude.isEmpty() && include.isEmpty()
-
-    /**
-     * Vereinigt zwei Listenpaare. Listen aus `custom.yaml` **ergaenzen** die aus `default.yaml`
-     * und ersetzen sie nie, damit eine Team-Vorgabe nicht unbemerkt verschwinden kann; wer sie
-     * loswerden will, nutzt `include` als Gegenmittel (siehe REQ-075).
-     */
-    operator fun plus(other: TaskViewFilter): TaskViewFilter = TaskViewFilter(
-        exclude = (exclude + other.exclude).distinct(),
-        include = (include.keys + other.include.keys).associateWith { module ->
-            (include[module].orEmpty() + other.include[module].orEmpty()).distinct()
-        }
-    )
-}
-
-/**
  * Ansichtseinstellungen aus dem Schluessel `settings`.
+ *
+ * Sichtbarkeit steht bewusst **nicht** hier: Sie ist ein `hidden` am jeweiligen Knoten und
+ * folgt damit denselben Vorrangregeln wie `expanded` und `icon` (siehe OPEN-009).
  *
  * @property showModules Vorgabe fuer den Feststellbutton der Modulgliederung. `null` bedeutet
  *   "nicht konfiguriert"; der eingebaute Standard ist **aus**, damit sich fuer bestehende
  *   Projekte ohne Konfiguration nichts aendert.
- * @property filter Modusuebergreifende Exclude-/Include-Listen.
- * @property modeFilters Zusaetzliche Listen je Ansichtsmodus; sie ergaenzen [filter].
  */
-data class TaskViewSettings(
-    val showModules: Boolean? = null,
-    val filter: TaskViewFilter = TaskViewFilter(),
-    val modeFilters: Map<GradleTaskViewMode, TaskViewFilter> = emptyMap()
-) {
-    val isEmpty: Boolean get() = showModules == null && filter.isEmpty && modeFilters.all { it.value.isEmpty }
+data class TaskViewSettings(val showModules: Boolean? = null) {
+    val isEmpty: Boolean get() = showModules == null
 }
 
 /**

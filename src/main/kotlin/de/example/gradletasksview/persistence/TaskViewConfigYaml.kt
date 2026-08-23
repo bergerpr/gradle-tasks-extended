@@ -64,17 +64,23 @@ private val STARTER_DEFAULT_YAML = """
     #
     #   settings:
     #     showModules: true     # Vorgabe fuer den Feststellbutton der Modulgliederung
-    #     exclude:
-    #       - ":legacy"         # ganzes Modul samt Untermodulen ausblenden
-    #     include:
-    #       ":legacy":          # ... bis auf diese Gruppenpfade
-    #         - docker/gui
-    #     modes:
-    #       sort:
-    #         exclude:
-    #           - ":sandbox"    # nur im Sort-Modus zusaetzlich ausblenden
     #
-    # Excludes wirken immer, auch bei ausgeschalteter Modulgliederung.
+    # --- Ausblenden ---------------------------------------------------------------------
+    #
+    # "hidden" blendet einen Knoten samt allem darunter aus und wirkt immer, auch bei
+    # ausgeschalteter Modulgliederung. Der genauere Eintrag gewinnt, ein "hidden: false"
+    # nimmt eine allgemeinere Ausblendung also wieder zurueck:
+    #
+    #   modules:
+    #     ":legacy":
+    #       hidden: true        # Modul samt Untermodulen ausblenden ...
+    #       groups:
+    #         docker/gui:
+    #           hidden: false   # ... ausser diesem Gruppenpfad
+    #     ":sandbox":
+    #       modes:
+    #         sort:
+    #           hidden: true    # nur im Sort-Modus ausblenden
 """.trimIndent() + "\n"
 
 /**
@@ -105,8 +111,6 @@ object TaskViewConfigYaml {
     private const val KEY_MODES = "modes"
 
     private const val KEY_SHOW_MODULES = "showModules"
-    private const val KEY_EXCLUDE = "exclude"
-    private const val KEY_INCLUDE = "include"
 
     private val dumperOptions = DumperOptions().apply {
         defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
@@ -166,42 +170,12 @@ object TaskViewConfigYaml {
         ).takeUnless { it.isEmpty }
     }
 
-    private fun parseSettings(map: Map<*, *>?): TaskViewSettings {
-        if (map == null) return TaskViewSettings()
-
-        val modes = linkedMapOf<GradleTaskViewMode, TaskViewFilter>()
-        (map[KEY_MODES] as? Map<*, *>)?.forEach { (rawKey, rawValue) ->
-            val mode = (rawKey as? String)?.let(::parseMode) ?: return@forEach
-            val filter = parseFilter(rawValue as? Map<*, *> ?: return@forEach)
-            if (!filter.isEmpty) modes[mode] = filter
-        }
-
-        return TaskViewSettings(
-            showModules = map[KEY_SHOW_MODULES] as? Boolean,
-            filter = parseFilter(map),
-            modeFilters = modes
-        )
-    }
+    private fun parseSettings(map: Map<*, *>?): TaskViewSettings =
+        TaskViewSettings(showModules = map?.get(KEY_SHOW_MODULES) as? Boolean)
 
     /** Unbekannte Modusnamen werden ignoriert statt die ganze Datei zu verwerfen. */
     private fun parseMode(name: String): GradleTaskViewMode? =
         GradleTaskViewMode.entries.firstOrNull { it.name.equals(name.trim(), ignoreCase = true) }
-
-    private fun parseFilter(map: Map<*, *>): TaskViewFilter {
-        val exclude = (map[KEY_EXCLUDE] as? List<*>).orEmpty()
-            .mapNotNull { (it as? String)?.trim()?.takeIf(String::isNotEmpty) }
-            .map(::normalizeModulePath)
-
-        val include = linkedMapOf<String, List<String>>()
-        (map[KEY_INCLUDE] as? Map<*, *>)?.forEach { (rawKey, rawValue) ->
-            val module = (rawKey as? String)?.trim()?.takeIf(String::isNotEmpty) ?: return@forEach
-            val groupPaths = (rawValue as? List<*>).orEmpty()
-                .mapNotNull { (it as? String)?.trim()?.takeIf(String::isNotEmpty) }
-            include[normalizeModulePath(module)] = groupPaths
-        }
-
-        return TaskViewFilter(exclude = exclude, include = include)
-    }
 
     private fun parseNodeConfig(value: Any?): TaskViewNodeConfig? = when (value) {
         is Boolean -> TaskViewNodeConfig(expanded = value)
@@ -256,17 +230,6 @@ object TaskViewConfigYaml {
 
     private fun serialiseSettings(settings: TaskViewSettings): Map<String, Any> = buildMap {
         settings.showModules?.let { put(KEY_SHOW_MODULES, it) }
-        putAll(serialiseFilter(settings.filter))
-        val modes = settings.modeFilters
-            .filterValues { !it.isEmpty }
-            .map { (mode, filter) -> mode.name.lowercase() to serialiseFilter(filter) }
-            .toMap()
-        if (modes.isNotEmpty()) put(KEY_MODES, modes)
-    }
-
-    private fun serialiseFilter(filter: TaskViewFilter): Map<String, Any> = buildMap {
-        if (filter.exclude.isNotEmpty()) put(KEY_EXCLUDE, filter.exclude)
-        if (filter.include.isNotEmpty()) put(KEY_INCLUDE, filter.include)
     }
 
     /**
