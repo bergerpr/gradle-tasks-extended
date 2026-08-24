@@ -57,7 +57,8 @@ private val STARTER_DEFAULT_YAML = """
     #       tasks:
     #         Build all images:
     #           execute: ":app:buildImage"   # qualified: exactly this module
-    #           icon: nightly.svg            #   bare name: every module that has the task
+    #           icon: nightly.svg            #   ":assembleAll": the root project
+    #                                        #   "buildImage": every module that has the task
     #
     # Such a row is addressed by its entry, not by the task it runs: hiding that task removes
     # it from its original group only, and this row stays. An entry without "execute" defines

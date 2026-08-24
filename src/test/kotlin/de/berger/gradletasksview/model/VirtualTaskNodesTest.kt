@@ -113,6 +113,20 @@ class VirtualTaskNodesTest {
     }
 
     @Test
+    fun `a root project task is addressed with a single leading colon`() {
+        // Ein Task des Hauptprojekts heisst ":assembleAll" - der Teil vor dem Doppelpunkt ist
+        // leer und meint damit das Wurzelprojekt, nicht "irgendein Modul".
+        val alsoInApp = task("assembleAll", ":app", "build")
+        val expansion = expandVirtualTasks(
+            tasks + alsoInApp,
+            listOf(VirtualTaskDefinition("ci", "Alles bauen", ":assembleAll"))
+        )
+
+        assertEquals(listOf(":"), expansion.tasks.map { it.gradleProjectPath })
+        assertEquals(":assembleAll", expansion.tasks.single().taskPath)
+    }
+
+    @Test
     fun `an unresolvable reference produces no node at all`() {
         val definition = VirtualTaskDefinition("ci/nightly", "Tippfehler", ":app:buldImage")
 
