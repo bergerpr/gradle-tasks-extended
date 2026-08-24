@@ -67,10 +67,9 @@ kotlin {
 }
 
 // Quellen fuer die beiden Reiter in Einstellungen > Plugins (REQ-086). Als Dateien und nicht
-// in der plugin.xml, weil die Beschreibung beim Bauen um die Bildstrecke ergaenzt wird: Deren
-// Dateipfade stehen erst dann fest.
+// in der plugin.xml, damit sich beide Texte ohne XML-Escaping pflegen lassen und patchPluginXml
+// sie beim Bauen eintraegt.
 val pluginMetaDir = layout.projectDirectory.dir("src/main/plugin-meta").asFile
-val screenshotsDir = layout.projectDirectory.dir("src/main/resources/help/screenshots").asFile
 
 intellijPlatform {
     // Reines Kotlin-Projekt ohne Java-Quellen: die NotNull-Bytecode-Instrumentierung
@@ -91,36 +90,19 @@ intellijPlatform {
             url = providers.gradleProperty("pluginVendorUrl")
         }
 
-        // Reiter "Overview": erst der Beschreibungstext, darunter die Bildstrecke (REQ-086).
+        // Reiter "Overview": nur Text, keine Bilder (REQ-086).
         //
-        // Die Bilder haengen an absoluten file:-URLs - anders geht es nicht. Die Beschreibung
-        // zeichnet ein gewoehnliches Swing-JEditorPane (PluginDetailsPageComponent), das keine
-        // Basis-URL setzt: Relative Pfade laufen deshalb ins Leere, data:-URIs kennt die JVM
-        // gar nicht, und die eingebaute Bildergalerie des Reiters speist sich aus
-        // Marketplace-Daten (PluginNode.getScreenShots), die ein lokal installiertes Plugin nie
-        // hat. Die Pfade zeigen damit auf DIESE Arbeitskopie; wird sie verschoben, bleiben im
-        // Reiter leere Bildrahmen. Fuer ein privates Ein-Rechner-Plugin (REQ-051) ist das der
-        // vertretbare Preis dafuer, die Bilder ueberhaupt dort zu haben.
-        description = provider {
-            val index = screenshotsDir.resolve("screenshots.txt")
-            val gallery = if (!index.isFile) "" else index.readLines()
-                .map { it.trim() }
-                .filter { it.isNotEmpty() && !it.startsWith("#") }
-                .mapNotNull { line ->
-                    val image = screenshotsDir.resolve(line.substringBefore('|').trim())
-                    val caption = line.substringAfter('|', "").trim()
-                    // Bildunterschriften stehen sowohl im alt-Attribut als auch im Text; ein
-                    // Anfuehrungszeichen darin wuerde das Attribut sonst vorzeitig schliessen.
-                    val escaped = caption.replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;")
-                    if (!image.isFile) null else "<p><img src=\"" + image.toURI() + "\" width=\"360\" alt=\"" +
-                        escaped + "\"><br><em>" + escaped + "</em></p>"
-                }
-                .joinToString("\n")
-
-            // Der Kommentarkopf der Datei erklaert sie im Editor und gehoert nicht in die IDE.
-            val text = pluginMetaDir.resolve("description.html").readText().substringAfter("-->").trim()
-            listOf(text, gallery).filter { it.isNotEmpty() }.joinToString("\n")
-        }
+        // Bilder waren einmal hier und mussten wieder weichen. Die Detailseite meldet jede
+        // ImageView an einen eigenen Handler, der ihre Breite mit der des Scroll-Bereichs
+        // vergleicht und bei Ueberbreite die waagerechte Scrollbar einschaltet
+        // (PluginDetailsPageComponent.createHtmlImageViewHandler). Beim ersten Layout ist diese
+        // Breite 0, also greift das immer - und ein JEditorPane in einem horizontal scrollbaren
+        // Bereich richtet sich nicht mehr nach der Fensterbreite: Jeder Absatz landet in einer
+        // einzigen langen Zeile. Die Bildstrecke liegt deshalb dort, wo die Oberflaeche uns
+        // gehoert (Info-Dialog, REQ-081).
+        description = providers.fileContents(
+            layout.projectDirectory.file("src/main/plugin-meta/description.html")
+        ).asText.map { it.substringAfter("-->").trim() }
 
         // Reiter "What's New" (REQ-086).
         changeNotes = provider {
