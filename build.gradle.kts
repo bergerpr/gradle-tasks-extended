@@ -66,6 +66,12 @@ kotlin {
     jvmToolchain(25)
 }
 
+// Quellen fuer die beiden Reiter in Einstellungen > Plugins (REQ-086). Als Dateien und nicht
+// in der plugin.xml, weil die Beschreibung beim Bauen um die Bildstrecke ergaenzt wird: Deren
+// Dateipfade stehen erst dann fest.
+val pluginMetaDir = layout.projectDirectory.dir("src/main/plugin-meta").asFile
+val screenshotsDir = layout.projectDirectory.dir("src/main/resources/help/screenshots").asFile
+
 intellijPlatform {
     // Reines Kotlin-Projekt ohne Java-Quellen: die NotNull-Bytecode-Instrumentierung
     // ist fuer Java-Annotationen gedacht und bei Kotlin ueberfluessig, da Kotlin
@@ -83,6 +89,42 @@ intellijPlatform {
             name = providers.gradleProperty("pluginVendor")
             email = providers.gradleProperty("pluginVendorEmail")
             url = providers.gradleProperty("pluginVendorUrl")
+        }
+
+        // Reiter "Overview": erst die Bildstrecke, dann der Beschreibungstext (REQ-086).
+        //
+        // Die Bilder haengen an absoluten file:-URLs - anders geht es nicht. Die Beschreibung
+        // zeichnet ein gewoehnliches Swing-JEditorPane (PluginDetailsPageComponent), das keine
+        // Basis-URL setzt: Relative Pfade laufen deshalb ins Leere, data:-URIs kennt die JVM
+        // gar nicht, und die eingebaute Bildergalerie des Reiters speist sich aus
+        // Marketplace-Daten (PluginNode.getScreenShots), die ein lokal installiertes Plugin nie
+        // hat. Die Pfade zeigen damit auf DIESE Arbeitskopie; wird sie verschoben, bleiben im
+        // Reiter leere Bildrahmen. Fuer ein privates Ein-Rechner-Plugin (REQ-051) ist das der
+        // vertretbare Preis dafuer, die Bilder ueberhaupt dort zu haben.
+        description = provider {
+            val index = screenshotsDir.resolve("screenshots.txt")
+            val gallery = if (!index.isFile) "" else index.readLines()
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && !it.startsWith("#") }
+                .mapNotNull { line ->
+                    val image = screenshotsDir.resolve(line.substringBefore('|').trim())
+                    val caption = line.substringAfter('|', "").trim()
+                    // Bildunterschriften stehen sowohl im alt-Attribut als auch im Text; ein
+                    // Anfuehrungszeichen darin wuerde das Attribut sonst vorzeitig schliessen.
+                    val escaped = caption.replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;")
+                    if (!image.isFile) null else "<p><img src=\"" + image.toURI() + "\" width=\"360\" alt=\"" +
+                        escaped + "\"><br><em>" + escaped + "</em></p>"
+                }
+                .joinToString("\n")
+
+            // Der Kommentarkopf der Datei erklaert sie im Editor und gehoert nicht in die IDE.
+            val text = pluginMetaDir.resolve("description.html").readText().substringAfter("-->").trim()
+            listOf(gallery, text).filter { it.isNotEmpty() }.joinToString("\n")
+        }
+
+        // Reiter "What's New" (REQ-086).
+        changeNotes = provider {
+            pluginMetaDir.resolve("change-notes.html").readText().substringAfter("-->").trim()
         }
 
         ideaVersion {

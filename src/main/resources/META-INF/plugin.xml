@@ -3,24 +3,12 @@
     <name>Gradle Tasks Extended</name>
     <!-- Name, Version und Herausgeber traegt patchPluginXml aus gradle.properties ein. -->
 
-    <!-- Sichtbar in der Plugin-Liste der IDE, deshalb englisch wie die uebrige Oberflaeche.
-         Aendert sich der Funktionsumfang, gehoert dieser Text mit nachgezogen. -->
-    <description><![CDATA[
-        A standalone tool window for the Gradle tasks of the opened project, with three view
-        modes: <em>Default</em> rebuilds the IDE's own Gradle view but turns the group rows
-        into a folder tree, <em>Sort</em> lists the full group paths alphabetically, and
-        <em>Nested</em> builds a folder hierarchy from slash-separated task groups. An
-        optional module level can be switched on top of Sort and Nested.<br><br>
-        Nodes can be hidden per module and per view mode, groups and tasks can carry their own
-        icons, module, group and folder nodes can carry their own tooltip, and Run, Debug and
-        Run with Coverage are available from the context menu. The configuration can also add
-        rows of its own: an entry with <em>execute</em> shows an existing Gradle task in a
-        second, freely named group without creating a Gradle task.
-        Expand state, icons, tooltips and hidden nodes are stored in two YAML files inside the
-        project: a team default that is checked in, and personal overrides on top. The toolbar's
-        gear opens the team default and reloads the view after hand edits.<br><br>
-        Built for private use; not distributed through the JetBrains Marketplace.
-    ]]></description>
+    <!-- Beschreibung und Aenderungshinweise stehen NICHT hier, sondern in
+         src/main/plugin-meta/ (description.html, change-notes.html). patchPluginXml setzt sie
+         beim Bauen ein und stellt der Beschreibung die Bildstrecke voran - deren Dateipfade
+         stehen erst dann fest (REQ-086). Aendert sich der Funktionsumfang, gehoeren beide
+         Dateien mit nachgezogen. -->
+    <description><![CDATA[Set by patchPluginXml from src/main/plugin-meta/description.html.]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <!-- "com.intellij.gradle" ist die aktuelle Plugin-ID der Basis-Gradle-Integration

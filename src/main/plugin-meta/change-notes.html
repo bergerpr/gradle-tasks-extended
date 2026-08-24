@@ -1,0 +1,32 @@
+<!-- Reiter "What's New" in Einstellungen > Plugins (REQ-086). Neueste Version zuerst;
+     patchPluginXml traegt den Inhalt beim Bauen in die plugin.xml ein. -->
+
+<b>0.3.0</b>
+<ul>
+  <li><b>Rows you define yourself.</b> An entry with <em>execute</em> inside a group's
+      <em>tasks</em> becomes its own row that runs an existing Gradle task &mdash; no Gradle task
+      is created, and neither the row name nor the group has to exist beforehand. Such a row is
+      addressed by its own entry, so hiding the task it runs removes only the original
+      occurrence.</li>
+  <li><b>Your own tooltips.</b> Module, group and folder nodes show a tooltip when, and only
+      when, a <em>description</em> entry gives them one. Tasks keep showing their Gradle
+      description &mdash; previously they lent it to whatever node was drawn next.</li>
+  <li><b>The gear is a menu</b> with <em>Configuration</em> and <em>Reload</em>. Reload re-reads
+      both YAML files and the icons directory and rebuilds the view, so edited configuration and
+      newly added icon files no longer need the project to be reloaded.</li>
+  <li><b>Task icons are grey</b> instead of green, like the rest of the icon set. The tree is a
+      list to browse, not a row of start buttons.</li>
+  <li><b>Fixed: task names and duplicates.</b> The platform reports submodule tasks under their
+      qualified name and hangs every module's tasks on its parent as inherited aggregates. Rows
+      were therefore labelled <em>:lib:printLibGui</em>, every task appeared a second time under
+      the root project, identically named tasks of different modules collapsed into one, and
+      running such a duplicate started the task in <em>every</em> matching subproject.</li>
+</ul>
+
+<b>0.2.0</b>
+<ul>
+  <li>Run, Debug and Run with Coverage in the context menu, through the plugin's own run
+      configuration producer.</li>
+  <li>Info dialog with description, screenshots and build details.</li>
+  <li>Tool window icon, English user interface.</li>
+</ul>

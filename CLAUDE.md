@@ -42,10 +42,13 @@ compacted-away intermediate node has no effect (REQ-004).
 ./gradlew verifyPlugin  # IntelliJ Plugin Verifier over the built ZIP (~2 min, see below)
 ```
 
-**`plugin.xml` is part of every feature change.** Its `<description>` is what the IDE shows in
-the plugin list, so a new or changed capability belongs in that text as well — same for actions,
-extension points and dependencies declared there. It is not a file that only gets touched when
-something breaks; treat it like the requirement files under `docs/`.
+**`plugin.xml` is part of every feature change** — as are the two files in
+`src/main/plugin-meta/`. What the IDE shows in Settings > Plugins comes from there, not from
+`plugin.xml`: `description.html` is the *Overview* tab (patchPluginXml prepends the screenshot
+gallery, whose file paths only exist at build time) and `change-notes.html` is *What's New*,
+newest release first (REQ-086). A new or changed capability belongs in both texts — same for
+actions, extension points and dependencies declared in `plugin.xml`. None of them are files that
+only get touched when something breaks; treat them like the requirement files under `docs/`.
 
 `verifyPlugin` runs against the platform the plugin is compiled against (`ides { current() }`);
 which IDEs get checked is configured in `build.gradle.kts`, the verifier does not derive it from
