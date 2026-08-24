@@ -203,6 +203,10 @@ groups:                           # group/folder paths, apply in every module
   docker/gui/jsp:
     icon: smile.svg               # replaces the built-in folder icon
     description: GUI images       # tooltip of this node; without it there is none
+  ci/nightly:                     # group nobody declared - exists through the node below
+    tasks:                        # rows of this view, not Gradle tasks (REQ-085)
+      Build all images:
+        execute: ":app:buildImage"
 
 tasks:                            # own namespace, keyed by task name
   printGroup-docker-server-gui:
@@ -243,6 +247,18 @@ the inside out, then module. Only `hidden` is inherited along paths (a hidden fo
 `expanded`, `icon` and `description` are per node. `exclude`/`include` no longer exist — they were
 folded into `hidden`, which also retired ADR-016's union rule, so a personal `hidden: false` can now
 take back a team default (REQ-075, ADR-020).
+
+A group entry's `tasks:` map holds **rows this view defines itself** (REQ-085, ADR-023): an
+entry with `execute` becomes its own task node that runs the referenced Gradle task
+(`":app:buildImage"` = that module, bare `"buildImage"` = every module that has it). Neither
+the row name nor the group path has to exist beforehand — groups exist only because nodes carry
+their path. Such a row is keyed by group path + name (`TaskViewConfigKey.VirtualTask`), never by
+the executed task name, so `hidden` on that task removes only the original occurrence; the row
+is hidden through its own entry, or with the group/module it sits in. `expandVirtualTasks` runs
+on the **unfiltered** task list, before `filterHiddenTasks` — that ordering is what makes
+"hidden at the original place, visible here" possible. Execution needs no special case:
+`GradleTaskDescriptor.taskName`/`externalProjectPath` still point at the real task, only
+`displayName`, `groupName` and `stableId` differ.
 
 `description` is the tooltip of a module, group or folder node and the **only** source of one — without
 an entry those nodes have no tooltip at all, and tasks ignore the field entirely (they keep showing their

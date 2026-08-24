@@ -28,7 +28,9 @@ modules:
 
 Tasks sind davon nicht betroffen: Sie zeigen unveraendert die Beschreibung, die Gradle selbst
 mitliefert - grau hinter dem Namen und als Tooltip (REQ-015) - und fragen die Konfiguration
-dafuer gar nicht erst.
+dafuer gar nicht erst. Die einzige Ausnahme ist ein ueber `execute` konfigurierter Knoten
+(REQ-085): Er traegt einen selbst gewaehlten Namen, also gilt dort auch der selbst geschriebene
+Text - und ohne ihn die Beschreibung des ausgefuehrten Tasks.
 
 ## Der Text steht an genau einer Stelle
 

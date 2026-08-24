@@ -33,6 +33,12 @@ val groupPathComparator: Comparator<String> = otherLastThen(caseInsensitiveStabl
 val folderComparator: Comparator<NestedFolderNode> =
     Comparator { a, b -> otherLastThen(caseInsensitiveStableComparator).compare(a.displayName, b.displayName) }
 
-/** Sortierung von Tasks innerhalb einer Gruppe bzw. eines Ordners. */
+/**
+ * Sortierung von Tasks innerhalb einer Gruppe bzw. eines Ordners.
+ *
+ * Verglichen wird die Beschriftung, nicht der Gradle-Name: Bei einem echten Task ist das
+ * dasselbe, ein ueber `execute` konfigurierter Knoten (REQ-085) stuende sonst an einer Stelle,
+ * die zu seinem sichtbaren Namen nicht passt.
+ */
 val taskComparator: Comparator<GradleTaskDescriptor> =
-    Comparator { a, b -> caseInsensitiveStableComparator.compare(a.taskName, b.taskName) }
+    Comparator { a, b -> caseInsensitiveStableComparator.compare(a.displayName, b.displayName) }

@@ -17,7 +17,10 @@ object GradleTasksSpeedSearch {
     fun installOn(tree: JTree): TreeSpeedSearch =
         TreeSpeedSearch.installOn(tree, false) { path ->
             when (val data = (path.lastPathComponent as? DefaultMutableTreeNode)?.userObject) {
-                is TaskNodeData -> data.descriptor.taskPath
+                // Der Anzeigename steht vorn: Bei einem echten Task ist er im Pfad ohnehin
+                // enthalten, ein ueber `execute` konfigurierter Knoten waere sonst nur ueber
+                // den Task auffindbar, den er ausfuehrt - nicht ueber das, was dasteht.
+                is TaskNodeData -> "${data.descriptor.displayName} ${data.descriptor.taskPath}"
                 // Der zusammengesetzte Name eines zusammengefassten Ordners, damit
                 // "server/gui" sowohl ueber "server" als auch ueber "gui" gefunden wird.
                 is FolderNodeData -> data.folder.compactedName

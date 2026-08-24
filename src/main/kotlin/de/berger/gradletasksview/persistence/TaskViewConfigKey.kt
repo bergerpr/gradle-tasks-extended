@@ -3,10 +3,12 @@ package de.berger.gradletasksview.persistence
 /**
  * Adressiert einen konfigurierbaren Baumknoten in `default.yaml`/`custom.yaml`.
  *
- * Es gibt genau drei Formen, und sie entsprechen eins zu eins den Namensraeumen der Datei:
+ * Es gibt vier Formen, und sie entsprechen eins zu eins den Namensraeumen der Datei:
  * - [Module] - der Modulknoten selbst, ein Eintrag unter `modules:`.
  * - [Group] - ein Gruppen-/Ordnerpfad, unter `groups:` oder im `groups:` eines Modulblocks.
  * - [Task] - ein Taskname, unter `tasks:` oder im `tasks:` eines Modulblocks.
+ * - [VirtualTask] - ein ueber `execute` konfigurierter Knoten, im `tasks:` eines
+ *   Gruppeneintrags (REQ-085).
  *
  * Gruppe und Task sind bewusst zwei Typen und nicht ein Schluessel mit einem Namen: In Gradle
  * ist `build` beides, und ein gemeinsamer Namensraum liesse einen Eintrag auf die Gruppe und
@@ -24,11 +26,25 @@ sealed interface TaskViewConfigKey {
 
     data class Task(val taskName: String, val modulePath: String?) : TaskViewConfigKey
 
+    /**
+     * Ein ueber `execute` konfigurierter Knoten: adressiert ueber den Gruppenpfad, in dessen
+     * `tasks:` er steht, und seinen Anzeigenamen - nicht ueber den Namen des Tasks, den er
+     * ausfuehrt (ADR-023).
+     */
+    data class VirtualTask(
+        val groupPath: String,
+        val name: String,
+        val modulePath: String?
+    ) : TaskViewConfigKey
+
     companion object {
         fun module(modulePath: String): TaskViewConfigKey = Module(modulePath)
 
         fun group(groupPath: String, modulePath: String?): TaskViewConfigKey = Group(groupPath, modulePath)
 
         fun task(taskName: String, modulePath: String?): TaskViewConfigKey = Task(taskName, modulePath)
+
+        fun virtualTask(groupPath: String, name: String, modulePath: String?): TaskViewConfigKey =
+            VirtualTask(groupPath, name, modulePath)
     }
 }

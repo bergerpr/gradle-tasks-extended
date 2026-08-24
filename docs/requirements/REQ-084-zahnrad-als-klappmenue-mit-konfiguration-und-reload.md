@@ -23,6 +23,18 @@ Das Zahnrad in der Toolbar (REQ-080) ist ein Klappmenue mit zwei Eintraegen:
 erst wirksam, nachdem das Projekt entladen und neu geladen wurde. Beide Eintraege gehoeren zur
 selben Sache und teilen sich deshalb einen Knopf, statt die Toolbar zu verbreitern.
 
+## Tooltip des Reload-Eintrags
+
+`Reload` traegt einen Tooltip, der in einem Satz sagt, was er tut. Er steht nicht in der
+`description`: Die landet bei einem Menueeintrag in der Statuszeile
+(`ActionMenuItem` ruft `ActionMenu.showDescriptionInStatusBar`), nicht am Mauszeiger. Das
+Zahnrad oeffnet allerdings gar kein `JPopupMenu`, sondern ueber `ActionButton` ein
+Listen-Popup (`PopupFactoryImpl.ActionGroupPopup`), und dessen Eintraege lesen ihren Tooltip
+aus `ActionUtil.TOOLTIP_TEXT` der Presentation (`ActionPopupStep.getTooltipTextFor` ->
+`ActionItem.getTooltip`). Genau dorthin schreibt die Aktion ihn - in `update`, weil das Popup
+mit der frisch aktualisierten Presentation arbeitet, nicht mit der Vorlage. Der Schluessel ist
+oeffentlich und traegt keine Abkuendigung (ADR-008).
+
 ## Warum erzwungen neu eingelesen wird
 
 Der automatische Abgleich beim Refresh (`reloadIfChanged`) vergleicht die Zeitstempel der

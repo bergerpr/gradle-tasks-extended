@@ -78,9 +78,55 @@ affect each other.</p>
         takes its whole subtree with it, and a more precise entry can take it back.</td>
   </tr>
   <tr>
+    <td valign="top"><code>execute</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Only inside the <code>tasks</code> of a group entry: turns that entry into
+        a row of its own that runs the referenced Gradle task. See below.</td>
+  </tr>
+  <tr>
+    <td valign="top"><code>tasks</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Only in a group entry: the nodes that appear in this group in addition to
+        the tasks Gradle puts there.</td>
+  </tr>
+  <tr>
     <td valign="top"><code>modes</code>&nbsp;&nbsp;&nbsp;</td>
     <td valign="top">The same fields again &mdash; except <code>description</code> &mdash; but
         only for <code>default</code>, <code>sort</code> or <code>nested</code>.</td>
+  </tr>
+</table>
+
+<h2>Nodes you define yourself</h2>
+<p>An entry inside the <code>tasks</code> of a group that carries <code>execute</code> becomes
+its own row in the tree. It creates no Gradle task &mdash; it runs the one <code>execute</code>
+points at, so double-click, Run, Debug and Run with Coverage all work as usual &mdash; see the
+<code>docker/test</code> entry in the example above: it adds a row <code>testDocker</code> that
+runs <code>printLibGui</code>, in a group that exists nowhere else.</p>
+<table cellspacing="0" cellpadding="0">
+  <tr>
+    <td valign="top"><b>The&nbsp;name</b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Is yours. It does not have to exist as a Gradle task, and it is what the
+        tree shows and the search matches.</td>
+  </tr>
+  <tr><td colspan="2" height="8"></td></tr>
+  <tr>
+    <td valign="top"><b>The&nbsp;group</b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Does not have to exist either. Groups exist only because nodes carry their
+        path, so the entry above creates <code>ci/nightly</code> &mdash; nested paths and all.</td>
+  </tr>
+  <tr><td colspan="2" height="8"></td></tr>
+  <tr>
+    <td valign="top"><b><code>execute</code></b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Qualified (<code>":app:buildImage"</code>) means exactly that module; a
+        bare name (<code>"buildImage"</code>) means every module that has such a task. Use the
+        path <b>as this view shows it</b> &mdash; <i>Copy Task Path</i> on the task gives you
+        exactly the right string. A reference that resolves to nothing produces no row and logs
+        a warning naming the paths the task does have.</td>
+  </tr>
+  <tr><td colspan="2" height="8"></td></tr>
+  <tr>
+    <td valign="top"><b>Hiding</b>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Such a node is addressed by its entry, not by the task it runs: hiding
+        that task removes it from its original place only, and the node stays. It is hidden
+        through its own <code>hidden</code> &mdash; or with the group or module it sits in.</td>
   </tr>
 </table>
 

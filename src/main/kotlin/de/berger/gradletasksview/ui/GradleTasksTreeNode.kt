@@ -44,7 +44,7 @@ data class ModuleNodeData(val gradlePath: String, val moduleName: String) : Grad
 }
 
 data class TaskNodeData(val descriptor: GradleTaskDescriptor) : GradleTasksTreeNodeData {
-    override fun toString(): String = descriptor.taskName
+    override fun toString(): String = descriptor.displayName
 }
 
 /**
@@ -94,6 +94,19 @@ fun configKeyOf(node: DefaultMutableTreeNode): TaskViewConfigKey? =
         is ModuleNodeData -> TaskViewConfigKey.module(data.gradlePath)
         is GroupHeaderNodeData -> TaskViewConfigKey.group(data.groupPath, enclosingModulePath(node))
         is FolderNodeData -> TaskViewConfigKey.group(data.folder.fullPath, enclosingModulePath(node))
-        is TaskNodeData -> TaskViewConfigKey.task(data.descriptor.taskName, enclosingModulePath(node))
+        is TaskNodeData -> taskConfigKeyOf(data.descriptor, enclosingModulePath(node))
         else -> null
     }
+
+/**
+ * Schluessel eines Task-Blatts: der Taskname im `tasks:`-Namensraum - oder, bei einem ueber
+ * `execute` konfigurierten Knoten, sein Eintrag im Gruppeneintrag (REQ-085).
+ *
+ * Der Unterschied ist der Kern der Sache: Ein solcher Knoten wird ueber seinen Eintrag
+ * angesprochen, nicht ueber den Task, den er ausfuehrt - sonst traefen Icon, Tooltip und
+ * `hidden` beide Stellen zugleich (ADR-023).
+ */
+fun taskConfigKeyOf(descriptor: GradleTaskDescriptor, modulePath: String?): TaskViewConfigKey =
+    descriptor.virtualGroupPath
+        ?.let { TaskViewConfigKey.virtualTask(it, descriptor.displayName, modulePath) }
+        ?: TaskViewConfigKey.task(descriptor.taskName, modulePath)

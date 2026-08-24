@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.ui.JBColor
 import de.berger.gradletasksview.model.GradleTaskViewMode
+import de.berger.gradletasksview.model.VirtualTaskDefinition
 import de.berger.gradletasksview.model.VisibilityRule
 import de.berger.gradletasksview.model.isNodeHidden
 import de.berger.gradletasksview.model.VisibilityTarget
@@ -194,9 +195,12 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
                 is TaskViewConfigKey.Module -> key.modulePath
                 is TaskViewConfigKey.Group -> key.modulePath
                 is TaskViewConfigKey.Task -> key.modulePath
+                is TaskViewConfigKey.VirtualTask -> key.modulePath
             },
-            groupName = (key as? TaskViewConfigKey.Group)?.groupPath,
-            taskName = (key as? TaskViewConfigKey.Task)?.taskName
+            groupName = (key as? TaskViewConfigKey.Group)?.groupPath
+                ?: (key as? TaskViewConfigKey.VirtualTask)?.groupPath,
+            taskName = (key as? TaskViewConfigKey.Task)?.taskName,
+            virtualTaskName = (key as? TaskViewConfigKey.VirtualTask)?.name
         )
     }
 
@@ -228,6 +232,7 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
             if (skip != TaskViewConfigKey.group(path, null)) {
                 addRules(entry, VisibilityTarget.Group(path), scope = null, mode, fromCustomFile)
             }
+            addVirtualTaskRules(entry, groupPath = path, scope = null, mode, fromCustomFile, skip)
         }
         config.tasks.forEach { (name, entry) ->
             if (skip != TaskViewConfigKey.task(name, null)) {
@@ -244,12 +249,66 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
                 if (skip != TaskViewConfigKey.group(group, path)) {
                     addRules(entry, VisibilityTarget.Group(group), scope = path, mode, fromCustomFile)
                 }
+                addVirtualTaskRules(entry, groupPath = group, scope = path, mode, fromCustomFile, skip)
             }
             block.tasks.forEach { (task, entry) ->
                 if (skip != TaskViewConfigKey.task(task, path)) {
                     addRules(entry, VisibilityTarget.Task(task), scope = path, mode, fromCustomFile)
                 }
             }
+        }
+    }
+
+    /**
+     * Sichtbarkeitsregeln der ueber `execute` konfigurierten Knoten eines Gruppeneintrags
+     * (REQ-085). Sie zielen auf Gruppenpfad + Name des Eintrags, nie auf den ausgefuehrten
+     * Task - deshalb nimmt ein `hidden` auf diesen Task sie nicht mit (ADR-023).
+     */
+    private fun MutableList<VisibilityRule>.addVirtualTaskRules(
+        groupEntry: TaskViewNodeConfig,
+        groupPath: String,
+        scope: String?,
+        mode: GradleTaskViewMode,
+        fromCustomFile: Boolean,
+        skip: TaskViewConfigKey?
+    ) {
+        groupEntry.tasks.forEach { (name, entry) ->
+            if (skip != TaskViewConfigKey.virtualTask(groupPath, name, scope)) {
+                addRules(entry, VisibilityTarget.VirtualTask(groupPath, name), scope, mode, fromCustomFile)
+            }
+        }
+    }
+
+    /**
+     * Alle ueber `execute` konfigurierten Knoten beider Dateien (REQ-085).
+     *
+     * Der Verweis selbst kommt aus der normalen Aufloesung, damit eine persoenliche
+     * `custom.yaml` das `execute` der Team-Vorgabe ersetzen kann. Ein Eintrag ohne Verweis
+     * definiert keinen Knoten, sondern konfiguriert nur einen anderswo definierten - genau die
+     * Form, die beim Ausblenden in `custom.yaml` landet.
+     */
+    fun virtualTaskDefinitions(): List<VirtualTaskDefinition> {
+        // Nur Eintraege, die selbst ein execute tragen, sind Definitionen. Ein Eintrag ohne
+        // execute konfiguriert einen anderswo definierten Knoten - genau die Form, die beim
+        // Ausblenden in custom.yaml landet, und die wuerde sonst eine zweite Zeile erzeugen.
+        val addresses = LinkedHashSet<Triple<String?, String, String>>()
+        listOf(defaultState, customState).forEach { config ->
+            config.groups.forEach { (group, entry) ->
+                entry.tasks.forEach { (name, node) -> if (node.execute != null) addresses += Triple(null, group, name) }
+            }
+            config.modules.forEach { (module, block) ->
+                block.groups.forEach { (group, entry) ->
+                    entry.tasks.forEach { (name, node) ->
+                        if (node.execute != null) addresses += Triple(module, group, name)
+                    }
+                }
+            }
+        }
+
+        return addresses.mapNotNull { (scope, group, name) ->
+            val execute = resolve(TaskViewConfigKey.virtualTask(group, name, scope)) { it.execute }
+                ?: return@mapNotNull null
+            VirtualTaskDefinition(groupPath = group, displayName = name, execute = execute, scopeModulePath = scope)
         }
     }
 
@@ -312,6 +371,14 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         } else {
             withModule(key.modulePath) { it.copy(tasks = it.tasks.updated(key.taskName, update)) }
         }
+
+        // Der Eintrag sitzt im Gruppeneintrag, nicht im tasks:-Namensraum - dort stehen die
+        // Namen echter Gradle-Tasks (REQ-085).
+        is TaskViewConfigKey.VirtualTask -> if (key.modulePath == null) {
+            copy(groups = groups.updatedNested(key.groupPath, key.name, update))
+        } else {
+            withModule(key.modulePath) { it.copy(groups = it.groups.updatedNested(key.groupPath, key.name, update)) }
+        }
     }
 
     private fun TaskViewConfig.withModule(
@@ -325,6 +392,15 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         key: String,
         update: (TaskViewNodeConfig) -> TaskViewNodeConfig
     ): Map<String, TaskViewNodeConfig> = this + (key to update(this[key] ?: TaskViewNodeConfig()))
+
+    /** Aendert einen Knoten im `tasks:` eines Gruppeneintrags und legt beide bei Bedarf an. */
+    private fun Map<String, TaskViewNodeConfig>.updatedNested(
+        groupPath: String,
+        name: String,
+        update: (TaskViewNodeConfig) -> TaskViewNodeConfig
+    ): Map<String, TaskViewNodeConfig> = updated(groupPath) { group ->
+        group.copy(tasks = group.tasks.updated(name, update))
+    }
 
     /**
      * Liest beide Dateien neu ein, falls sich ihr Zeitstempel geaendert hat. Dadurch wirkt eine
@@ -383,6 +459,7 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
             is TaskViewConfigKey.Module -> true
             is TaskViewConfigKey.Group -> key.modulePath != null
             is TaskViewConfigKey.Task -> key.modulePath != null
+            is TaskViewConfigKey.VirtualTask -> key.modulePath != null
         }
 
         val scoped = listOfNotNull(
@@ -419,6 +496,12 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
                 key.modulePath?.let { config.modules[it]?.tasks?.get(key.taskName) }
             } else {
                 config.tasks[key.taskName]
+            }
+
+            is TaskViewConfigKey.VirtualTask -> if (scoped) {
+                key.modulePath?.let { config.modules[it]?.groups?.get(key.groupPath)?.tasks?.get(key.name) }
+            } else {
+                config.groups[key.groupPath]?.tasks?.get(key.name)
             }
         }
 

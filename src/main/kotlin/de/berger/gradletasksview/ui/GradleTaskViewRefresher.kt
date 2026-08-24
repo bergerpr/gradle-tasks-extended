@@ -4,11 +4,14 @@ import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener
 import com.intellij.openapi.project.Project
 import de.berger.gradletasksview.model.GradleTaskDataProvider
 import de.berger.gradletasksview.model.GradleTaskViewMode
+import de.berger.gradletasksview.model.expandVirtualTasks
 import de.berger.gradletasksview.model.filterHiddenTasks
+import de.berger.gradletasksview.model.referenceCandidates
 import de.berger.gradletasksview.persistence.GradleTaskViewSettings
 import de.berger.gradletasksview.persistence.GradleTasksViewConfigStore
 import kotlinx.coroutines.CoroutineScope
@@ -172,18 +175,44 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
 
         val allTasks = readAction { dataProvider.loadTasks() }
 
+        // Die ueber `execute` konfigurierten Knoten entstehen aus der UNGEFILTERTEN Liste
+        // (REQ-085): Ein am Originalplatz ausgeblendeter Task soll hier trotzdem erscheinen
+        // koennen - genau dafuer gibt es sie.
+        val expansion = expandVirtualTasks(allTasks, configStore.virtualTaskDefinitions())
+        // Nur melden, wenn ueberhaupt Tasks da sind: Beim ersten Refresh ist die Projektdatenbank
+        // oft noch leer (siehe Wiederholschleife weiter unten), und dann waere jeder Verweis
+        // "unaufgeloest" - eine Warnung, die nichts bedeutet und die echte verdeckt.
+        if (allTasks.isNotEmpty()) expansion.unresolved.forEach {
+            // Die Kandidatenliste beantwortet gleich die naechste Frage: Gibt es den Task
+            // ueberhaupt, und unter welchem Modulpfad kennt die IDE ihn?
+            val candidates = referenceCandidates(allTasks, it.execute)
+            val whereItIs = if (candidates.isEmpty()) {
+                "kein geladener Task traegt diesen Namen"
+            } else {
+                "vorhanden ist er als ${candidates.joinToString(", ")}"
+            }
+            LOG.warn("Konfigurierter Knoten '${it.displayName}' in Gruppe '${it.groupPath}' verweist mit " +
+                "execute: '${it.execute}' auf keinen vorhandenen Gradle-Task und wird nicht angezeigt - " +
+                "$whereItIs (${allTasks.size} Tasks geladen).")
+        }
+        val allNodes = allTasks + expansion.tasks
+
         // Reihenfolge ist bedeutsam: Das Ausblenden wirkt VOR der Textsuche, sonst lieferte
         // die Suche Treffer, die im Baum gar nicht existieren (siehe REQ-075).
         val visibleTasks = if (showHidden) {
-            allTasks
+            allNodes
         } else {
-            filterHiddenTasks(allTasks, configStore.visibilityRules(mode))
+            filterHiddenTasks(allNodes, configStore.visibilityRules(mode))
         }
         val filtered = if (filterText.isBlank()) {
             visibleTasks
         } else {
-            // Gegen den qualifizierten Pfad, passend zum SpeedSearch (siehe GradleTasksSpeedSearch).
-            visibleTasks.filter { it.taskPath.contains(filterText, ignoreCase = true) }
+            // Gegen den qualifizierten Pfad und den Anzeigenamen, passend zum SpeedSearch
+            // (siehe GradleTasksSpeedSearch).
+            visibleTasks.filter {
+                it.taskPath.contains(filterText, ignoreCase = true) ||
+                    it.displayName.contains(filterText, ignoreCase = true)
+            }
         }
 
         val model = GradleTasksTreeModelBuilder.build(mode, filtered, configStore.showModules())
@@ -205,6 +234,8 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
     }
 
     private companion object {
+        private val LOG = Logger.getInstance(GradleTaskViewRefresher::class.java)
+
         const val DEBOUNCE_MILLIS = 300L
 
         /** Wartezeiten zwischen den automatischen Wiederholungsversuchen beim ersten Laden. */

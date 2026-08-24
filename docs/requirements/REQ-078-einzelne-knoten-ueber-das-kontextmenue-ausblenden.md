@@ -15,7 +15,9 @@ quelle: OPEN-008
 
 Ein Rechtsklick auf einen Knoten bietet **Hide** an. Der Knoten verschwindet aus der Ansicht,
 und zwar **nur an dieser Stelle**: Derselbe Gruppenpfad oder Taskname in einem anderen Modul
-bleibt sichtbar. Festgehalten wird das als `hidden: true` in `custom.yaml` (REQ-075), der
+bleibt sichtbar. Bei einem ueber `execute` konfigurierten Knoten (REQ-085) landet der Eintrag
+in dessen Gruppeneintrag - ausgeblendet wird also diese eine Zeile, nicht der Task, den sie
+ausfuehrt. Festgehalten wird das als `hidden: true` in `custom.yaml` (REQ-075), der
 Ausschluss ueberlebt also einen IDE-Neustart.
 
 Wo der Eintrag landet, ergibt sich aus dem Schluesselraum (REQ-076): Ist die Modulgliederung

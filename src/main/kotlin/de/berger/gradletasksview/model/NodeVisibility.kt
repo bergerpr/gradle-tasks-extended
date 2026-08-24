@@ -2,11 +2,13 @@ package de.berger.gradletasksview.model
 
 import de.berger.gradletasksview.util.isModuleWithin
 import de.berger.gradletasksview.util.moduleSegments
+import de.berger.gradletasksview.util.normalizeGroupPath
 import de.berger.gradletasksview.util.normalizeGroupSegments
 
 /**
- * Worauf eine [VisibilityRule] zielt. Die drei Formen entsprechen den Namensraeumen der
- * Konfigurationsdatei (`modules`, `groups`, `tasks`).
+ * Worauf eine [VisibilityRule] zielt. Die Formen entsprechen den Namensraeumen der
+ * Konfigurationsdatei (`modules`, `groups`, `tasks`) - dazu die ueber `execute` konfigurierten
+ * Knoten, die innerhalb eines Gruppeneintrags stehen (REQ-085).
  */
 sealed interface VisibilityTarget {
 
@@ -16,8 +18,16 @@ sealed interface VisibilityTarget {
     /** Der Gruppen-/Ordnerpfad [path] **und alle Unterpfade** - `docker/gui` erfasst auch `docker/gui/jsp`. */
     data class Group(val path: String) : VisibilityTarget
 
-    /** Genau der Task mit diesem Namen. */
+    /** Genau der Task mit diesem Namen. Trifft **keinen** ueber `execute` konfigurierten Knoten. */
     data class Task(val name: String) : VisibilityTarget
+
+    /**
+     * Genau der ueber `execute` konfigurierte Knoten [name] im Gruppenpfad [groupPath]
+     * (REQ-085). Bewusst ein eigener Zielwert und nicht [Task]: Der Knoten wird ueber seinen
+     * Eintrag adressiert, nicht ueber den Namen des Tasks, den er ausfuehrt - sonst naehme ein
+     * `hidden` auf diesen Task ihn mit, und genau das soll er nicht (ADR-023).
+     */
+    data class VirtualTask(val groupPath: String, val name: String) : VisibilityTarget
 }
 
 /**
@@ -44,9 +54,9 @@ data class VisibilityRule(
 /**
  * Vorrang zwischen konkurrierenden Regeln, absteigend gewichtet:
  *
- * 1. **Wie genau die Regel den Knoten benennt** - erst der Task selbst, dann die Ordner von
- *    innen nach aussen, zuletzt das Modul. Ein Eintrag fuer `docker/gui/jsp` schlaegt einen
- *    fuer `docker/gui`, und der schlaegt den Modulausschluss.
+ * 1. **Wie genau die Regel den Knoten benennt** - erst der Task bzw. der konfigurierte Knoten
+ *    selbst, dann die Ordner von innen nach aussen, zuletzt das Modul. Ein Eintrag fuer
+ *    `docker/gui/jsp` schlaegt einen fuer `docker/gui`, und der schlaegt den Modulausschluss.
  * 2. **Modulbezug** - ein Eintrag aus einem Modulblock schlaegt den modulunabhaengigen.
  * 3. **Modusbezug** - ein Eintrag aus dem `modes`-Block schlaegt den modusuebergreifenden;
  *    genau dafuer gibt es ihn.
@@ -65,6 +75,10 @@ private val rulePrecedence: Comparator<VisibilityRule> =
 
 private val VisibilityTarget.kindRank: Int
     get() = when (this) {
+        // Ein konfigurierter Knoten benennt genau eine Zeile und ist damit die genaueste Form
+        // ueberhaupt. Praktisch entscheidet der Rang hier nichts, da Task- und VirtualTask-
+        // Regeln nie denselben Knoten treffen - er haelt die Ordnung nur widerspruchsfrei.
+        is VisibilityTarget.VirtualTask -> 3
         is VisibilityTarget.Task -> 2
         is VisibilityTarget.Group -> 1
         is VisibilityTarget.Module -> 0
@@ -74,6 +88,7 @@ private val VisibilityTarget.pathLength: Int
     get() = when (this) {
         // Ein Taskname ist unteilbar; die Laenge unterscheidet hier nichts.
         is VisibilityTarget.Task -> 0
+        is VisibilityTarget.VirtualTask -> 0
         is VisibilityTarget.Group -> normalizeGroupSegments(path).size
         is VisibilityTarget.Module -> moduleSegments(path).size
     }
@@ -103,21 +118,37 @@ fun filterHiddenTasks(
  * ohne [taskName] einen Gruppen-/Ordnerknoten, ohne [groupName] einen Modulknoten. Regeln, die
  * einen genaueren Knoten benennen als den gefragten, greifen dann nicht - eine ausgeblendete
  * Gruppe blendet nicht das Modul aus, in dem sie liegt.
+ *
+ * Fuer einen ueber `execute` konfigurierten Knoten (REQ-085) steht sein Name in
+ * [virtualTaskName] statt in [taskName]: Modul- und Gruppenregeln erfassen ihn wie jeden
+ * anderen Knoten - er liegt ja sichtbar darin -, Regeln auf den ausgefuehrten Tasknamen aber
+ * nicht.
  */
 fun isNodeHidden(
     rules: List<VisibilityRule>,
     modulePath: String?,
     groupName: String? = null,
-    taskName: String? = null
+    taskName: String? = null,
+    virtualTaskName: String? = null
 ): Boolean {
-    val matching = rules.filter { it.matches(modulePath, groupName, taskName) }
+    val matching = rules.filter { it.matches(modulePath, groupName, taskName, virtualTaskName) }
     return matching.maxWithOrNull(rulePrecedence)?.hidden ?: false
 }
 
-private fun isHidden(task: GradleTaskDescriptor, rules: List<VisibilityRule>): Boolean =
-    isNodeHidden(rules, task.gradleProjectPath, task.groupName, task.taskName)
+private fun isHidden(task: GradleTaskDescriptor, rules: List<VisibilityRule>): Boolean = isNodeHidden(
+    rules,
+    modulePath = task.gradleProjectPath,
+    groupName = task.groupName,
+    taskName = task.taskName.takeUnless { task.isVirtual },
+    virtualTaskName = task.displayName.takeIf { task.isVirtual }
+)
 
-private fun VisibilityRule.matches(modulePath: String?, groupName: String?, taskName: String?): Boolean {
+private fun VisibilityRule.matches(
+    modulePath: String?,
+    groupName: String?,
+    taskName: String?,
+    virtualTaskName: String?
+): Boolean {
     // Der Geltungsbereich wird exakt verglichen: Ein Eintrag im Block ":app" beschreibt die
     // Ordner und Tasks unter genau diesem Modulknoten.
     if (scopeModulePath != null && scopeModulePath != modulePath) return false
@@ -126,6 +157,13 @@ private fun VisibilityRule.matches(modulePath: String?, groupName: String?, task
         is VisibilityTarget.Module -> modulePath != null && isModuleWithin(modulePath, target.path)
         is VisibilityTarget.Group -> groupName != null && isGroupWithin(groupName, target.path)
         is VisibilityTarget.Task -> taskName != null && taskName == target.name
+
+        // Exakter Vergleich des Gruppenpfads, anders als bei VisibilityTarget.Group: Der
+        // Eintrag benennt einen einzelnen Knoten in genau dieser Gruppe, nicht einen Teilbaum.
+        is VisibilityTarget.VirtualTask -> virtualTaskName != null &&
+            virtualTaskName == target.name &&
+            groupName != null &&
+            normalizeGroupPath(groupName) == normalizeGroupPath(target.groupPath)
     }
 }
 

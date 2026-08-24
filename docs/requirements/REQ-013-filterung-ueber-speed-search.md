@@ -18,6 +18,11 @@ Die Filterung wirkt **datengetrieben vor** dem Aufbau von Sort/Nested: Der Refre
 die Taskliste und baut den Baum daraus neu. Wuerde stattdessen nur der Speed-Search-Cursor
 bewegt, blieben ausgefilterte Tasks durch die Verschachtelung sichtbar.
 
+Bei einem ueber `execute` konfigurierten Knoten (REQ-085) steht die Beschriftung vor dem Pfad
+(`Alle Images bauen :app:buildImage`), sonst waere er nur ueber den Task auffindbar, den er
+ausfuehrt - nicht ueber das, was dasteht. Fuer einen echten Task aendert das nichts, dessen
+Beschriftung ist im Pfad ohnehin enthalten.
+
 Bei Ordnerknoten ist der Suchtext der angezeigte Name. Ein zusammengefasster Ordner (REQ-004)
 wird damit ueber jedes seiner Segmente gefunden - `server/gui` sowohl ueber `server` als auch
 ueber `gui`.

@@ -7,6 +7,12 @@ groups:                      # group and folder paths, in every module
     icon: smile.svg
     description: Builds the JSP frontend image
     hidden: false
+  docker/test:               # a group nobody declared - it exists through the row below
+    tasks:                   # rows of this view, not Gradle tasks
+      testDocker:
+        execute: ":printLibGui"  # the path this view shows for that task
+        description: Runs printLibGui without leaving this group
+        icon: docker.svg
 
 tasks:                       # keyed by bare task name
   printGroup-docker-gui:

@@ -17,3 +17,8 @@ Name allein. Selektionserhalt und Persistenzschluessel stuetzen sich ausschliess
 `:app:core`), ermittelt aus dem Eltern-`ModuleData`-Knoten (ADR-015). Damit ist `buildImage`
 in `:app` und in `:lib` zuverlaessig unterscheidbar; `externalProjectPath` haelt zusaetzlich
 Composite Builds mit gleich benannten Modulen auseinander.
+
+Ein ueber `execute` konfigurierter Knoten (REQ-085) haengt diese Identitaet um Gruppenpfad und
+Anzeigenamen seines Eintrags: `<stableId des Tasks>@@<gruppenpfad>::<name>`. Er zeigt denselben
+Task ein zweites Mal, und zwei Zeilen mit derselben Identitaet wuerden die
+Selektionswiederherstellung nach einem Rebuild auf die falsche setzen.

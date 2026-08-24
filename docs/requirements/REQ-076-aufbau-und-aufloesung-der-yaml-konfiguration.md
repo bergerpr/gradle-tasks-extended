@@ -58,6 +58,8 @@ der Eintrag sonst nichts traegt.
 | `icon` | Dateiname relativ zu `icons/` (REQ-071). |
 | `description` | Tooltip eines Modul-, Gruppen- oder Ordnerknotens (REQ-082). Wird in `modes` nicht ausgewertet. |
 | `hidden` | Blendet den Knoten samt Teilbaum aus (REQ-075). |
+| `execute` | Nur im `tasks:` eines Gruppeneintrags: macht den Eintrag zu einer eigenen Zeile, die den angegebenen Gradle-Task ausfuehrt (REQ-085). |
+| `tasks` | Nur bei einem Gruppeneintrag: die Zeilen, die diese Ansicht dort selbst hinzufuegt (REQ-085). |
 | `modes` | Abweichende Werte je Ansichtsmodus; sie gehen den Feldern daneben vor. |
 
 Alle Felder sind dreiwertig: `null` heisst "nicht konfiguriert". Nur so laesst sich "nicht

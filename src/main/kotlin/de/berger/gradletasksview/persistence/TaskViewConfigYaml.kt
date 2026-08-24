@@ -46,6 +46,23 @@ private val STARTER_DEFAULT_YAML = """
     #
     # Nodes that are not listed count as expanded, use the built-in icon and have no tooltip.
     #
+    # --- Nodes of your own ---------------------------------------------------------------
+    #
+    # A group entry may contain "tasks". An entry there with "execute" becomes a row of its
+    # own that runs an existing Gradle task - it creates no Gradle task, and neither the name
+    # nor the group has to exist beforehand:
+    #
+    #   groups:
+    #     ci/nightly:
+    #       tasks:
+    #         Build all images:
+    #           execute: ":app:buildImage"   # qualified: exactly this module
+    #           icon: nightly.svg            #   bare name: every module that has the task
+    #
+    # Such a row is addressed by its entry, not by the task it runs: hiding that task removes
+    # it from its original group only, and this row stays. An entry without "execute" defines
+    # nothing - it only configures a row defined elsewhere.
+    #
     # --- Module blocks ------------------------------------------------------------------
     #
     #   modules:
@@ -114,6 +131,7 @@ object TaskViewConfigYaml {
     private const val KEY_ICON = "icon"
     private const val KEY_DESCRIPTION = "description"
     private const val KEY_HIDDEN = "hidden"
+    private const val KEY_EXECUTE = "execute"
     private const val KEY_MODES = "modes"
 
     private const val KEY_SHOW_MODULES = "showModules"
@@ -170,7 +188,8 @@ object TaskViewConfigYaml {
         val map = value as? Map<*, *> ?: return null
 
         return TaskViewModuleConfig(
-            node = nodeConfigOf(map),
+            // Ohne das tasks:/groups: des Blocks - die gehoeren dem Modul, nicht seinem Knoten.
+            node = nodeConfigOf(map).copy(tasks = emptyMap()),
             groups = parseNodeMap(map[KEY_GROUPS]),
             tasks = parseNodeMap(map[KEY_TASKS])
         ).takeUnless { it.isEmpty }
@@ -200,6 +219,10 @@ object TaskViewConfigYaml {
         // leerer Tooltip ist schlechter als gar keiner (REQ-082).
         description = (map[KEY_DESCRIPTION] as? String)?.trim()?.takeIf { it.isNotEmpty() },
         hidden = map[KEY_HIDDEN] as? Boolean,
+        execute = (map[KEY_EXECUTE] as? String)?.trim()?.takeIf { it.isNotEmpty() },
+        // Nur bei einem Gruppeneintrag von Bedeutung; anderswo geschrieben bleibt der Wert
+        // schlicht wirkungslos, statt beim Lesen die ganze Datei zu verwerfen (REQ-085).
+        tasks = parseNodeMap(map[KEY_TASKS]),
         modes = parseNodeModes(map[KEY_MODES])
     )
 
@@ -210,13 +233,17 @@ object TaskViewConfigYaml {
      *
      * [KEY_DESCRIPTION] wird hier ebenfalls verworfen: Der Erlaeuterungstext eines Knotens soll
      * an genau einer Stelle stehen und in allen Ansichtsmodi derselbe sein (REQ-082).
+     *
+     * Ebenso [KEY_EXECUTE] und ein verschachteltes [KEY_TASKS]: Ob ein Knoten ueberhaupt
+     * existiert, ist keine Frage des Ansichtsmodus - nur seine Sichtbarkeit ist es, und dafuer
+     * gibt es `hidden` (REQ-085).
      */
     private fun parseNodeModes(value: Any?): Map<GradleTaskViewMode, TaskViewNodeConfig> {
         val map = value as? Map<*, *> ?: return emptyMap()
         val result = linkedMapOf<GradleTaskViewMode, TaskViewNodeConfig>()
         map.forEach { (rawKey, rawValue) ->
             val mode = (rawKey as? String)?.let(::parseMode) ?: return@forEach
-            parseNodeConfig(rawValue)?.allModes?.copy(description = null)
+            parseNodeConfig(rawValue)?.allModes?.copy(description = null, execute = null, tasks = emptyMap())
                 ?.takeUnless { it.isEmpty }
                 ?.let { result[mode] = it }
         }
@@ -269,8 +296,8 @@ object TaskViewConfigYaml {
      */
     private fun serialiseNode(entry: TaskViewNodeConfig): Any? = when {
         entry.isEmpty -> null
-        entry.icon == null && entry.description == null && entry.hidden == null && entry.modes.isEmpty() ->
-            entry.expanded
+        entry.icon == null && entry.description == null && entry.hidden == null &&
+            entry.execute == null && entry.tasks.isEmpty() && entry.modes.isEmpty() -> entry.expanded
         else -> nodeFields(entry)
     }
 
@@ -279,6 +306,8 @@ object TaskViewConfigYaml {
         entry.icon?.let { put(KEY_ICON, it) }
         entry.description?.let { put(KEY_DESCRIPTION, it) }
         entry.hidden?.let { put(KEY_HIDDEN, it) }
+        entry.execute?.let { put(KEY_EXECUTE, it) }
+        serialiseNodeMap(entry.tasks)?.let { put(KEY_TASKS, it) }
         val modes = entry.modes.mapNotNull { (mode, config) ->
             nodeFields(config.allModes).takeIf { it.isNotEmpty() }?.let { mode.name.lowercase() to it }
         }

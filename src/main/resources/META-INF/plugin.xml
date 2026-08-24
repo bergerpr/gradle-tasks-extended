@@ -13,7 +13,9 @@
         optional module level can be switched on top of Sort and Nested.<br><br>
         Nodes can be hidden per module and per view mode, groups and tasks can carry their own
         icons, module, group and folder nodes can carry their own tooltip, and Run, Debug and
-        Run with Coverage are available from the context menu.
+        Run with Coverage are available from the context menu. The configuration can also add
+        rows of its own: an entry with <em>execute</em> shows an existing Gradle task in a
+        second, freely named group without creating a Gradle task.
         Expand state, icons, tooltips and hidden nodes are stored in two YAML files inside the
         project: a team default that is checked in, and personal overrides on top. The toolbar's
         gear opens the team default and reloads the view after hand edits.<br><br>

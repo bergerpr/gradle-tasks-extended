@@ -237,6 +237,92 @@ class TaskViewConfigYamlTest {
     }
 
     @Test
+    fun `a group entry carries the nodes configured with execute`() {
+        val file = tempDir.resolve("execute.yaml").toFile()
+        file.writeText(
+            """
+            groups:
+              ci/nightly:
+                description: Was der Nachtlauf anfasst
+                tasks:
+                  Alle Images bauen:
+                    execute: ":app:buildImage"
+                    icon: nightly.svg
+            """.trimIndent() + "\n"
+        )
+
+        val group = TaskViewConfigYaml.readOrEmpty(file).groups.getValue("ci/nightly")
+
+        assertEquals("Was der Nachtlauf anfasst", group.description)
+        assertEquals(
+            mapOf("Alle Images bauen" to TaskViewNodeConfig(execute = ":app:buildImage", icon = "nightly.svg")),
+            group.tasks
+        )
+    }
+
+    @Test
+    fun `an entry without execute stays readable as configuration of an existing node`() {
+        val file = tempDir.resolve("execute-less.yaml").toFile()
+        file.writeText(
+            """
+            groups:
+              ci/nightly:
+                tasks:
+                  Alle Images bauen:
+                    hidden: true
+            """.trimIndent() + "\n"
+        )
+
+        // Genau diese Form schreibt custom.yaml beim Ausblenden: nur die Abweichung, ohne die
+        // Definition aus default.yaml zu wiederholen.
+        val entry = TaskViewConfigYaml.readOrEmpty(file).groups.getValue("ci/nightly").tasks.getValue("Alle Images bauen")
+        assertEquals(TaskViewNodeConfig(hidden = true), entry)
+    }
+
+    @Test
+    fun `configured nodes survive a write`() {
+        val file = tempDir.resolve("execute-roundtrip.yaml").toFile()
+        val config = TaskViewConfig(
+            groups = mapOf(
+                "ci/nightly" to TaskViewNodeConfig(
+                    tasks = mapOf("Alle Images bauen" to TaskViewNodeConfig(execute = ":app:buildImage"))
+                )
+            )
+        )
+
+        TaskViewConfigYaml.write(file, config)
+
+        assertEquals(config, TaskViewConfigYaml.readOrEmpty(file))
+        // Wie SnakeYAML den Wert einfasst, ist seine Sache - er muss nur wieder herauskommen.
+        assertTrue(file.readText().contains(":app:buildImage"))
+    }
+
+    @Test
+    fun `execute inside modes is ignored`() {
+        val file = tempDir.resolve("execute-modes.yaml").toFile()
+        file.writeText(
+            """
+            groups:
+              ci/nightly:
+                tasks:
+                  Alle Images bauen:
+                    execute: ":app:buildImage"
+                    modes:
+                      sort:
+                        execute: ":lib:buildImage"
+                        hidden: true
+            """.trimIndent() + "\n"
+        )
+
+        val entry = TaskViewConfigYaml.readOrEmpty(file).groups
+            .getValue("ci/nightly").tasks.getValue("Alle Images bauen")
+
+        // Ob ein Knoten existiert, ist keine Frage des Ansichtsmodus - nur seine Sichtbarkeit.
+        assertEquals(":app:buildImage", entry.execute)
+        assertEquals(mapOf(GradleTaskViewMode.SORT to TaskViewNodeConfig(hidden = true)), entry.modes)
+    }
+
+    @Test
     fun `icon survives a write triggered by an expand change`() {
         val file = tempDir.resolve("roundtrip.yaml").toFile()
         val config = TaskViewConfig(

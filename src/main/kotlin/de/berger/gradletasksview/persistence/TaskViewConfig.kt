@@ -19,6 +19,14 @@ import de.berger.gradletasksview.model.GradleTaskViewMode
  *   (REQ-082). Bewusst **nicht** in [modes] auswertbar - der Text soll genau einmal
  *   dastehen und in allen Ansichtsmodi derselbe sein.
  * @property hidden Blendet den Knoten samt Teilbaum aus.
+ * @property execute Verweis auf einen vorhandenen Gradle-Task (`":app:buildImage"` oder
+ *   `"buildImage"`). Nur in einem Eintrag unterhalb von [tasks] eines Gruppeneintrags
+ *   sinnvoll: Dort macht er aus dem Eintrag einen eigenen Baumknoten, der diesen Task
+ *   ausfuehrt, ohne dass es den Namen als Gradle-Task gibt (REQ-085).
+ * @property tasks Nur bei einem **Gruppeneintrag** ausgewertet: die Knoten, die zusaetzlich in
+ *   dieser Gruppe erscheinen. Ein Eintrag mit [execute] legt einen an, einer ohne
+ *   konfiguriert nur einen anderswo angelegten - so kann `custom.yaml` einen in
+ *   `default.yaml` definierten Knoten ausblenden, ohne seine Definition zu wiederholen.
  * @property modes Abweichende Werte je Ansichtsmodus; sie gehen den Feldern daneben vor.
  *   Ein Eintrag hier traegt selbst keine weiteren [modes] - eine zweite Verschachtelung
  *   haette keine Bedeutung.
@@ -28,10 +36,13 @@ data class TaskViewNodeConfig(
     val icon: String? = null,
     val description: String? = null,
     val hidden: Boolean? = null,
+    val execute: String? = null,
+    val tasks: Map<String, TaskViewNodeConfig> = emptyMap(),
     val modes: Map<GradleTaskViewMode, TaskViewNodeConfig> = emptyMap()
 ) {
     val isEmpty: Boolean
-        get() = expanded == null && icon == null && description == null && hidden == null && modes.isEmpty()
+        get() = expanded == null && icon == null && description == null && hidden == null &&
+            execute == null && tasks.isEmpty() && modes.isEmpty()
 
     /** Der Eintrag ohne seine [modes] - der Teil, der modusuebergreifend gilt. */
     val allModes: TaskViewNodeConfig get() = if (modes.isEmpty()) this else copy(modes = emptyMap())
@@ -96,14 +107,23 @@ data class TaskViewConfig(
  * uebrig bleibt, soll nicht als leerer Rumpf in der Datei stehen.
  */
 fun TaskViewConfig.withoutEmptyEntries(): TaskViewConfig = copy(
-    groups = groups.filterValues { !it.isEmpty },
-    tasks = tasks.filterValues { !it.isEmpty },
+    groups = groups.prunedNodes(),
+    tasks = tasks.prunedNodes(),
     modules = modules
         .mapValues { (_, module) ->
             module.copy(
-                groups = module.groups.filterValues { !it.isEmpty },
-                tasks = module.tasks.filterValues { !it.isEmpty }
+                groups = module.groups.prunedNodes(),
+                tasks = module.tasks.prunedNodes()
             )
         }
         .filterValues { !it.isEmpty }
 )
+
+/**
+ * Erst die Knoten in [TaskViewNodeConfig.tasks] aufraeumen, dann die Eintraege selbst - ein
+ * Gruppeneintrag, der nur noch leergeraeumte Unterknoten enthielte, verschwindet dadurch
+ * ebenfalls.
+ */
+private fun Map<String, TaskViewNodeConfig>.prunedNodes(): Map<String, TaskViewNodeConfig> =
+    mapValues { (_, entry) -> entry.copy(tasks = entry.tasks.filterValues { !it.isEmpty }) }
+        .filterValues { !it.isEmpty }

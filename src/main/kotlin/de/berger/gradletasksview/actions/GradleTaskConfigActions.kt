@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
@@ -79,6 +80,23 @@ class GradleTaskReloadViewAction : AnAction(
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         project.service<GradleTaskViewRefresher>().reloadConfigurationAndRefresh()
+    }
+
+    /**
+     * Setzt den Tooltip des Menueeintrags (REQ-084).
+     *
+     * Das Zahnrad oeffnet ein Listen-Popup (`ActionButton` -> `ActionGroupPopup`), dessen
+     * Eintraege ihren Tooltip aus genau diesem Client-Property lesen
+     * (`ActionPopupStep.getTooltipTextFor` -> `PopupFactoryImpl.ActionItem.getTooltip`). Die
+     * `description` allein reicht dafuer nicht: Sie landet in der Statuszeile, nicht am
+     * Mauszeiger. Gesetzt wird hier statt an der `templatePresentation`, weil das Popup mit der
+     * frisch aktualisierten Presentation arbeitet.
+     */
+    override fun update(e: AnActionEvent) {
+        e.presentation.putClientProperty(
+            ActionUtil.TOOLTIP_TEXT,
+            GradleTasksViewBundle.message("action.reloadView.tooltip")
+        )
     }
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT

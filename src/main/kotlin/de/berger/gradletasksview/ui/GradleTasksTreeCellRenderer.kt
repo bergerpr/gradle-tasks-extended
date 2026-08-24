@@ -95,14 +95,24 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
 
             is TaskNodeData -> {
                 // Schluessel ist der Taskname, so wie er in der Ansicht steht - derselbe Wert,
-                // den ein Benutzer in die YAML-Datei schreiben wuerde.
-                icon = configStore.iconFor(TaskViewConfigKey.task(userObject.descriptor.taskName, modulePath))
-                    ?: GradleTasksIcons.Task
-                append(userObject.descriptor.taskName, regular)
-                userObject.descriptor.description?.let {
+                // den ein Benutzer in die YAML-Datei schreiben wuerde. Ein ueber `execute`
+                // konfigurierter Knoten haengt stattdessen an seinem Eintrag (REQ-085).
+                val descriptor = userObject.descriptor
+                val key = taskConfigKeyOf(descriptor, modulePath)
+                icon = configStore.iconFor(key) ?: GradleTasksIcons.Task
+                append(descriptor.displayName, regular)
+                descriptor.description?.let {
                     append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES)
                 }
-                toolTipText = userObject.descriptor.description
+                // Ein echter Task zeigt weiterhin ausschliesslich seine Gradle-Beschreibung
+                // (REQ-015/REQ-082). Ein konfigurierter Knoten traegt einen selbst gewaehlten
+                // Namen, also darf dort auch der selbst geschriebene Text stehen - fehlt er,
+                // bleibt es bei der Beschreibung des ausgefuehrten Tasks.
+                toolTipText = if (descriptor.isVirtual) {
+                    configStore.descriptionFor(key) ?: descriptor.description
+                } else {
+                    descriptor.description
+                }
             }
 
             else -> toolTipText = null
