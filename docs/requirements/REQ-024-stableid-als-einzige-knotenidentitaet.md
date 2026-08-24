@@ -18,6 +18,10 @@ Name allein. Selektionserhalt und Persistenzschluessel stuetzen sich ausschliess
 in `:app` und in `:lib` zuverlaessig unterscheidbar; `externalProjectPath` haelt zusaetzlich
 Composite Builds mit gleich benannten Modulen auseinander.
 
+`taskName` ist dabei immer der **blanke** Name. Die Plattform liefert ihn bei Untermodulen
+qualifiziert (`":lib:printLibGui"`); wuerde man das so uebernehmen, faende sich derselbe Task
+je nach Modul unter zwei verschiedenen Identitaeten wieder (ADR-024).
+
 Ein ueber `execute` konfigurierter Knoten (REQ-085) haengt diese Identitaet um Gruppenpfad und
 Anzeigenamen seines Eintrags: `<stableId des Tasks>@@<gruppenpfad>::<name>`. Er zeigt denselben
 Task ein zweites Mal, und zwei Zeilen mit derselben Identitaet wuerden die

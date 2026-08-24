@@ -24,6 +24,10 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
  * Eingesammelt wird modulweise: erst die [ModuleData]-Knoten, dann je Modul dessen
  * Task-Kinder. Die Modulzugehoerigkeit ist damit bekannt, statt sie nachtraeglich ueber den
  * Elternknoten nachschlagen zu muessen - siehe ADR-019 (loest ADR-015 in diesem Punkt ab).
+ *
+ * Zwei Eigenheiten der Plattformdaten sind dabei zu beachten (ADR-024): [TaskData.getName]
+ * liefert bei Untermodulen den **qualifizierten** Pfad, und jeder Modulknoten traegt neben
+ * seinen eigenen Tasks auch die seiner Unterprojekte als geerbte Sammeleintraege.
  */
 class GradleTaskDataProvider(private val project: Project) {
 
@@ -44,7 +48,12 @@ class GradleTaskDataProvider(private val project: Project) {
                 // verschachtelten Modulknoten fremde Tasks mit einsammeln und ihnen das
                 // falsche Modul zuordnen.
                 ExternalSystemApiUtil.findAll(moduleNode, ProjectKeys.TASK).forEach { taskNode ->
-                    tasks += toDescriptor(taskNode.data, moduleData)
+                    // Geerbte Eintraege sind keine eigenen Tasks des Moduls, sondern die
+                    // Sammelform ueber seine Unterprojekte - der echte Task haengt am
+                    // Modulknoten, in dem er definiert ist (ADR-024).
+                    if (!taskNode.data.isInherited) {
+                        tasks += toDescriptor(taskNode.data, moduleData)
+                    }
                 }
             }
         }
@@ -67,15 +76,21 @@ class GradleTaskDataProvider(private val project: Project) {
         // fuehrt den Task damit genau in seinem eigenen Modul aus (siehe ADR-018).
         val externalProjectPath = moduleData.linkedExternalProjectPath
 
+        // `TaskData.name` ist bei Untermodulen der qualifizierte Pfad (`:lib:printLibGui`),
+        // nur im Wurzelprojekt der blanke Name. Hier wird durchgaengig der blanke gebraucht:
+        // Er ist die Beschriftung, der Schluessel im `tasks:`-Namensraum der Konfiguration und
+        // der Wert, den die Ausfuehrung erwartet (ADR-018, ADR-024).
+        val taskName = bareTaskName(data.name)
+
         return GradleTaskDescriptor(
-            taskName = data.name,
-            taskPath = qualifiedTaskPath(gradleProjectPath, data.name),
+            taskName = taskName,
+            taskPath = qualifiedTaskPath(gradleProjectPath, taskName),
             groupName = data.group,
             description = data.description,
             externalProjectPath = externalProjectPath,
             gradleProjectPath = gradleProjectPath,
             moduleName = moduleData.moduleName,
-            stableId = buildStableId(externalProjectPath, gradleProjectPath, data.name)
+            stableId = buildStableId(externalProjectPath, gradleProjectPath, taskName)
         )
     }
 }

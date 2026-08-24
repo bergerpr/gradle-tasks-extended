@@ -41,3 +41,11 @@ Gegenrichtung, vom Modul zu seinen Tasks, braucht diese Annahme nicht.
 
 Task-Knoten, die nicht unter einem Modulknoten haengen, tauchen nicht mehr auf. Das ist
 beabsichtigt: Zu ihnen ist kein Modul und damit kein ausfuehrbarer Taskpfad bekannt.
+
+## Nachtrag
+
+Die Beobachtung oben - derselbe Task einmal mit und einmal ohne Modul - hatte noch eine zweite,
+hier uebersehene Ursache: Die Plattform liefert Tasks von Untermodulen unter ihrem
+qualifizierten Namen und haengt zusaetzlich an jeden Modulknoten die geerbten Sammeleintraege
+seiner Unterprojekte. Der Zeilenausschnitt `:app:core::app:core:printCoreReact` ist genau das
+und kein Problem der Modulaufloesung. Aufgeloest in ADR-024.

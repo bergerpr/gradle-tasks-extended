@@ -50,9 +50,8 @@ sobald alles darin ausgeblendet ist.
 | `"buildImage"` | jedes Modul, das einen so heissenden Task hat - bei eingeschalteter Modulgliederung also eine Zeile je Modul |
 
 Massgeblich ist dabei der Modulpfad, unter dem **diese Ansicht** den Task fuehrt - also genau
-das, was `Copy Task Path` im Kontextmenue liefert. Der muss nicht der Pfad sein, den man aus
-`build.gradle.kts` erwarten wuerde: Im Testprojekt steht `printLibGui` in `lib/build.gradle.kts`,
-die IDE liefert ihn aber unter `:printLibGui` aus (OPEN-010).
+das, was `Copy Task Path` im Kontextmenue liefert. Das ist der Pfad aus `settings.gradle.kts`:
+`printLibGui` aus `lib/build.gradle.kts` ist `:lib:printLibGui`.
 
 Steht der Eintrag in einem Modulblock (`modules: ":app": groups: ...`), schraenkt der
 zusaetzlich auf dieses Modul ein. Zeigt der Verweis auf keinen vorhandenen Task, entsteht

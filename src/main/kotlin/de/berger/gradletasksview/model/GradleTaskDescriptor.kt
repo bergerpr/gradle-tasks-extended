@@ -43,6 +43,17 @@ data class GradleTaskDescriptor(
 const val UNNAMED_GROUP_DISPLAY_NAME = "Other"
 
 /**
+ * Blanker Taskname aus dem, was die Plattform liefert.
+ *
+ * `TaskData.name` ist bei Untermodulen der qualifizierte Pfad (`":lib:printLibGui"`) und nur im
+ * Wurzelprojekt der blanke Name (`"wrapper"`). Gebraucht wird durchgaengig der blanke: Er ist
+ * die Beschriftung im Baum, der Schluessel im `tasks:`-Namensraum der Konfiguration und der
+ * Wert, den die Ausfuehrung erwartet - ein qualifizierter wuerde dort ein zweites Mal
+ * praefigiert (ADR-018, ADR-024).
+ */
+fun bareTaskName(rawName: String): String = rawName.substringAfterLast(':')
+
+/**
  * [stableId] wird immer aus externalProjectPath + gradleProjectPath + taskName gebildet,
  * niemals aus dem sichtbaren Namen allein - das verhindert Kollisionen bei identischen
  * Tasknamen in unterschiedlichen Subprojekten oder Composite Builds.

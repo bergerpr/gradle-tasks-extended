@@ -160,6 +160,12 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
 - **`stableId`** (`externalProjectPath::gradleProjectPath::taskName`) is the only reliable identity for
   selection preservation and persistence keys — never rely on visible names alone, since task names can
   collide across subprojects/composite builds.
+- **Task names from the platform are not bare.** `TaskData.name` is the *qualified* path for
+  submodule tasks (`:lib:printLibGui`) and bare only in the root project, and every module node
+  additionally carries its subprojects' tasks as **inherited** aggregate entries. The provider
+  therefore reduces the name (`bareTaskName`) and skips `isInherited` entries — otherwise rows
+  are labelled `:lib:printLibGui`, every task appears a second time under the root project, and
+  those duplicates run in *every* matching subproject (ADR-024, was OPEN-010).
 - **Module identity comes from the parent node**, not from `TaskData`: `taskNode.getParent(ModuleData::class.java)`
   plus the `ModuleData.gradleIdentityPathOrNull` / `gradlePathOrNull` extensions in
   `org.jetbrains.plugins.gradle.util`. `ModuleData.getId()` is *not* the Gradle project path, and the
