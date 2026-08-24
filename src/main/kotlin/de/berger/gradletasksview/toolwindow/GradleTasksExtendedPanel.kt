@@ -8,7 +8,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
 import de.berger.gradletasksview.actions.GradleTaskCollapseAllAction
-import de.berger.gradletasksview.actions.GradleTaskOpenDefaultConfigAction
+import de.berger.gradletasksview.actions.GradleTaskConfigMenuActionGroup
 import de.berger.gradletasksview.actions.GradleTaskExpandAllAction
 import de.berger.gradletasksview.actions.GradleTaskResetExpandStateAction
 import de.berger.gradletasksview.actions.GradleTaskShowConfigHelpAction
@@ -23,7 +23,7 @@ import javax.swing.JPanel
 /**
  * Wurzel-Panel der eigenen ToolWindow-Ansicht: Toolbar mit dem Modus-Dropdown
  * (siehe REQ-001), dem Feststellbutton fuer die Modulgliederung (REQ-074) und den beiden
- * Konfigurationsknoepfen ganz rechts (REQ-080) ueber dem eigenen [GradleTasksTree].
+ * Konfigurationsknoepfen ganz rechts (REQ-080, REQ-084) ueber dem eigenen [GradleTasksTree].
  */
 class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
 
@@ -43,8 +43,9 @@ class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
             add(GradleTaskResetExpandStateAction())
             addSeparator()
             // Zahnrad und Info ganz rechts, das Info-Symbol rechts neben dem Zahnrad: Beide
-            // fuehren nicht in den Baum, sondern zur Konfiguration dahinter (REQ-080).
-            add(GradleTaskOpenDefaultConfigAction())
+            // fuehren nicht in den Baum, sondern zur Konfiguration dahinter (REQ-080). Das
+            // Zahnrad ist ein Klappmenue aus "Configuration" und "Reload" (REQ-084).
+            add(GradleTaskConfigMenuActionGroup())
             add(GradleTaskShowConfigHelpAction())
         }
 

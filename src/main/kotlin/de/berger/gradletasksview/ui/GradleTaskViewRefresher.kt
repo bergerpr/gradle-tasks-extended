@@ -98,6 +98,20 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
     /** Baut die Ansicht neu auf, nachdem sich die Konfiguration geaendert hat. */
     fun requestRefresh() = scheduleRefresh(debounce = false)
 
+    /**
+     * Liest die Konfigurationsdateien erzwungenermassen neu ein und baut die Ansicht danach
+     * neu auf - der Eintrag "Reload" im Zahnrad-Menue (REQ-084).
+     *
+     * Ohne ihn wurden von Hand ergaenzte Icons und Konfigurationsaenderungen erst wirksam,
+     * nachdem das Projekt entladen und neu geladen wurde: Der automatische Abgleich in
+     * [GradleTasksViewConfigStore.reloadIfChanged] sieht nur die Zeitstempel der beiden
+     * YAML-Dateien, eine neu abgelegte Icon-Datei aendert die nicht.
+     */
+    fun reloadConfigurationAndRefresh() {
+        project.service<GradleTasksViewConfigStore>().forceReload()
+        scheduleRefresh(debounce = false)
+    }
+
     /** Setzt alle persoenlichen Expand/Collapse-Abweichungen zurueck auf `default.yaml`. */
     fun resetExpandStateToDefault() {
         project.service<GradleTasksViewConfigStore>().resetToDefault()

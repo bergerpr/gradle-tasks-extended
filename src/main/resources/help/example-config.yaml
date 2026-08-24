@@ -5,6 +5,7 @@ groups:                      # group and folder paths, in every module
   docker/gui: false          # short form: expand state only
   docker/gui/jsp:
     icon: smile.svg
+    description: Builds the JSP frontend image
     hidden: false
 
 tasks:                       # keyed by bare task name

@@ -22,6 +22,11 @@ import javax.swing.tree.DefaultMutableTreeNode
  *
  * Vorrang hat jedoch ein in `default.yaml`/`custom.yaml` konfiguriertes eigenes Icon
  * ([GradleTasksViewConfigStore.iconFor]); die eingebauten Icons sind nur der Rueckfall.
+ *
+ * **Tooltips werden in jedem Zweig gesetzt, auch wenn es keinen gibt.** Der Renderer ist eine
+ * einzige, fuer alle Zeilen wiederverwendete Komponente: Ein in einem frueheren Aufruf
+ * gesetzter `toolTipText` bliebe sonst stehen und erschiene an einem Modul- oder Gruppenknoten
+ * als Tooltip des zuletzt gezeichneten Tasks (REQ-082).
  */
 class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfigStore) : ColoredTreeCellRenderer() {
 
@@ -48,8 +53,9 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             // nur als Zusatz daneben. Der Pfad ist eindeutig und zugleich der Schluessel, den
             // man in default.yaml/custom.yaml schreiben wuerde.
             is ModuleNodeData -> {
-                icon = configStore.iconFor(TaskViewConfigKey.module(userObject.gradlePath))
-                    ?: GradleTasksIcons.Module
+                val key = TaskViewConfigKey.module(userObject.gradlePath)
+                icon = configStore.iconFor(key) ?: GradleTasksIcons.Module
+                toolTipText = configStore.descriptionFor(key)
                 append(userObject.gradlePath, bold)
                 userObject.moduleName
                     .takeIf { it.isNotEmpty() && it != userObject.gradlePath }
@@ -61,6 +67,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             // Knoten - gar nicht erst nach einem eigenen Icon (siehe REQ-077).
             TasksNodeData -> {
                 icon = GradleTasksIcons.TaskList
+                toolTipText = null
                 append(TasksNodeData.DISPLAY_NAME, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
             }
 
@@ -70,14 +77,16 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             // gleich aussehen. Nur die Beschriftung unterscheidet sich (voller Gruppenpfad in
             // Sort, zusammengefasster Pfad in Default/Nested).
             is GroupHeaderNodeData -> {
-                icon = configStore.iconFor(TaskViewConfigKey.group(userObject.groupPath, modulePath))
-                    ?: folderIcon(expanded)
+                val key = TaskViewConfigKey.group(userObject.groupPath, modulePath)
+                icon = configStore.iconFor(key) ?: folderIcon(expanded)
+                toolTipText = configStore.descriptionFor(key)
                 append(userObject.groupPath.ifEmpty { "(default)" }, bold)
             }
 
             is FolderNodeData -> {
-                icon = configStore.iconFor(TaskViewConfigKey.group(userObject.folder.fullPath, modulePath))
-                    ?: folderIcon(expanded)
+                val key = TaskViewConfigKey.group(userObject.folder.fullPath, modulePath)
+                icon = configStore.iconFor(key) ?: folderIcon(expanded)
+                toolTipText = configStore.descriptionFor(key)
                 // compactedName statt displayName: Ordner ohne eigene Tasks sind mit ihrem
                 // einzigen Kind zu einer Zeile zusammengefasst und heissen dann "server/gui"
                 // (REQ-004). Der Schluessel fuer Icon und Expand-Zustand bleibt der volle Pfad.
@@ -96,7 +105,7 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
                 toolTipText = userObject.descriptor.description
             }
 
-            else -> Unit
+            else -> toolTipText = null
         }
     }
 

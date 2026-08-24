@@ -19,6 +19,9 @@ Modulknoten (REQ-074) und der `Tasks`-Strukturknoten des `Default`-Modus (REQ-07
 ein eigenes Symbol - beide sind keine erfundene Gliederung und sollen auf einen Blick von
 einem Ordner unterscheidbar sein.
 
+Alle Icons des Satzes sind einfarbig grau (`#6C707E` hell, `#CED0D6` dunkel), das Task-Icon
+eingeschlossen (REQ-083).
+
 Abweichend von der urspruenglichen Vorgabe (`AllIcons.Nodes.Folder`) kommen plugin-eigene
 SVG-Ressourcen zum Einsatz - Begruendung siehe ADR-004, technische Ursache siehe ADR-005.
 

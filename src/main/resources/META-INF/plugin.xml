@@ -12,9 +12,11 @@
         <em>Nested</em> builds a folder hierarchy from slash-separated task groups. An
         optional module level can be switched on top of Sort and Nested.<br><br>
         Nodes can be hidden per module and per view mode, groups and tasks can carry their own
-        icons, and Run, Debug and Run with Coverage are available from the context menu.
-        Expand state, icons and hidden nodes are stored in two YAML files inside the project:
-        a team default that is checked in, and personal overrides on top.<br><br>
+        icons, module, group and folder nodes can carry their own tooltip, and Run, Debug and
+        Run with Coverage are available from the context menu.
+        Expand state, icons, tooltips and hidden nodes are stored in two YAML files inside the
+        project: a team default that is checked in, and personal overrides on top. The toolbar's
+        gear opens the team default and reloads the view after hand edits.<br><br>
         Built for private use; not distributed through the JetBrains Marketplace.
     ]]></description>
 

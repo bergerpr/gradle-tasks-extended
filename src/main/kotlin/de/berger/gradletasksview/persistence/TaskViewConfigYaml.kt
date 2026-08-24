@@ -8,8 +8,8 @@ import java.io.File
 
 private val STARTER_DEFAULT_YAML = """
     # Gradle Tasks Extended - default configuration of the task tree: expand state, custom
-    # icons and view settings. This file is meant to be checked into version control and
-    # shared with the team; the plugin never overwrites it.
+    # icons, tooltips and view settings. This file is meant to be checked into version
+    # control and shared with the team; the plugin never overwrites it.
     #
     # The top level has exactly four keys:
     #
@@ -30,15 +30,21 @@ private val STARTER_DEFAULT_YAML = """
     #     docker/gui/jsp:
     #       expanded: true
     #       icon: smile.svg
+    #       description: Everything that builds the JSP frontend image
     #
     # Possible fields:
     #   expanded   expand state (no effect on tasks)
     #   icon       file name relative to gradle/gradle_tasks_extended/icons/. If a sibling
     #              file with the suffix "_dark" exists (e.g. smile_dark.svg), it is
     #              preferred automatically under dark themes.
+    #   description
+    #              tooltip of a module, group or folder node. Without it, those nodes have
+    #              no tooltip at all. Tasks ignore it - they show their Gradle description.
+    #              The text is written once and applies to every view mode, so it is not
+    #              read inside "modes".
     #   modes      values that differ per view mode (default, sort, nested)
     #
-    # Nodes that are not listed count as expanded and use the built-in icon.
+    # Nodes that are not listed count as expanded, use the built-in icon and have no tooltip.
     #
     # --- Module blocks ------------------------------------------------------------------
     #
@@ -106,6 +112,7 @@ object TaskViewConfigYaml {
 
     private const val KEY_EXPANDED = "expanded"
     private const val KEY_ICON = "icon"
+    private const val KEY_DESCRIPTION = "description"
     private const val KEY_HIDDEN = "hidden"
     private const val KEY_MODES = "modes"
 
@@ -189,6 +196,9 @@ object TaskViewConfigYaml {
         // Leere oder rein aus Leerzeichen bestehende Angaben wie "icon:" bewusst als
         // "nicht gesetzt" behandeln statt als Dateinamen "" weiterzureichen.
         icon = (map[KEY_ICON] as? String)?.trim()?.takeIf { it.isNotEmpty() },
+        // Dasselbe fuer die Beschreibung: Ein leerer Text waere ein leerer Tooltip, und ein
+        // leerer Tooltip ist schlechter als gar keiner (REQ-082).
+        description = (map[KEY_DESCRIPTION] as? String)?.trim()?.takeIf { it.isNotEmpty() },
         hidden = map[KEY_HIDDEN] as? Boolean,
         modes = parseNodeModes(map[KEY_MODES])
     )
@@ -197,13 +207,18 @@ object TaskViewConfigYaml {
      * Modusbezogene Abweichungen eines Knoteneintrags. Ein solcher Eintrag traegt selbst keine
      * [KEY_MODES] mehr - eine zweite Verschachtelung haette keine Bedeutung und wird beim
      * Lesen verworfen.
+     *
+     * [KEY_DESCRIPTION] wird hier ebenfalls verworfen: Der Erlaeuterungstext eines Knotens soll
+     * an genau einer Stelle stehen und in allen Ansichtsmodi derselbe sein (REQ-082).
      */
     private fun parseNodeModes(value: Any?): Map<GradleTaskViewMode, TaskViewNodeConfig> {
         val map = value as? Map<*, *> ?: return emptyMap()
         val result = linkedMapOf<GradleTaskViewMode, TaskViewNodeConfig>()
         map.forEach { (rawKey, rawValue) ->
             val mode = (rawKey as? String)?.let(::parseMode) ?: return@forEach
-            parseNodeConfig(rawValue)?.allModes?.takeUnless { it.isEmpty }?.let { result[mode] = it }
+            parseNodeConfig(rawValue)?.allModes?.copy(description = null)
+                ?.takeUnless { it.isEmpty }
+                ?.let { result[mode] = it }
         }
         return result
     }
@@ -254,13 +269,15 @@ object TaskViewConfigYaml {
      */
     private fun serialiseNode(entry: TaskViewNodeConfig): Any? = when {
         entry.isEmpty -> null
-        entry.icon == null && entry.hidden == null && entry.modes.isEmpty() -> entry.expanded
+        entry.icon == null && entry.description == null && entry.hidden == null && entry.modes.isEmpty() ->
+            entry.expanded
         else -> nodeFields(entry)
     }
 
     private fun nodeFields(entry: TaskViewNodeConfig): Map<String, Any> = buildMap {
         entry.expanded?.let { put(KEY_EXPANDED, it) }
         entry.icon?.let { put(KEY_ICON, it) }
+        entry.description?.let { put(KEY_DESCRIPTION, it) }
         entry.hidden?.let { put(KEY_HIDDEN, it) }
         val modes = entry.modes.mapNotNull { (mode, config) ->
             nodeFields(config.allModes).takeIf { it.isNotEmpty() }?.let { mode.name.lowercase() to it }

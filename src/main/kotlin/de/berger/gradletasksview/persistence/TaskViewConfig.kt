@@ -14,6 +14,10 @@ import de.berger.gradletasksview.model.GradleTaskViewMode
  * @property expanded Auf-/Zuklappzustand. Bei Tasks ohne Wirkung, da Blattknoten.
  * @property icon Dateiname eines eigenen Icons relativ zu
  *   `gradle/gradle_tasks_extended/icons/`, das das eingebaute Plugin-Icon ersetzt.
+ * @property description Erlaeuternder Text, der als Tooltip des Knotens erscheint. Nur fuer
+ *   Modul-, Gruppen- und Ordnerknoten gedacht; Tasks bringen ihre Beschreibung aus Gradle mit
+ *   (REQ-082). Bewusst **nicht** in [modes] auswertbar - der Text soll genau einmal
+ *   dastehen und in allen Ansichtsmodi derselbe sein.
  * @property hidden Blendet den Knoten samt Teilbaum aus.
  * @property modes Abweichende Werte je Ansichtsmodus; sie gehen den Feldern daneben vor.
  *   Ein Eintrag hier traegt selbst keine weiteren [modes] - eine zweite Verschachtelung
@@ -22,11 +26,12 @@ import de.berger.gradletasksview.model.GradleTaskViewMode
 data class TaskViewNodeConfig(
     val expanded: Boolean? = null,
     val icon: String? = null,
+    val description: String? = null,
     val hidden: Boolean? = null,
     val modes: Map<GradleTaskViewMode, TaskViewNodeConfig> = emptyMap()
 ) {
     val isEmpty: Boolean
-        get() = expanded == null && icon == null && hidden == null && modes.isEmpty()
+        get() = expanded == null && icon == null && description == null && hidden == null && modes.isEmpty()
 
     /** Der Eintrag ohne seine [modes] - der Teil, der modusuebergreifend gilt. */
     val allModes: TaskViewNodeConfig get() = if (modes.isEmpty()) this else copy(modes = emptyMap())

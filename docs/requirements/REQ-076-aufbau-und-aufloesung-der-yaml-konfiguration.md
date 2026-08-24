@@ -10,6 +10,7 @@ betrifft:
   - src/main/kotlin/de/berger/gradletasksview/persistence/GradleTasksViewConfigStore.kt
   - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeNode.kt
   - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeStateManager.kt
+  - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
 quelle: OPEN-005, Abschnitte "Ansichtseinstellungen in der YAML" und "Schluesselform mit Modulbezug"; OPEN-009
 ---
 
@@ -55,6 +56,7 @@ der Eintrag sonst nichts traegt.
 |---|---|
 | `expanded` | Aufklappzustand. Bei Tasks ohne Wirkung, da Blattknoten. |
 | `icon` | Dateiname relativ zu `icons/` (REQ-071). |
+| `description` | Tooltip eines Modul-, Gruppen- oder Ordnerknotens (REQ-082). Wird in `modes` nicht ausgewertet. |
 | `hidden` | Blendet den Knoten samt Teilbaum aus (REQ-075). |
 | `modes` | Abweichende Werte je Ansichtsmodus; sie gehen den Feldern daneben vor. |
 
@@ -80,8 +82,9 @@ kommen lassen. Ein Eintrag, der nur ein Icon setzt, verdeckt dabei keinen Aufkla
 einer allgemeineren Ebene - entschieden wird je Feld, nicht je Eintrag.
 
 Entlang der Pfade erbt nur `hidden`: Ein ausgeblendeter Ordner nimmt seine Unterordner mit,
-ein ausgeblendetes Modul seine Untermodule (REQ-075). `expanded` und `icon` erben nicht - ein
-geerbtes Icon wuerde jeden Unterordner mit dem Symbol seines Elternordners zeichnen.
+ein ausgeblendetes Modul seine Untermodule (REQ-075). `expanded`, `icon` und `description`
+erben nicht - ein geerbtes Icon wuerde jeden Unterordner mit dem Symbol seines Elternordners
+zeichnen, ein geerbter Tooltip jeden mit dem Text seines Elternordners erklaeren.
 
 Der Modulbezug eines Gruppen-/Ordnerknotens ergibt sich aus seiner Position im Baum, nicht aus
 einer zweiten Ablage im Knoten selbst. Bei ausgeschalteter Modulgliederung gibt es keinen

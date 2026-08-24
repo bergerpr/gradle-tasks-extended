@@ -130,13 +130,15 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
 - `actions/` — toolbar dropdown (mode switch), the two toolbar toggles (module grouping, show hidden),
-  the two right-hand config buttons (gear opens `default.yaml`, info opens the configuration help
+  the two right-hand config buttons (the gear is a popup menu with `Configuration`, which opens
+  `default.yaml`, and `Reload`, which re-reads both YAML files plus the `icons/` directory and rebuilds
+  the tree — REQ-084; info opens the configuration help
   dialog whose text lives in `src/main/resources/help/configuration.html` — REQ-080),
   and context menu actions (copy name/path, hide/show, expand/collapse all).
   The run/debug/coverage entries are *not* ours: `GradleTaskRunActionGroup` pulls the platform's
   context actions from the executor extension list (REQ-079, ADR-022).
 - `persistence/` — per-project persisted state: selected view mode via `PersistentStateComponent`;
-  everything else (expand/collapse state, icons, hidden nodes, module grouping toggle) via the
+  everything else (expand/collapse state, icons, node tooltips, hidden nodes, module grouping toggle) via the
   two-tier YAML system described below. `TaskViewConfigKey` addresses a node in that config — a sealed
   interface with `Module`, `Group` and `Task`, each optionally scoped to a module.
 - `execution/` — `GradleTaskExecutor`, which runs tasks through a **temporary run configuration**
@@ -174,7 +176,8 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
 ### YAML view config (REQ-070, REQ-071, REQ-075, REQ-076, ADR-003, ADR-020)
 
 Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering the
-expand/collapse state, per-node custom icons, hidden nodes, and the module-grouping default:
+expand/collapse state, per-node custom icons, node tooltips, hidden nodes, and the module-grouping
+default:
 - `default.yaml` — team-wide default, created once if missing (`TaskViewConfigYaml.createStarterIfMissing`),
   never overwritten if it already exists. Meant to be checked into version control.
 - `custom.yaml` — personal overrides, written automatically on manual expand/collapse and by the module
@@ -188,8 +191,8 @@ The top level has exactly four fixed keys — `settings`, `groups`, `tasks`, `mo
 is recognised by convention. Crucially, group paths and task names have **separate namespaces**: `build`
 is both a common Gradle group and a common task name, and a shared key would let `hidden` on the task
 silently take the whole group with it (ADR-020, which supersedes ADR-014's flat key space). A node value
-is either a bare boolean (short form, expand state only) or a mapping with `expanded`, `icon`, `hidden`
-and `modes`:
+is either a bare boolean (short form, expand state only) or a mapping with `expanded`, `icon`,
+`description`, `hidden` and `modes`:
 
 ```yaml
 settings:
@@ -199,6 +202,7 @@ groups:                           # group/folder paths, apply in every module
   docker/gui: false               # short form: expand state only
   docker/gui/jsp:
     icon: smile.svg               # replaces the built-in folder icon
+    description: GUI images       # tooltip of this node; without it there is none
 
 tasks:                            # own namespace, keyed by task name
   printGroup-docker-server-gui:
@@ -222,7 +226,7 @@ modules:
         hidden: true              # only in Sort mode
 ```
 
-Expand state, icons and visibility apply to **all three view modes** unless a `modes` entry says
+Expand state, icons, tooltips and visibility apply to **all three view modes** unless a `modes` entry says
 otherwise — group paths (`Sort`) and folder paths (`Default`/`Nested`) share the same human-readable,
 slash-separated key space via `GroupHeaderNodeData.groupPath` / `FolderNodeData.folder.fullPath`. The
 `Tasks` node of the `Default` mode is the one exception: it is pure structure, has no key at all
@@ -236,9 +240,16 @@ Resolution per node **and field**: module-scoped before module-independent, mode
 all-modes, `custom.yaml` before `default.yaml`, then the built-in default. Visibility (`hidden`) uses the
 same order with one criterion in front — how precisely the entry names the node: task, then folders from
 the inside out, then module. Only `hidden` is inherited along paths (a hidden folder takes its subtree);
-`expanded` and `icon` are per node. `exclude`/`include` no longer exist — they were folded into `hidden`,
-which also retired ADR-016's union rule, so a personal `hidden: false` can now take back a team default
-(REQ-075, ADR-020).
+`expanded`, `icon` and `description` are per node. `exclude`/`include` no longer exist — they were
+folded into `hidden`, which also retired ADR-016's union rule, so a personal `hidden: false` can now
+take back a team default (REQ-075, ADR-020).
+
+`description` is the tooltip of a module, group or folder node and the **only** source of one — without
+an entry those nodes have no tooltip at all, and tasks ignore the field entirely (they keep showing their
+Gradle description, REQ-015/REQ-082). It is the one field not read inside `modes`: the text says what a
+node is, which does not change between view modes. The renderer therefore assigns `toolTipText` in
+*every* branch, including `null` — `ColoredTreeCellRenderer` is a single reused component, so an unset
+tooltip would otherwise linger from the previously drawn row.
 
 Icon rules: the value is a file name relative to `gradle/gradle_tasks_extended/icons/`, loaded via
 `IconLoader.findIcon(URL)`. A sibling `<name>_dark.<ext>` is preferred automatically under dark themes

@@ -17,11 +17,12 @@ quelle: Wunsch des Benutzers
 
 Ganz rechts in der Toolbar stehen zwei Knoepfe, das Info-Symbol rechts neben dem Zahnrad:
 
-- **Zahnrad** (`Edit Default Configuration`) oeffnet die `default.yaml` des geoeffneten
-  Projekts im Editor. Fehlt sie, wird sie vorher mit dem kommentierten Startinhalt angelegt
-  (`ensureDefaultConfigExists`), damit die Aktion nie ins Leere laeuft. Bewusst die
-  Team-Vorgabe und nicht `custom.yaml`: Letztere schreibt das Plugin selbst und enthaelt nur
-  Abweichungen, die sich beim naechsten Auf- oder Zuklappen ohnehin aendern (REQ-070).
+- **Zahnrad** (`Settings`) klappt ein Menue mit `Configuration` und `Reload` auf (REQ-084).
+  `Configuration` oeffnet die `default.yaml` des geoeffneten Projekts im Editor. Fehlt sie,
+  wird sie vorher mit dem kommentierten Startinhalt angelegt (`ensureDefaultConfigExists`),
+  damit die Aktion nie ins Leere laeuft. Bewusst die Team-Vorgabe und nicht `custom.yaml`:
+  Letztere schreibt das Plugin selbst und enthaelt nur Abweichungen, die sich beim naechsten
+  Auf- oder Zuklappen ohnehin aendern (REQ-070).
 - **Info** (`Configuration Help`) oeffnet einen Dialog mit Kopfbereich und zwei Reitern
   (REQ-081). Der Reiter `Configuration` beschreibt, wo die Konfiguration liegt und wie sie
   aufgebaut ist: die drei Pfade des Projekts (`default.yaml`, `custom.yaml`, `icons/`), der

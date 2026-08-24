@@ -19,9 +19,9 @@
 <body>
 
 <h2>Where the configuration lives</h2>
-<p>Everything this view remembers &mdash; expand state, custom icons, hidden nodes and the
-module toggle &mdash; is stored in two YAML files inside the opened project. Click a path to
-open it.</p>
+<p>Everything this view remembers &mdash; expand state, custom icons, node tooltips, hidden
+nodes and the module toggle &mdash; is stored in two YAML files inside the opened project.
+Click a path to open it.</p>
 <table cellspacing="0" cellpadding="0">
   <tr>
     <td valign="top"><b>Team&nbsp;default</b>&nbsp;&nbsp;&nbsp;</td>
@@ -43,8 +43,9 @@ open it.</p>
   </tr>
 </table>
 <p class="muted">The toolbar's <i>Reset to Default</i> deletes the personal file, so the team
-default applies again. Hand edits to either file are picked up on the next refresh &mdash; no
-IDE restart needed.</p>
+default applies again. Hand edits to either file are picked up on the next refresh, and
+<i>Settings &gt; Reload</i> applies them &mdash; and newly added icon files &mdash; right away.
+Neither needs an IDE restart.</p>
 
 <h2>Shape of a file</h2>
 <p>The top level has exactly four keys. Group paths and task names live in separate
@@ -66,14 +67,20 @@ affect each other.</p>
         A missing file falls back to the built-in icon and logs a warning.</td>
   </tr>
   <tr>
+    <td valign="top"><code>description</code>&nbsp;&nbsp;&nbsp;</td>
+    <td valign="top">Tooltip of a module, group or folder node. Without it, those nodes have no
+        tooltip at all. Tasks ignore it and keep showing their Gradle description. The text is
+        written once for every view mode, so it is not read inside <code>modes</code>.</td>
+  </tr>
+  <tr>
     <td valign="top"><code>hidden</code>&nbsp;&nbsp;&nbsp;</td>
     <td valign="top">Hides the node. The only field inherited along a path: a hidden folder
         takes its whole subtree with it, and a more precise entry can take it back.</td>
   </tr>
   <tr>
     <td valign="top"><code>modes</code>&nbsp;&nbsp;&nbsp;</td>
-    <td valign="top">The same fields again, but only for <code>default</code>,
-        <code>sort</code> or <code>nested</code>.</td>
+    <td valign="top">The same fields again &mdash; except <code>description</code> &mdash; but
+        only for <code>default</code>, <code>sort</code> or <code>nested</code>.</td>
   </tr>
 </table>
 
@@ -83,7 +90,7 @@ affect each other.</p>
   <li>module-scoped before module-independent,</li>
   <li>mode-specific before all-modes,</li>
   <li>personal file before team default,</li>
-  <li>then the built-in default (expanded, plugin icon, visible).</li>
+  <li>then the built-in default (expanded, plugin icon, no tooltip, visible).</li>
 </ul>
 <p><code>hidden</code> uses the same order with one criterion in front: how precisely the entry
 names the node &mdash; task, then folders from the inside out, then module.</p>

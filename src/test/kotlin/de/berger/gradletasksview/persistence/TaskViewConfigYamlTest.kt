@@ -166,6 +166,77 @@ class TaskViewConfigYamlTest {
     }
 
     @Test
+    fun `description is read for modules and groups`() {
+        val file = tempDir.resolve("description.yaml").toFile()
+        file.writeText(
+            """
+            groups:
+              docker/gui:
+                description: Everything around the GUI images
+            modules:
+              ":app":
+                description: The deployable application
+            """.trimIndent() + "\n"
+        )
+
+        val config = TaskViewConfigYaml.readOrEmpty(file)
+
+        assertEquals(
+            TaskViewNodeConfig(description = "Everything around the GUI images"),
+            config.groups.getValue("docker/gui")
+        )
+        assertEquals(
+            TaskViewNodeConfig(description = "The deployable application"),
+            config.modules.getValue(":app").node
+        )
+    }
+
+    @Test
+    fun `description survives a write triggered by an expand change`() {
+        val file = tempDir.resolve("description-roundtrip.yaml").toFile()
+        val config = TaskViewConfig(
+            groups = mapOf("docker/gui" to TaskViewNodeConfig(expanded = false, description = "Builds the images"))
+        )
+
+        TaskViewConfigYaml.write(file, config)
+
+        assertEquals(config, TaskViewConfigYaml.readOrEmpty(file))
+        assertTrue(file.readText().contains("description: Builds the images"))
+    }
+
+    @Test
+    fun `a description inside modes is ignored`() {
+        val file = tempDir.resolve("description-modes.yaml").toFile()
+        file.writeText(
+            """
+            groups:
+              docker/gui:
+                description: The one text for every view mode
+                modes:
+                  sort:
+                    description: Only in Sort
+                    hidden: true
+            """.trimIndent() + "\n"
+        )
+
+        val entry = TaskViewConfigYaml.readOrEmpty(file).groups.getValue("docker/gui")
+
+        // Der Erlaeuterungstext soll an genau einer Stelle stehen (REQ-082), also gilt der des
+        // Knotens - die modusbezogene Angabe wird verworfen, ohne den Rest des Eintrags
+        // mitzunehmen.
+        assertEquals("The one text for every view mode", entry.description)
+        assertEquals(mapOf(GradleTaskViewMode.SORT to TaskViewNodeConfig(hidden = true)), entry.modes)
+    }
+
+    @Test
+    fun `a blank description counts as not configured`() {
+        val file = tempDir.resolve("description-blank.yaml").toFile()
+        file.writeText("groups:\n  docker/gui:\n    description: '   '\n")
+
+        assertEquals(TaskViewConfig(), TaskViewConfigYaml.readOrEmpty(file))
+    }
+
+    @Test
     fun `icon survives a write triggered by an expand change`() {
         val file = tempDir.resolve("roundtrip.yaml").toFile()
         val config = TaskViewConfig(

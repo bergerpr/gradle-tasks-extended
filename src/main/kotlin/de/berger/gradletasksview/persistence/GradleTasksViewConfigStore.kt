@@ -19,8 +19,8 @@ import javax.swing.Icon
 
 /**
  * Zweistufige, dateibasierte Konfiguration der Baumansicht - Aufklappzustand von
- * Modul-/Gruppen-/Ordnerknoten, eigene Icons, ausgeblendete Knoten und die Vorgabe fuer die
- * Modulgliederung:
+ * Modul-/Gruppen-/Ordnerknoten, eigene Icons, Tooltips, ausgeblendete Knoten und die Vorgabe
+ * fuer die Modulgliederung:
  *
  * - `<Projektwurzel>/gradle/gradle_tasks_extended/default.yaml`: Team-weite Vorgabe,
  *   die versioniert werden kann. Wird nur angelegt, wenn sie noch nicht existiert -
@@ -118,6 +118,35 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         val fileName = resolve(key) { it.icon } ?: return null
         val cacheKey = "$fileName|bright=${JBColor.isBright()}"
         return iconCache.getOrPut(cacheKey) { Optional(loadIcon(fileName)) }.icon
+    }
+
+    /**
+     * Erlaeuternder Text fuer [key] oder `null`, wenn keiner konfiguriert ist. Er wird als
+     * Tooltip des Knotens angezeigt; ohne Eintrag hat der Knoten gar keinen Tooltip (REQ-082).
+     *
+     * Gilt nur fuer Modul-, Gruppen- und Ordnerknoten - ein Task zeigt weiterhin die
+     * Beschreibung, die Gradle selbst mitliefert, und fragt hier gar nicht erst nach.
+     */
+    fun descriptionFor(key: TaskViewConfigKey): String? = resolve(key) { it.description }
+
+    /**
+     * Liest beide Dateien neu ein, ohne auf einen geaenderten Zeitstempel zu warten, und wirft
+     * den Icon-Zwischenspeicher weg.
+     *
+     * Gebraucht wird das fuer "Reload" im Zahnrad-Menue (REQ-084): Eine neu ins
+     * `icons/`-Verzeichnis gelegte Datei aendert den Zeitstempel keiner der beiden
+     * YAML-Dateien, [reloadIfChanged] wuerde also nichts tun und das Icon bliebe bis zum
+     * naechsten IDE-Start das alte.
+     */
+    fun forceReload() {
+        try {
+            // Laeuft gerade ein Schreibvorgang auf custom.yaml, ist der Zustand im Speicher
+            // neuer als der auf der Platte - dann nur den Icon-Zwischenspeicher wegwerfen,
+            // statt die gerade getaetigte Aenderung wieder einzulesen (siehe [reloadIfChanged]).
+            if (pendingWrites.get() > 0) iconCache.clear() else reload()
+        } catch (e: Exception) {
+            LOG.warn("Konnte Konfiguration unter $configDir nicht neu laden", e)
+        }
     }
 
     /**
