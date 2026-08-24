@@ -44,8 +44,8 @@ compacted-away intermediate node has no effect (REQ-004).
 
 **`plugin.xml` is part of every feature change** — as are the two files in
 `src/main/plugin-meta/`. What the IDE shows in Settings > Plugins comes from there, not from
-`plugin.xml`: `description.html` is the *Overview* tab (patchPluginXml prepends the screenshot
-gallery, whose file paths only exist at build time) and `change-notes.html` is *What's New*,
+`plugin.xml`: `description.html` is the *Overview* tab (patchPluginXml appends the screenshot
+gallery below it, whose file paths only exist at build time) and `change-notes.html` is *What's New*,
 newest release first (REQ-086). A new or changed capability belongs in both texts — same for
 actions, extension points and dependencies declared in `plugin.xml`. None of them are files that
 only get touched when something breaks; treat them like the requirement files under `docs/`.

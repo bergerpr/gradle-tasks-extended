@@ -13,8 +13,12 @@ quelle: Wunsch des Benutzers
 ---
 
 In `Einstellungen > Plugins > Installed > Gradle Tasks Extended` zeigt der Reiter **Overview**
-zuerst die Bildstrecke, darunter den Beschreibungstext; der Reiter **What's New** listet die
+zuerst den Beschreibungstext und darunter die Bildstrecke; der Reiter **What's New** listet die
 Aenderungen je Version, neueste zuerst.
+
+Die Bilder standen zunaechst oben. Vier Bilder zu je 360 px sind aber hoeher als der Reiter,
+sodass man an ihnen vorbeiscrollen musste, bevor ueberhaupt ein Satz zu lesen war - der Text
+gehoert dorthin, wo der Blick zuerst landet.
 
 Beide Texte stehen als Dateien in `src/main/plugin-meta/` und werden von `patchPluginXml` in
 die `plugin.xml` eingetragen - die haelt sie nicht mehr selbst. Der Grund ist die Bildstrecke:
@@ -45,6 +49,25 @@ darunter ist davon unberuehrt. Fuer ein privates Ein-Rechner-Plugin ohne Marketp
 Die Bilder werden mit `width="360"` eingebunden. Die Vorlagen sind 773 px breit, und das
 `JEditorPane` skaliert nicht von sich aus; ohne Breitenangabe schoebe jedes Bild den Reiter in
 einen waagerechten Bildlauf.
+
+## Kein Karussell
+
+Das Bilderkarussell, das andere Plugins an dieser Stelle zeigen (etwa Junie), ist nicht
+nachbaubar. Zustaendig dafuer ist `PluginImagesComponent`, und gefuellt wird es ueber
+`PluginNode.setScreenShots(...)` - dessen einzige Aufrufer sind `IntellijPluginMetadata` und
+`PluginDto`, also die **Marketplace-Metadaten** zu einer `xmlId`. Die Bilder liest die
+Komponente anschliessend aus `<system>/plugins/imageCache/<externalPluginId>/`, dem Cache des
+zuvor Heruntergeladenen.
+
+Fuer ein Plugin, das nicht im Marketplace steht, entsteht dieser `PluginNode` nie, und damit
+gibt es keine Bilderliste - unabhaengig vom Inhalt des ZIP. Ueber ein eigenes
+Plugin-Repository laesst es sich auch nicht nachreichen: Der Parser dafuer
+(`RepositoryHelper`) kennt keine Screenshots. Anders als bei den Anpassungsschnittstellen der
+Detailseite ist das keine Frage abgekuendigter oder interner API (ADR-008), sondern schlicht
+fehlender Daten.
+
+Ein Karussell mit Schaltern gibt es deshalb nur dort, wo die Oberflaeche uns gehoert: im
+Info-Dialog des Plugins (REQ-081).
 
 ## Versionsstand
 

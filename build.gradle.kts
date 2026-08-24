@@ -91,7 +91,7 @@ intellijPlatform {
             url = providers.gradleProperty("pluginVendorUrl")
         }
 
-        // Reiter "Overview": erst die Bildstrecke, dann der Beschreibungstext (REQ-086).
+        // Reiter "Overview": erst der Beschreibungstext, darunter die Bildstrecke (REQ-086).
         //
         // Die Bilder haengen an absoluten file:-URLs - anders geht es nicht. Die Beschreibung
         // zeichnet ein gewoehnliches Swing-JEditorPane (PluginDetailsPageComponent), das keine
@@ -119,7 +119,7 @@ intellijPlatform {
 
             // Der Kommentarkopf der Datei erklaert sie im Editor und gehoert nicht in die IDE.
             val text = pluginMetaDir.resolve("description.html").readText().substringAfter("-->").trim()
-            listOf(gallery, text).filter { it.isNotEmpty() }.joinToString("\n")
+            listOf(text, gallery).filter { it.isNotEmpty() }.joinToString("\n")
         }
 
         // Reiter "What's New" (REQ-086).
