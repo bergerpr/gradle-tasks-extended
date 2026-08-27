@@ -17,6 +17,8 @@ ausgewaehlt wird (ADR-022, das ADR-006 abloest). Der Lauf erscheint dadurch im
 Konfigurations-Widget der Kopfzeile - genauso wie beim Start aus dem Kontextmenue (REQ-079)
 und wie in der originalen Gradle-Ansicht.
 
+Enter auf einer einzeln selektierten Task-Zeile loest dieselbe Ausfuehrung aus (REQ-087).
+
 Der Doppelklick bleibt beim normalen Run-Executor: Die Executor-ID ist ein Parameter von
 `GradleTaskExecutor.execute` mit `DefaultRunExecutor.EXECUTOR_ID` als Vorgabe, und der
 Doppelklick uebergibt keine.

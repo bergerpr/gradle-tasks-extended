@@ -8,6 +8,9 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonShortcuts
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.DataSink
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -18,6 +21,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.ui.PopupHandler
+import com.intellij.ui.speedSearch.SpeedSearchSupply
 import com.intellij.ui.treeStructure.Tree
 import de.berger.gradletasksview.execution.GradleTaskExecutor
 import de.berger.gradletasksview.execution.SELECTED_GRADLE_TASKS
@@ -35,9 +39,9 @@ import javax.swing.tree.DefaultTreeModel
 
 /**
  * Eigener `JTree` fuer die Gradle-Task-Ansicht. Baut auf `com.intellij.ui.treeStructure.Tree`
- * auf (Standard-Basisklasse fuer IntelliJ-Trees) und bildet Doppelklick-Ausfuehrung,
- * Kontextmenue-Datenversorgung und Copy selbst nach, statt eine fremde View-Instanz
- * zu delegieren (siehe ADR-001).
+ * auf (Standard-Basisklasse fuer IntelliJ-Trees) und bildet Doppelklick- und
+ * Enter-Ausfuehrung, Kontextmenue-Datenversorgung und Copy selbst nach, statt eine fremde
+ * View-Instanz zu delegieren (siehe ADR-001).
  */
 class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(DefaultMutableTreeNode())), UiDataProvider {
 
@@ -135,6 +139,57 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         })
 
         registerContextMenu()
+        registerRunOnEnter()
+    }
+
+    /**
+     * Enter fuehrt den selektierten Task aus - dieselbe Ausfuehrung wie der Doppelklick
+     * (REQ-087).
+     *
+     * Bewusst eine [AnAction] mit [CommonShortcuts.ENTER] auf dieser Komponente statt eines
+     * eigenen `KeyListener` oder eines InputMap-Eintrags: Nur so laeuft der Tastendruck durch
+     * den `IdeKeyEventDispatcher` der Plattform und ordnet sich damit den vorrangigen
+     * Verbrauchern unter - allen voran der Speed Search, deren Popup Enter zunaechst
+     * schliessen soll (siehe [runOnEnterEnabled]).
+     *
+     * Numpad-Enter ist mit abgedeckt und braucht keinen zweiten Shortcut: AWT meldet dafuer
+     * denselben `keyCode` `VK_ENTER` und unterscheidet die Taste nur ueber `getKeyLocation()`,
+     * was beim Abgleich eines `KeyStroke` keine Rolle spielt.
+     */
+    private fun registerRunOnEnter() {
+        object : AnAction() {
+            override fun update(e: AnActionEvent) {
+                e.presentation.isEnabled = runOnEnterEnabled()
+            }
+
+            override fun actionPerformed(e: AnActionEvent) {
+                singleSelectedTaskDescriptor()?.let(executor::execute)
+            }
+
+            override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
+        }.registerCustomShortcutSet(CommonShortcuts.ENTER, this)
+    }
+
+    /**
+     * Enter startet nur bei **genau einer** selektierten Zeile, und nur wenn diese ein Task
+     * ist: Bei einer Mehrfachauswahl bleibt der Tastendruck folgenlos (ausdrueckliche
+     * Anforderung, REQ-087) - anders als das Kontextmenue, das mehrere Tasks desselben
+     * Gradle-Projekts in einem Aufruf startet.
+     *
+     * Waehrend die Speed Search offen ist, bleibt die Aktion abgeschaltet, damit Enter dort
+     * erwartungsgemaess erst die Suche beendet; der naechste Enter fuehrt dann aus.
+     */
+    private fun runOnEnterEnabled(): Boolean =
+        SpeedSearchSupply.getSupply(this)?.isPopupActive != true && singleSelectedTaskDescriptor() != null
+
+    /**
+     * Der Task der Selektion, wenn genau eine Zeile ausgewaehlt ist und diese ein Task-Knoten
+     * ist - sonst `null`.
+     */
+    private fun singleSelectedTaskDescriptor(): GradleTaskDescriptor? {
+        val paths = selectionPaths ?: return null
+        if (paths.size != 1) return null
+        return ((paths[0].lastPathComponent as? DefaultMutableTreeNode)?.userObject as? TaskNodeData)?.descriptor
     }
 
     private fun registerContextMenu() {
