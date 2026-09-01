@@ -1,5 +1,6 @@
 settings:
   showModules: true          # the module level toggle
+  showInheritedTasks: false  # the inherited tasks toggle - default is true
 
 groups:                      # group and folder paths, in every module
   docker/gui: false          # short form: expand state only

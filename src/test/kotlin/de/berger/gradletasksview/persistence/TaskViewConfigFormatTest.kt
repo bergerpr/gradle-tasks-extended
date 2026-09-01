@@ -113,10 +113,12 @@ class TaskViewConfigFormatTest {
             """
             settings:
               showModules: true
+              showInheritedTasks: false
             """
         )
 
         assertEquals(true, config.settings.showModules)
+        assertEquals(false, config.settings.showInheritedTasks)
         // settings ist ein eigener Namensraum und darf nicht als Knoteneintrag durchschlagen.
         assertTrue(config.groups.isEmpty())
         assertTrue(config.tasks.isEmpty())
@@ -174,13 +176,14 @@ class TaskViewConfigFormatTest {
         assertTrue(config.modules.isEmpty())
         assertTrue(config.settings.isEmpty)
         assertNull(config.settings.showModules)
+        assertNull(config.settings.showInheritedTasks)
     }
 
     @Test
     fun `write then read round-trips every namespace`() {
         val file = tempDir.resolve("roundtrip.yaml").toFile()
         val config = TaskViewConfig(
-            settings = TaskViewSettings(showModules = true),
+            settings = TaskViewSettings(showModules = true, showInheritedTasks = false),
             groups = mapOf("docker/gui" to TaskViewNodeConfig(expanded = false)),
             tasks = mapOf("buildImage" to TaskViewNodeConfig(icon = "smile.svg")),
             modules = mapOf(

@@ -74,9 +74,16 @@ data class TaskViewModuleConfig(
  * @property showModules Vorgabe fuer den Feststellbutton der Modulgliederung. `null` bedeutet
  *   "nicht konfiguriert"; der eingebaute Standard ist **aus**, damit sich fuer bestehende
  *   Projekte ohne Konfiguration nichts aendert.
+ * @property showInheritedTasks Vorgabe fuer den Feststellbutton "Show Inherited Tasks"
+ *   (REQ-088). `null` bedeutet "nicht konfiguriert"; der eingebaute Standard ist **an** - so
+ *   wie in der originalen Gradle-Ansicht, deren `showInheritedTasks` ebenfalls eingeschaltet
+ *   startet.
  */
-data class TaskViewSettings(val showModules: Boolean? = null) {
-    val isEmpty: Boolean get() = showModules == null
+data class TaskViewSettings(
+    val showModules: Boolean? = null,
+    val showInheritedTasks: Boolean? = null
+) {
+    val isEmpty: Boolean get() = showModules == null && showInheritedTasks == null
 }
 
 /**

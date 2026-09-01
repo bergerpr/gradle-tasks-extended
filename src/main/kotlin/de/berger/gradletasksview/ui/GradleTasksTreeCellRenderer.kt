@@ -2,6 +2,7 @@ package de.berger.gradletasksview.ui
 
 import com.intellij.ui.ColoredTreeCellRenderer
 import com.intellij.ui.SimpleTextAttributes
+import de.berger.gradletasksview.GradleTasksViewBundle
 import de.berger.gradletasksview.icons.GradleTasksIcons
 import de.berger.gradletasksview.persistence.GradleTasksViewConfigStore
 import de.berger.gradletasksview.persistence.TaskViewConfigKey
@@ -100,7 +101,9 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
                 val descriptor = userObject.descriptor
                 val key = taskConfigKeyOf(descriptor, modulePath)
                 icon = configStore.iconFor(key) ?: GradleTasksIcons.Task
-                append(descriptor.displayName, regular)
+                // Eine geerbte Sammelzeile steht kursiv: Sie sieht sonst aus wie ein Task
+                // dieses Moduls, laeuft aber in jedem Unterprojekt, das ihn hat (REQ-088).
+                append(descriptor.displayName, if (descriptor.inherited && !hidden) inheritedAttributes else regular)
                 descriptor.description?.let {
                     append("  $it", SimpleTextAttributes.GRAYED_ATTRIBUTES)
                 }
@@ -108,16 +111,28 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
                 // (REQ-015/REQ-082). Ein konfigurierter Knoten traegt einen selbst gewaehlten
                 // Namen, also darf dort auch der selbst geschriebene Text stehen - fehlt er,
                 // bleibt es bei der Beschreibung des ausgefuehrten Tasks.
-                toolTipText = if (descriptor.isVirtual) {
-                    configStore.descriptionFor(key) ?: descriptor.description
-                } else {
-                    descriptor.description
+                // Bei einer geerbten Sammelzeile sagt der Tooltip, was die Kursivschrift
+                // bedeutet - ohne ihn bliebe sie eine unerklaerte Auszeichnung (REQ-088).
+                toolTipText = when {
+                    descriptor.isVirtual -> configStore.descriptionFor(key) ?: descriptor.description
+                    descriptor.inherited -> listOfNotNull(
+                        descriptor.description,
+                        GradleTasksViewBundle.message("task.inherited.tooltip", descriptor.gradleProjectPath)
+                    ).joinToString(" - ")
+                    else -> descriptor.description
                 }
             }
 
             else -> toolTipText = null
         }
     }
+
+    /**
+     * Auszeichnung einer geerbten Sammelzeile (REQ-088). Kursiv statt grau, weil Grau hier
+     * bereits vergeben ist: Es kennzeichnet ausgeblendete Knoten (REQ-078), und beides an
+     * derselben Zeile waere nicht mehr auseinanderzuhalten.
+     */
+    private val inheritedAttributes = SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES
 
     /** Ordner-Icon folgt dem Auf-/Zuklappzustand, wie in der Projektansicht der IDE. */
     private fun folderIcon(expanded: Boolean) =

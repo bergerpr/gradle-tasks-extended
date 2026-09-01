@@ -92,6 +92,16 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
         scheduleRefresh(debounce = false)
     }
 
+    /**
+     * Schaltet die geerbten Sammelzeilen der Unterprojekte um (REQ-088). Der Zustand liegt in
+     * derselben zweistufigen Konfiguration wie die Modulgliederung, weil er dieselbe Art von
+     * Entscheidung ist: eine Vorgabe, die ein Team teilen koennen soll.
+     */
+    fun setShowInheritedTasks(showInheritedTasks: Boolean) {
+        project.service<GradleTasksViewConfigStore>().setShowInheritedTasks(showInheritedTasks)
+        scheduleRefresh(debounce = false)
+    }
+
     /** Schaltet die Anzeige ausgeblendeter Knoten um (REQ-078). */
     fun setShowHidden(showHidden: Boolean) {
         this.showHidden = showHidden
@@ -173,7 +183,14 @@ class GradleTaskViewRefresher(private val project: Project, private val cs: Coro
         val configStore = project.service<GradleTasksViewConfigStore>()
         configStore.reloadIfChanged()
 
-        val allTasks = readAction { dataProvider.loadTasks() }
+        // Die geerbten Sammelzeilen fallen hier weg, nicht erst beim Baumaufbau: Sie sind
+        // Tasks wie andere auch, nur an einem Modul, das sie nicht selbst definiert (REQ-088).
+        val loadedTasks = readAction { dataProvider.loadTasks() }
+        val allTasks = if (configStore.showInheritedTasks()) {
+            loadedTasks
+        } else {
+            loadedTasks.filter { !it.inherited }
+        }
 
         // Die ueber `execute` konfigurierten Knoten entstehen aus der UNGEFILTERTEN Liste
         // (REQ-085): Ein am Originalplatz ausgeblendeter Task soll hier trotzdem erscheinen

@@ -21,6 +21,7 @@ insbesondere haben Gruppenpfade und Tasknamen getrennte Namensraeume (ADR-020).
 ```yaml
 settings:                         # Ansichtseinstellungen
   showModules: true
+  showInheritedTasks: false       # Standard ist true (REQ-088)
 
 groups:                           # Gruppen-/Ordnerpfade, gelten in allen Modulen
   docker/gui/jsp:

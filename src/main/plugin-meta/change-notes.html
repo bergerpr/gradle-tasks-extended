@@ -1,6 +1,18 @@
 <!-- Reiter "What's New" in Einstellungen > Plugins (REQ-086). Neueste Version zuerst;
      patchPluginXml traegt den Inhalt beim Bauen in die plugin.xml ein. -->
 
+<b>0.3.1</b>
+<ul>
+  <li><b>Fixed: the tasks on root level were gone.</b> A module node also carries the tasks of
+      its subprojects &mdash; every name it does not define itself &mdash; and 0.3.0 dropped
+      those rows as duplicates. In a build that applies its plugins centrally for all
+      subprojects they are the only tasks the root project has, so its Tasks node stood empty.
+      They are back, in italics and with a tooltip saying what that means.</li>
+  <li><b>Show Inherited Tasks</b> in the toolbar switches them off again, like the toggle of the
+      same name in the IDE's own Gradle view. On by default, and settable for the team with
+      <em>settings: showInheritedTasks:</em>.</li>
+</ul>
+
 <b>0.3.0</b>
 <ul>
   <li><b>Enter runs the selected task</b>, exactly as a double-click does &mdash; numpad Enter
@@ -21,9 +33,10 @@
       list to browse, not a row of start buttons.</li>
   <li><b>Fixed: task names and duplicates.</b> The platform reports submodule tasks under their
       qualified name and hangs every module's tasks on its parent as inherited aggregates. Rows
-      were therefore labelled <em>:lib:printLibGui</em>, every task appeared a second time under
-      the root project, identically named tasks of different modules collapsed into one, and
-      running such a duplicate started the task in <em>every</em> matching subproject.</li>
+      were therefore labelled <em>:lib:printLibGui</em>, identically named tasks of different
+      modules collapsed into one, and running such a row started the task in <em>every</em>
+      matching subproject. The aggregate rows themselves were removed as well &mdash; see
+      0.3.1, which brings them back properly.</li>
 </ul>
 
 <b>0.2.0</b>

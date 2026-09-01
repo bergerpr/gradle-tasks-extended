@@ -20,8 +20,8 @@ import javax.swing.Icon
 
 /**
  * Zweistufige, dateibasierte Konfiguration der Baumansicht - Aufklappzustand von
- * Modul-/Gruppen-/Ordnerknoten, eigene Icons, Tooltips, ausgeblendete Knoten und die Vorgabe
- * fuer die Modulgliederung:
+ * Modul-/Gruppen-/Ordnerknoten, eigene Icons, Tooltips, ausgeblendete Knoten und die Vorgaben
+ * fuer die Modulgliederung und die geerbten Sammelzeilen:
  *
  * - `<Projektwurzel>/gradle/gradle_tasks_extended/default.yaml`: Team-weite Vorgabe,
  *   die versioniert werden kann. Wird nur angelegt, wenn sie noch nicht existiert -
@@ -158,9 +158,32 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         customState.settings.showModules ?: defaultState.settings.showModules ?: false
 
     fun setShowModules(showModules: Boolean) {
-        // Nur festhalten, was von der Vorgabe abweicht - siehe [setExpanded].
+        // Nur festhalten, was von der Vorgabe abweicht - siehe [setExpanded]. Kopiert wird
+        // der bestehende Einstellungsblock, damit das Umschalten nicht die daneben stehende
+        // Einstellung mitloescht.
         val fallback = defaultState.settings.showModules ?: false
-        customState = customState.copy(settings = TaskViewSettings(showModules.takeIf { it != fallback }))
+        customState = customState.copy(
+            settings = customState.settings.copy(showModules = showModules.takeIf { it != fallback })
+        )
+        persistCustomState()
+    }
+
+    /**
+     * Zeigt die geerbten Sammelzeilen der Unterprojekte mit an (REQ-088). Standard ist **an**,
+     * so wie `showInheritedTasks` in der originalen Gradle-Ansicht: Ein Projekt, das seine
+     * Plugins zentral fuer alle Unterprojekte setzt, hat auf Wurzelebene sonst gar keine
+     * Tasks.
+     */
+    fun showInheritedTasks(): Boolean =
+        customState.settings.showInheritedTasks ?: defaultState.settings.showInheritedTasks ?: true
+
+    fun setShowInheritedTasks(showInheritedTasks: Boolean) {
+        val fallback = defaultState.settings.showInheritedTasks ?: true
+        customState = customState.copy(
+            settings = customState.settings.copy(
+                showInheritedTasks = showInheritedTasks.takeIf { it != fallback }
+            )
+        )
         persistCustomState()
     }
 

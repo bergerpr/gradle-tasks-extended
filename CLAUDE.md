@@ -132,7 +132,8 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
   `GradleTaskViewRefresher` (owns rebuild-on-reimport + debouncing + initial-load retry logic).
 - `toolwindow/` — `ToolWindowFactory`, the panel, and the `postStartupActivity` that eagerly creates the
   refresher service so it's listening even before the ToolWindow is shown.
-- `actions/` — toolbar dropdown (mode switch), the two toolbar toggles (module grouping, show hidden),
+- `actions/` — toolbar dropdown (mode switch), the three toolbar toggles (module grouping, show
+  inherited tasks, show hidden),
   the two right-hand config buttons (the gear is a popup menu with `Configuration`, which opens
   `default.yaml`, and `Reload`, which re-reads both YAML files plus the `icons/` directory and rebuilds
   the tree — REQ-084; info opens the configuration help
@@ -164,11 +165,18 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
   selection preservation and persistence keys — never rely on visible names alone, since task names can
   collide across subprojects/composite builds.
 - **Task names from the platform are not bare.** `TaskData.name` is the *qualified* path for
-  submodule tasks (`:lib:printLibGui`) and bare only in the root project, and every module node
-  additionally carries its subprojects' tasks as **inherited** aggregate entries. The provider
-  therefore reduces the name (`bareTaskName`) and skips `isInherited` entries — otherwise rows
-  are labelled `:lib:printLibGui`, every task appears a second time under the root project, and
-  those duplicates run in *every* matching subproject (ADR-024, was OPEN-010).
+  submodule tasks (`:lib:printLibGui`), and bare in the root project and on inherited entries. The
+  provider therefore reduces it (`bareTaskName`) — otherwise rows are labelled `:lib:printLibGui`
+  and a task runs in the wrong place (ADR-024, was OPEN-010).
+- **Inherited aggregate rows are kept, not dropped.** Every module node additionally carries its
+  subprojects' tasks as **inherited** entries (`TaskData.isInherited`), one per name it does not
+  define itself. They are the rows the IDE's own Gradle view shows by default
+  (`ExternalProjectsViewState.showInheritedTasks` starts `true`), and in a build that applies its
+  plugins centrally for all subprojects they are the *only* tasks on root level. The provider marks
+  them (`GradleTaskDescriptor.inherited`), the renderer sets them in italics with an explaining
+  tooltip, and the `Show Inherited Tasks` toolbar toggle plus `settings.showInheritedTasks` turn
+  them off (REQ-088, ADR-025, superseding ADR-024's second rule). They are never a target for a
+  `execute` reference.
 - **Module identity comes from the parent node**, not from `TaskData`: `taskNode.getParent(ModuleData::class.java)`
   plus the `ModuleData.gradleIdentityPathOrNull` / `gradlePathOrNull` extensions in
   `org.jetbrains.plugins.gradle.util`. `ModuleData.getId()` is *not* the Gradle project path, and the
@@ -185,8 +193,8 @@ Source root: `src/main/kotlin/de/berger/gradletasksview/`
 ### YAML view config (REQ-070, REQ-071, REQ-075, REQ-076, ADR-003, ADR-020)
 
 Two-tier, file-based config under `<project root>/gradle/gradle_tasks_extended/`, covering the
-expand/collapse state, per-node custom icons, node tooltips, hidden nodes, and the module-grouping
-default:
+expand/collapse state, per-node custom icons, node tooltips, hidden nodes, and the defaults for
+module grouping and inherited tasks:
 - `default.yaml` — team-wide default, created once if missing (`TaskViewConfigYaml.createStarterIfMissing`),
   never overwritten if it already exists. Meant to be checked into version control.
 - `custom.yaml` — personal overrides, written automatically on manual expand/collapse and by the module
@@ -206,6 +214,7 @@ is either a bare boolean (short form, expand state only) or a mapping with `expa
 ```yaml
 settings:
   showModules: true
+  showInheritedTasks: false       # default is true, as in the original Gradle view
 
 groups:                           # group/folder paths, apply in every module
   docker/gui: false               # short form: expand state only

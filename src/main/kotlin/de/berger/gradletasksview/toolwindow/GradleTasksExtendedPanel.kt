@@ -13,6 +13,7 @@ import de.berger.gradletasksview.actions.GradleTaskExpandAllAction
 import de.berger.gradletasksview.actions.GradleTaskResetExpandStateAction
 import de.berger.gradletasksview.actions.GradleTaskShowConfigHelpAction
 import de.berger.gradletasksview.actions.GradleTaskShowHiddenToggleAction
+import de.berger.gradletasksview.actions.GradleTaskShowInheritedTasksToggleAction
 import de.berger.gradletasksview.actions.GradleTaskShowModulesToggleAction
 import de.berger.gradletasksview.actions.GradleTaskViewModeActionGroup
 import de.berger.gradletasksview.ui.GradleTasksTree
@@ -35,6 +36,9 @@ class GradleTasksExtendedPanel(project: Project) : JPanel(BorderLayout()) {
             // Direkt neben dem Modus-Dropdown, weil beide zusammen bestimmen, wie der Baum
             // gegliedert ist - aber als eigener Feststellbutton, da orthogonal (siehe REQ-074).
             add(GradleTaskShowModulesToggleAction())
+            // Direkt daneben, weil auch dieser Knopf bestimmt, welche Zeilen ueberhaupt im
+            // Baum stehen - hier die geerbten Sammelzeilen der Unterprojekte (REQ-088).
+            add(GradleTaskShowInheritedTasksToggleAction())
             add(GradleTaskShowHiddenToggleAction())
             addSeparator()
             add(GradleTaskExpandAllAction())

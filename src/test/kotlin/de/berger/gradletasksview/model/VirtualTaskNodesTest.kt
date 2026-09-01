@@ -47,6 +47,27 @@ class VirtualTaskNodesTest {
     }
 
     @Test
+    fun `an inherited aggregate row is no reference target`() {
+        // Das Wurzelprojekt fuehrt buildImage nur ueber seine Unterprojekte (REQ-088). Ein
+        // blanker Verweis darf davon keine dritte Zeile erzeugen, und ein Verweis auf ":" ins
+        // Leere laufen - dort ist der Task nicht definiert.
+        val withAggregate = tasks + task("buildImage", ":", "docker/server/gui").copy(inherited = true)
+
+        val bare = expandVirtualTasks(
+            withAggregate,
+            listOf(VirtualTaskDefinition("ci/nightly", "Images", "buildImage"))
+        )
+        assertEquals(listOf(":app", ":lib"), bare.tasks.map { it.gradleProjectPath })
+
+        val onRoot = expandVirtualTasks(
+            withAggregate,
+            listOf(VirtualTaskDefinition("ci/nightly", "Images", ":buildImage"))
+        )
+        assertTrue(onRoot.tasks.isEmpty())
+        assertEquals(listOf(":app:buildImage", ":lib:buildImage"), referenceCandidates(withAggregate, ":buildImage"))
+    }
+
+    @Test
     fun `a bare name creates a node in every module that has the task`() {
         val expansion = expandVirtualTasks(
             tasks,

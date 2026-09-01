@@ -54,7 +54,9 @@ das, was `Copy Task Path` im Kontextmenue liefert. Das ist der Pfad aus `setting
 `printLibGui` aus `lib/build.gradle.kts` ist `:lib:printLibGui`.
 
 Steht der Eintrag in einem Modulblock (`modules: ":app": groups: ...`), schraenkt der
-zusaetzlich auf dieses Modul ein. Zeigt der Verweis auf keinen vorhandenen Task, entsteht
+zusaetzlich auf dieses Modul ein. Geerbte Sammelzeilen (REQ-088) sind dabei **kein** Ziel: Sie
+sind kein weiterer Ort, an dem ein Task definiert waere, und ein blanker Verweis erzeugte sonst
+zusaetzlich zu der Zeile je Modul noch eine je Elternebene. Zeigt der Verweis auf keinen vorhandenen Task, entsteht
 **kein** Knoten und es wird eine Warnung protokolliert - wie bei einer fehlenden Icon-Datei.
 Ein Knoten, der beim Doppelklick ins Leere liefe, waere schlimmer als ein fehlender.
 

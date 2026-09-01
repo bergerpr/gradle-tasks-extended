@@ -86,7 +86,13 @@ private val STARTER_DEFAULT_YAML = """
     # --- View settings ------------------------------------------------------------------
     #
     #   settings:
-    #     showModules: true     # default for the module grouping toggle
+    #     showModules: true          # default for the module grouping toggle
+    #     showInheritedTasks: true   # default for the "Show Inherited Tasks" toggle
+    #
+    # A module node also carries the tasks of its subprojects, unless it has a task of that
+    # name itself - the same rows the IDE's own Gradle view shows. They run in every
+    # subproject that has the task, are shown in italics, and can be switched off here or
+    # from the toolbar. Default is on, as in the original view.
     #
     # --- Hiding nodes -------------------------------------------------------------------
     #
@@ -136,6 +142,7 @@ object TaskViewConfigYaml {
     private const val KEY_MODES = "modes"
 
     private const val KEY_SHOW_MODULES = "showModules"
+    private const val KEY_SHOW_INHERITED_TASKS = "showInheritedTasks"
 
     private val dumperOptions = DumperOptions().apply {
         defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
@@ -196,8 +203,10 @@ object TaskViewConfigYaml {
         ).takeUnless { it.isEmpty }
     }
 
-    private fun parseSettings(map: Map<*, *>?): TaskViewSettings =
-        TaskViewSettings(showModules = map?.get(KEY_SHOW_MODULES) as? Boolean)
+    private fun parseSettings(map: Map<*, *>?): TaskViewSettings = TaskViewSettings(
+        showModules = map?.get(KEY_SHOW_MODULES) as? Boolean,
+        showInheritedTasks = map?.get(KEY_SHOW_INHERITED_TASKS) as? Boolean
+    )
 
     /** Unbekannte Modusnamen werden ignoriert statt die ganze Datei zu verwerfen. */
     private fun parseMode(name: String): GradleTaskViewMode? =
@@ -272,6 +281,7 @@ object TaskViewConfigYaml {
 
     private fun serialiseSettings(settings: TaskViewSettings): Map<String, Any> = buildMap {
         settings.showModules?.let { put(KEY_SHOW_MODULES, it) }
+        settings.showInheritedTasks?.let { put(KEY_SHOW_INHERITED_TASKS, it) }
     }
 
     /**

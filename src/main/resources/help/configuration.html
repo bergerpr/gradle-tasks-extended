@@ -20,7 +20,7 @@
 
 <h2>Where the configuration lives</h2>
 <p>Everything this view remembers &mdash; expand state, custom icons, node tooltips, hidden
-nodes and the module toggle &mdash; is stored in two YAML files inside the opened project.
+nodes and the two view toggles &mdash; is stored in two YAML files inside the opened project.
 Click a path to open it.</p>
 <table cellspacing="0" cellpadding="0">
   <tr>
@@ -130,6 +130,16 @@ runs <code>printLibGui</code>, in a group that exists nowhere else.</p>
         through its own <code>hidden</code> &mdash; or with the group or module it sits in.</td>
   </tr>
 </table>
+
+<h2>Inherited tasks</h2>
+<p>A module node also carries the tasks of its subprojects &mdash; every name it does not define
+itself &mdash; exactly as the IDE's own Gradle view does. In a build that applies its plugins
+centrally for all subprojects, those are the only tasks on root level. Such a row is shown
+<i>in italics</i>, and running it runs the task in every subproject that has it.</p>
+<p>The toolbar's <i>Show Inherited Tasks</i> switches them off; the default is on, and it can be
+set for the team with <code>settings: showInheritedTasks:</code>. A reference from
+<code>execute</code> never resolves to such a row &mdash; only to the module that really defines
+the task.</p>
 
 <h2>Which entry wins</h2>
 <p>Resolved per node <i>and per field</i>, in this order:</p>

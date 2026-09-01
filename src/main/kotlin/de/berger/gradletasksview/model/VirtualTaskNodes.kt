@@ -95,6 +95,10 @@ fun expandVirtualTasks(
  * jedes Modul, das einen so heissenden Task hat - dieselbe Regel wie beim `tasks:`-Namensraum
  * der Konfiguration, der ebenfalls in allen Modulen gilt. Steht der Eintrag in einem
  * Modulblock, schraenkt der zusaetzlich ein.
+ *
+ * Geerbte Sammelzeilen (REQ-088) bleiben dabei aussen vor: Sie sind kein eigener Ort, an dem
+ * ein Task definiert waere, sondern dieselben Tasks ein zweites Mal am Elternmodul. Ein
+ * blanker Verweis erzeugte sonst zusaetzlich zu der Zeile je Modul noch eine je Elternebene.
  */
 private fun referencedTasks(
     tasks: List<GradleTaskDescriptor>,
@@ -104,7 +108,8 @@ private fun referencedTasks(
     val (referencedModule, referencedName) = reference
 
     return tasks.filter { task ->
-        task.taskName == referencedName &&
+        !task.inherited &&
+            task.taskName == referencedName &&
             (referencedModule == null || task.gradleProjectPath == referencedModule) &&
             (definition.scopeModulePath == null || task.gradleProjectPath == definition.scopeModulePath)
     }
@@ -135,7 +140,7 @@ private fun virtualNodeOf(
  */
 fun referenceCandidates(tasks: List<GradleTaskDescriptor>, execute: String): List<String> {
     val name = parseTaskReference(execute)?.second ?: return emptyList()
-    return tasks.filter { it.taskName == name }.map { it.taskPath }.distinct().sorted()
+    return tasks.filter { !it.inherited && it.taskName == name }.map { it.taskPath }.distinct().sorted()
 }
 
 /**

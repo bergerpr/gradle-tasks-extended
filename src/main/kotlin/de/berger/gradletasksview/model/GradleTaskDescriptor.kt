@@ -23,6 +23,11 @@ package de.berger.gradletasksview.model
  *   entstanden ist, oder `null` fuer einen echten Task. Er macht den Knoten adressierbar:
  *   Icon, Tooltip und `hidden` haengen an Gruppenpfad + [displayName], nicht am Tasknamen -
  *   deshalb nimmt ein `hidden` auf den referenzierten Task diesen Knoten nicht mit (ADR-023).
+ * @property inherited `true` fuer eine **geerbte Sammelzeile**: Der Task ist nicht in
+ *   [gradleProjectPath] selbst definiert, sondern in dessen Unterprojekten, und die Plattform
+ *   fuehrt ihn zusaetzlich an diesem Modul (REQ-088, ADR-025). Ausgefuehrt wird er dort mit
+ *   blankem Namen im Verzeichnis dieses Moduls - also in jedem Unterprojekt, das ihn hat.
+ *   Genau die Semantik, die die originale Gradle-Ansicht diesen Zeilen gibt.
  */
 data class GradleTaskDescriptor(
     val taskName: String,
@@ -34,7 +39,8 @@ data class GradleTaskDescriptor(
     val moduleName: String,
     val stableId: String,
     val displayName: String = taskName,
-    val virtualGroupPath: String? = null
+    val virtualGroupPath: String? = null,
+    val inherited: Boolean = false
 ) {
     /** `true` fuer einen ueber `execute` konfigurierten Knoten (REQ-085). */
     val isVirtual: Boolean get() = virtualGroupPath != null

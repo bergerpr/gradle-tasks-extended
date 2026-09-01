@@ -47,7 +47,8 @@ grep -h "^titel:" backlog/*.md
 ```text
 src/main/kotlin/de/berger/gradletasksview/
   toolwindow/   ToolWindowFactory, Panel, Startup-Activity
-  actions/      Toolbar-Dropdown, Modulgliederungs-Schalter, Kontextmenue-Aktionen
+  actions/      Toolbar-Dropdown, Feststellbuttons (Module, geerbte Tasks, Ausgeblendete),
+                Kontextmenue-Aktionen
   model/        Reine Modelllogik (Sortierung, Nested-Baum, Modulbaum, Filter, stableId)
   persistence/  Projektbezogene Persistenz (Modus, Expand-States, Icons, Ansichtseinstellungen)
   ui/           JTree, Renderer, SpeedSearch, Refresher
