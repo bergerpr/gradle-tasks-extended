@@ -7,23 +7,21 @@ betrifft:
   - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTreeCellRenderer.kt
   - src/main/resources/META-INF/plugin.xml
   - src/main/kotlin/de/berger/gradletasksview/icons/GradleTasksIcons.kt
-  - src/main/resources/icons/
 quelle: Plan.md, Abschnitt "Zielverhalten / Nested"
 ---
 
 Gruppenzeilen (`Sort`) und virtuelle Ordner (`Default`/`Nested`) tragen dasselbe Ordner-Icon,
-das dem Auf-/Zuklappzustand folgt; Tasks tragen ein eigenes Task-Icon. Die Beschriftung von
-Containern ist fett, die Task-Beschreibung erscheint grau dahinter.
+aufgeklappt wie zugeklappt; Tasks tragen ein eigenes Task-Icon. Die Beschriftung von Containern
+ist fett, die Task-Beschreibung erscheint grau dahinter.
 
-Modulknoten (REQ-074) und der `Tasks`-Strukturknoten des `Default`-Modus (REQ-077) haben je
-ein eigenes Symbol - beide sind keine erfundene Gliederung und sollen auf einen Blick von
-einem Ordner unterscheidbar sein.
+Modulknoten (REQ-074) haben ein eigenes Symbol, denn ein Modul ist keine erfundene Gliederung.
+Der `Tasks`-Strukturknoten des `Default`-Modus (REQ-077) traegt wie in der originalen
+Gradle-Ansicht das Gruppen-Icon.
 
-Alle Icons des Satzes sind einfarbig grau (`#6C707E` hell, `#CED0D6` dunkel), das Task-Icon
-eingeschlossen (REQ-083).
-
-Abweichend von der urspruenglichen Vorgabe (`AllIcons.Nodes.Folder`) kommen plugin-eigene
-SVG-Ressourcen zum Einsatz - Begruendung siehe ADR-004, technische Ursache siehe ADR-005.
+Alle diese Icons sind die der originalen Gradle-Ansicht und kommen von der Plattform
+(`ExternalSystemIcons.Task`, `AllIcons.Nodes.ConfigFolder`, `AllIcons.Nodes.Module`); das
+Plugin liefert dafuer keine eigenen Dateien und damit auch keine fremde Lizenz mit (ADR-026).
+Ein ueber die YAML-Konfiguration vergebenes Icon hat Vorrang (REQ-071).
 
 ## Streifen-Icon des ToolWindows
 

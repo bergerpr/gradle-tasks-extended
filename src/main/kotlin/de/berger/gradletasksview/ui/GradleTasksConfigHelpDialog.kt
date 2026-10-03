@@ -261,26 +261,12 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
     override fun createActions(): Array<Action> = arrayOf(okAction)
 
     private fun openLink(target: String) {
-        if (target == LICENSE_LINK) {
-            showLicense()
-            return
-        }
         val file = File(target)
         if (!file.isAbsolute) return
         // Der Dialog ist modal: Wuerde er offen bleiben, laege die geoeffnete Datei
         // unerreichbar dahinter.
         close(OK_EXIT_CODE)
         openInEditor(project, file)
-    }
-
-    /**
-     * Zeigt den mitgelieferten Lizenztext der Icons. Pflicht ist das nicht - die MIT-Lizenz
-     * verlangt nur, dass der Text mitgeliefert wird, und das tut die Datei im Plugin-Jar
-     * ohnehin. Sichtbar ist er trotzdem besser als vergraben (REQ-081).
-     */
-    private fun showLicense() {
-        val text = page(LICENSE_RESOURCE).ifEmpty { return }
-        PlainTextDialog(project, GradleTasksViewBundle.message("configHelp.license.title"), text).show()
     }
 
     /** Rohtext einer mitgelieferten Ressource; fehlt sie, bleibt der Bereich leer statt zu scheitern. */
@@ -341,10 +327,6 @@ class GradleTasksConfigHelpDialog(private val project: Project) : DialogWrapper(
         /** Trennmarken der drei Fragmente in `description.html`. */
         private const val SCREENSHOT_MARKER = "<!-- screenshots -->"
         private const val FOOTNOTE_MARKER = "<!-- footnote -->"
-        private const val LICENSE_RESOURCE = "/icons/LICENSE-icons.txt"
-
-        /** Kein Dateipfad, sondern ein eigener Verweis - siehe `openLink`. */
-        private const val LICENSE_LINK = "license:icons"
         private const val LOGO_RESOURCE = "/images/elefant.png"
 
         /** Klein genug, dass Logo und Zusammenfassung zusammen kaum hoeher sind als drei Zeilen. */

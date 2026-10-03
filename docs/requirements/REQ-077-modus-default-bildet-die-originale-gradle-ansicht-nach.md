@@ -68,8 +68,7 @@ nicht von einer gleichnamigen echten Gradle-Gruppe unterscheiden, und solange de
 einzige Kind seines Moduls ist, waere ihn zuzuklappen dasselbe wie das Modul zuzuklappen. Aus
 demselben Grund ist er auch nicht ueber die Speed-Search auffindbar.
 
-Sein Icon (`taskList.svg`) ist ein eigenes, nicht das Ordner-Icon aus REQ-005:
-Er ist weder Modul noch Gruppe.
+Sein Icon ist wie im Original das Gruppen-Icon (`AllIcons.Nodes.ConfigFolder`, ADR-026).
 
 ## Sortiert wird alphabetisch
 

@@ -16,10 +16,10 @@ Der Info-Dialog (REQ-080) hat unter dem Kopf zwei Reiter:
 
 - **Description** - ein durchgehender, scrollender Block: erster Absatz, dann die
   **Bildstrecke**, dann die Merkmalsliste (Ansichtsmodi, schaltbare Modulebene, Ausblenden,
-  eigene Icons, Ausfuehrungsarten) und zum Schluss der Hinweis auf die Konfiguration und die
-  Herkunft der Icons. Getrennt wird nur durch Abstaende - Text und Bilder standen zuerst in
-  zwei Bereichen mit eigenem Bildlauf, was die Beschreibung an einer Stelle zerschnitt, an der
-  inhaltlich nichts endet.
+  eigene Icons, Ausfuehrungsarten) und zum Schluss der Hinweis auf die Konfiguration.
+  Getrennt wird nur durch Abstaende - Text und Bilder standen zuerst in zwei Bereichen mit
+  eigenem Bildlauf, was die Beschreibung an einer Stelle zerschnitt, an der inhaltlich nichts
+  endet.
 - **Configuration** - alles, was der Dialog vorher als Ganzes zeigte: Pfade, Unterschied
   zwischen Team-Vorgabe und persoenlicher Datei, Aufbau der YAML und Vorrangreihenfolge.
 

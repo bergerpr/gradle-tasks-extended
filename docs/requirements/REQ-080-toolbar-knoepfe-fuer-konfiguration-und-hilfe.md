@@ -106,4 +106,4 @@ Dateimanager auf.
 Der Hilfetext liegt als HTML-Ressource in `src/main/resources/help/configuration.html`, nicht
 im Quellcode, und wird nur um die drei Pfade und die Theme-Farben ergaenzt. Beide Knoepfe
 benutzen `AllIcons` (`General.Settings`, `General.Information`) - fuer Toolbar-Symbole wiegt
-die IDE-weite Wiedererkennbarkeit hoeher als eigene Gestaltung (ADR-004).
+die IDE-weite Wiedererkennbarkeit hoeher als eigene Gestaltung (ADR-004, ADR-026).

@@ -20,7 +20,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Streifen-Icon: der Elefant aus dem Info-Dialog, auf den Kopf zugeschnitten -
-             die ganze Figur zerfaellt bei 13 px zu einem Fleck (REQ-005, ADR-004). -->
+             die ganze Figur zerfaellt bei 13 px zu einem Fleck (REQ-005, ADR-026). -->
         <toolWindow id="GradleTasksExtended"
                     factoryClass="de.berger.gradletasksview.toolwindow.GradleTasksExtendedToolWindowFactory"
                     anchor="right"

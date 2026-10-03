@@ -14,12 +14,7 @@ import javax.swing.tree.DefaultMutableTreeNode
  * `Tasks`-Strukturknoten (`Default`), Gruppenzeilen (`Sort`), virtuelle Ordner
  * (`Default`/`Nested`) und Task-Blaetter.
  *
- * Die Icons stammen aus den plugin-eigenen Ressourcen ([GradleTasksIcons]) und nicht mehr
- * aus `AllIcons`/`ExternalSystemIcons`. Damit haengt die Darstellung weder davon ab, unter
- * welchem Plattformmodul ein Icon gerade ausgeliefert wird, noch davon, ob eine
- * `AllIcons`-Konstante in der jeweiligen IDE-Version noch auf eine existierende Ressource
- * zeigt - beides hatte sich beim Nachstellen der originalen Gradle-Ansicht als
- * unzuverlaessig erwiesen (siehe ADR-004 und ADR-005).
+ * Die eingebauten Icons sind die der originalen Gradle-Ansicht ([GradleTasksIcons], ADR-026).
  *
  * Vorrang hat jedoch ein in `default.yaml`/`custom.yaml` konfiguriertes eigenes Icon
  * ([GradleTasksViewConfigStore.iconFor]); die eingebauten Icons sind nur der Rueckfall.
@@ -79,14 +74,14 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
             // Sort, zusammengefasster Pfad in Default/Nested).
             is GroupHeaderNodeData -> {
                 val key = TaskViewConfigKey.group(userObject.groupPath, modulePath)
-                icon = configStore.iconFor(key) ?: folderIcon(expanded)
+                icon = configStore.iconFor(key) ?: GradleTasksIcons.Folder
                 toolTipText = configStore.descriptionFor(key)
                 append(userObject.groupPath.ifEmpty { "(default)" }, bold)
             }
 
             is FolderNodeData -> {
                 val key = TaskViewConfigKey.group(userObject.folder.fullPath, modulePath)
-                icon = configStore.iconFor(key) ?: folderIcon(expanded)
+                icon = configStore.iconFor(key) ?: GradleTasksIcons.Folder
                 toolTipText = configStore.descriptionFor(key)
                 // compactedName statt displayName: Ordner ohne eigene Tasks sind mit ihrem
                 // einzigen Kind zu einer Zeile zusammengefasst und heissen dann "server/gui"
@@ -134,7 +129,4 @@ class GradleTasksTreeCellRenderer(private val configStore: GradleTasksViewConfig
      */
     private val inheritedAttributes = SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES
 
-    /** Ordner-Icon folgt dem Auf-/Zuklappzustand, wie in der Projektansicht der IDE. */
-    private fun folderIcon(expanded: Boolean) =
-        if (expanded) GradleTasksIcons.FolderOpen else GradleTasksIcons.Folder
 }
