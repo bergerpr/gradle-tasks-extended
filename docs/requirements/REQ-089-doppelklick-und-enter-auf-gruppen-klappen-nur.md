@@ -23,5 +23,5 @@ die Selektion nicht.
 Enter: Dieselbe Aktion, die auf einem Task ausfuehrt, klappt jeden anderen Knoten mit Kindern
 auf oder zu. Sie geht ueber `expandPath`/`collapsePath` und damit ueber dieselben
 Expansion-Events wie ein Mausklick, sodass der neue Zustand genauso in `custom.yaml` landet.
-Die Regeln von REQ-087 gelten unveraendert: nur bei genau einer selektierten Zeile, und nicht,
-solange das Speed-Search-Popup offen ist.
+Die Regeln von REQ-087 gelten unveraendert: nur bei genau einer selektierten Zeile. Solange
+das Speed-Search-Popup offen ist, klappt Enter nichts, sondern beendet nur die Suche (REQ-090).

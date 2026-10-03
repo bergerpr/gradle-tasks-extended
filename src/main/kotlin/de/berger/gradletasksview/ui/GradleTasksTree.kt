@@ -21,7 +21,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
 import com.intellij.ui.PopupHandler
-import com.intellij.ui.speedSearch.SpeedSearchSupply
+import com.intellij.ui.TreeSpeedSearch
 import com.intellij.ui.treeStructure.Tree
 import de.berger.gradletasksview.execution.GradleTaskExecutor
 import de.berger.gradletasksview.execution.SELECTED_GRADLE_TASKS
@@ -68,6 +68,8 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
     var onFirstShown: () -> Unit = {}
     private var firstShownFired = false
 
+    private val speedSearch: TreeSpeedSearch
+
     init {
         isRootVisible = false
         showsRootHandles = true
@@ -99,7 +101,7 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
         // als "Icons werden nicht gezeichnet" dokumentierten Problems - siehe
         // ADR-005.
         updateUI()
-        val speedSearch = GradleTasksSpeedSearch.installOn(this)
+        speedSearch = GradleTasksSpeedSearch.installOn(this)
         var lastKnownFilterText = ""
         speedSearch.addChangeListener {
             // java.beans.PropertyChangeSupport#firePropertyChange feuert IMMER, wenn
@@ -158,8 +160,9 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
      * Bewusst eine [AnAction] mit [CommonShortcuts.ENTER] auf dieser Komponente statt eines
      * eigenen `KeyListener` oder eines InputMap-Eintrags: Nur so laeuft der Tastendruck durch
      * den `IdeKeyEventDispatcher` der Plattform und ordnet sich damit den vorrangigen
-     * Verbrauchern unter - allen voran der Speed Search, deren Popup Enter zunaechst
-     * schliessen soll (siehe [runOnEnterEnabled]).
+     * Verbrauchern unter. Weil der Dispatcher eine aktive Aktion vor den Key-Listenern der
+     * Komponente ausfuehrt, kommt sie auch der Speed Search zuvor - ob Enter dort ausfuehrt
+     * oder nur die Suche beendet, entscheidet deshalb [runOnEnterEnabled].
      *
      * Numpad-Enter ist mit abgedeckt und braucht keinen zweiten Shortcut: AWT meldet dafuer
      * denselben `keyCode` `VK_ENTER` und unterscheidet die Taste nur ueber `getKeyLocation()`,
@@ -174,6 +177,9 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
             override fun actionPerformed(e: AnActionEvent) {
                 singleSelectedTaskDescriptor()?.let {
                     executor.execute(it)
+                    // Erst nach dem Start schliessen: Das Ende der Suche setzt den Filter
+                    // zurueck und baut den Baum neu auf.
+                    speedSearch.hidePopup()
                     return
                 }
                 val path = singleSelectedPath() ?: return
@@ -192,11 +198,13 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
      * Kontextmenue, das mehrere Tasks desselben Gradle-Projekts in einem Aufruf startet.
      * Ein Task wird ausgefuehrt, jeder andere Knoten mit Kindern auf- oder zugeklappt.
      *
-     * Waehrend die Speed Search offen ist, bleibt die Aktion abgeschaltet, damit Enter dort
-     * erwartungsgemaess erst die Suche beendet; der naechste Enter wirkt dann.
+     * Waehrend die Speed Search offen ist, wirkt Enter nur auf einen Task: Er startet sofort
+     * und die Suche schliesst sich dabei (REQ-090) - der gefundene Task soll nicht erst einen
+     * zweiten Tastendruck brauchen. Steht die Suche auf einem anderen Knoten, bleibt die
+     * Aktion abgeschaltet und Enter beendet wie gewohnt nur die Suche.
      */
     private fun runOnEnterEnabled(): Boolean {
-        if (SpeedSearchSupply.getSupply(this)?.isPopupActive == true) return false
+        if (speedSearch.isPopupActive) return singleSelectedTaskDescriptor() != null
         val path = singleSelectedPath() ?: return false
         return singleSelectedTaskDescriptor() != null || !model.isLeaf(path.lastPathComponent)
     }

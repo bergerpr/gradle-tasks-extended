@@ -24,10 +24,10 @@ beim Abgleich eines `KeyStroke` keine Rolle spielt.
 
 Umgesetzt ist das als `AnAction` mit `CommonShortcuts.ENTER`, die auf dem Baum registriert ist -
 nicht als eigener `KeyListener` und nicht als InputMap-Eintrag. Nur so laeuft der Tastendruck
-durch den `IdeKeyEventDispatcher` der Plattform und ordnet sich den vorrangigen Verbrauchern
-unter. Der wichtigste davon ist die Speed Search (REQ-013): Solange deren Popup offen ist,
-meldet sich die Aktion ueber `update` als abgeschaltet, sodass Enter zuerst die Suche beendet;
-der naechste Enter fuehrt aus.
+durch den `IdeKeyEventDispatcher` der Plattform, und ob er greift, entscheidet die Aktion in
+`update`. Der Dispatcher fuehrt eine aktive Aktion **vor** den Key-Listenern der Komponente
+aus, also auch vor der Speed Search (REQ-013) - wie Enter bei offener Suche wirkt, regelt
+REQ-090: Auf einem Task startet er sofort.
 
 Die Aktion ist bewusst nicht in der `plugin.xml` deklariert. Sie hat weder einen Platz im
 Kontextmenue noch in der Toolbar und waere dort nur ein weiterer, im Keymap auftauchender
