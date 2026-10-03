@@ -36,6 +36,7 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
+import javax.swing.tree.TreePath
 
 /**
  * Eigener `JTree` fuer die Gradle-Task-Ansicht. Baut auf `com.intellij.ui.treeStructure.Tree`
@@ -131,6 +132,13 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
             override fun mouseClicked(e: MouseEvent) {
                 if (e.clickCount != 2) return
                 val path = getPathForLocation(e.x, e.y) ?: return
+                // Nur die Zeile, auf die der Doppelklick tatsaechlich ging, und das ist die
+                // selektierte: Ein Doppelklick auf eine Gruppe klappt sie schon beim zweiten
+                // `mousePressed` auf (Toggle der TreeUI), und `scrollsOnExpand` schiebt den
+                // Baum dabei so weit, dass ihre Kinder sichtbar werden. Bis `mouseClicked`
+                // eintrifft, liegt unter dem Mauszeiger deshalb oft schon ein Task - der
+                // ohne diese Pruefung ausgefuehrt wuerde (REQ-089).
+                if (path != selectionPath) return
                 val data = (path.lastPathComponent as? DefaultMutableTreeNode)?.userObject
                 if (data is TaskNodeData) {
                     executor.execute(data.descriptor)
@@ -144,7 +152,8 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
 
     /**
      * Enter fuehrt den selektierten Task aus - dieselbe Ausfuehrung wie der Doppelklick
-     * (REQ-087).
+     * (REQ-087). Auf einem Modul-, Gruppen-, Ordner- oder `Tasks`-Knoten klappt Enter ihn
+     * stattdessen auf bzw. zu, wie es der Doppelklick dort tut (REQ-089).
      *
      * Bewusst eine [AnAction] mit [CommonShortcuts.ENTER] auf dieser Komponente statt eines
      * eigenen `KeyListener` oder eines InputMap-Eintrags: Nur so laeuft der Tastendruck durch
@@ -163,7 +172,14 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
             }
 
             override fun actionPerformed(e: AnActionEvent) {
-                singleSelectedTaskDescriptor()?.let(executor::execute)
+                singleSelectedTaskDescriptor()?.let {
+                    executor.execute(it)
+                    return
+                }
+                val path = singleSelectedPath() ?: return
+                // Laeuft ueber dieselben Expansion-Events wie ein Mausklick und wird damit
+                // genauso in custom.yaml festgehalten.
+                if (isExpanded(path)) collapsePath(path) else expandPath(path)
             }
 
             override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
@@ -171,25 +187,29 @@ class GradleTasksTree(private val project: Project) : Tree(DefaultTreeModel(Defa
     }
 
     /**
-     * Enter startet nur bei **genau einer** selektierten Zeile, und nur wenn diese ein Task
-     * ist: Bei einer Mehrfachauswahl bleibt der Tastendruck folgenlos (ausdrueckliche
-     * Anforderung, REQ-087) - anders als das Kontextmenue, das mehrere Tasks desselben
-     * Gradle-Projekts in einem Aufruf startet.
+     * Enter wirkt nur bei **genau einer** selektierten Zeile: Bei einer Mehrfachauswahl bleibt
+     * der Tastendruck folgenlos (ausdrueckliche Anforderung, REQ-087) - anders als das
+     * Kontextmenue, das mehrere Tasks desselben Gradle-Projekts in einem Aufruf startet.
+     * Ein Task wird ausgefuehrt, jeder andere Knoten mit Kindern auf- oder zugeklappt.
      *
      * Waehrend die Speed Search offen ist, bleibt die Aktion abgeschaltet, damit Enter dort
-     * erwartungsgemaess erst die Suche beendet; der naechste Enter fuehrt dann aus.
+     * erwartungsgemaess erst die Suche beendet; der naechste Enter wirkt dann.
      */
-    private fun runOnEnterEnabled(): Boolean =
-        SpeedSearchSupply.getSupply(this)?.isPopupActive != true && singleSelectedTaskDescriptor() != null
+    private fun runOnEnterEnabled(): Boolean {
+        if (SpeedSearchSupply.getSupply(this)?.isPopupActive == true) return false
+        val path = singleSelectedPath() ?: return false
+        return singleSelectedTaskDescriptor() != null || !model.isLeaf(path.lastPathComponent)
+    }
+
+    private fun singleSelectedPath(): TreePath? = selectionPaths?.singleOrNull()
 
     /**
      * Der Task der Selektion, wenn genau eine Zeile ausgewaehlt ist und diese ein Task-Knoten
      * ist - sonst `null`.
      */
     private fun singleSelectedTaskDescriptor(): GradleTaskDescriptor? {
-        val paths = selectionPaths ?: return null
-        if (paths.size != 1) return null
-        return ((paths[0].lastPathComponent as? DefaultMutableTreeNode)?.userObject as? TaskNodeData)?.descriptor
+        val path = singleSelectedPath() ?: return null
+        return ((path.lastPathComponent as? DefaultMutableTreeNode)?.userObject as? TaskNodeData)?.descriptor
     }
 
     private fun registerContextMenu() {

@@ -15,8 +15,8 @@ Run-Konfiguration und mit dem normalen Run-Executor.
 
 Bei einer Mehrfachauswahl passiert nichts. Das ist ausdruecklich so gewollt und weicht vom
 Kontextmenue ab, das mehrere Tasks desselben Gradle-Projekts in einem Aufruf startet: Ein
-Tastendruck soll nicht unbemerkt mehrere Laeufe ausloesen. Ebenso folgenlos bleibt Enter auf
-einem Modul-, Gruppen-, Ordner- oder `Tasks`-Knoten.
+Tastendruck soll nicht unbemerkt mehrere Laeufe ausloesen. Auf einem Modul-, Gruppen-, Ordner-
+oder `Tasks`-Knoten fuehrt Enter nichts aus, sondern klappt den Knoten auf oder zu (REQ-089).
 
 Numpad-Enter ist mit abgedeckt und braucht keinen eigenen Shortcut: AWT meldet fuer beide
 Tasten denselben `keyCode` `VK_ENTER` und unterscheidet sie nur ueber `getKeyLocation()`, was

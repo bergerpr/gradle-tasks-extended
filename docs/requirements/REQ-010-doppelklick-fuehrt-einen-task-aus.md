@@ -18,6 +18,8 @@ Konfigurations-Widget der Kopfzeile - genauso wie beim Start aus dem Kontextmenu
 und wie in der originalen Gradle-Ansicht.
 
 Enter auf einer einzeln selektierten Task-Zeile loest dieselbe Ausfuehrung aus (REQ-087).
+Ein Doppelklick auf einen anderen Knoten klappt ihn nur auf oder zu, auch wenn das Aufklappen
+einen Task unter den Mauszeiger scrollt (REQ-089).
 
 Der Doppelklick bleibt beim normalen Run-Executor: Die Executor-ID ist ein Parameter von
 `GradleTaskExecutor.execute` mit `DefaultRunExecutor.EXECUTOR_ID` als Vorgabe, und der
