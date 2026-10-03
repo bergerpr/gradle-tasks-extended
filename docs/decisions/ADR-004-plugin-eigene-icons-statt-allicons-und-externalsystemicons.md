@@ -9,12 +9,12 @@ ersetzt_vorgabe: Plan.md gab AllIcons.Nodes.Folder vor
 quelle: Erweiterung ueber Plan.md hinaus
 ---
 
-**Abgeloest durch ADR-026.** Die Baum-Icons sind wieder die der Plattform, die frueheren SVGs
-und ihr Lizenztext sind entfernt. Was bleibt: das Elefanten-PNG am Streifen des ToolWindows
+**Abgeloest durch ADR-026.** Die Baum-Icons sind wieder die der Plattform, die eigenen
+SVG-Dateien sind entfernt. Was bleibt: das Elefanten-PNG am Streifen des ToolWindows
 und `AllIcons` fuer die Toolbar-Knoepfe.
 
-Die Baum-Icons kommen als eigene SVG-Ressourcen aus `src/main/resources/icons/` (abgeleitet
-von einer Icon-Sammlung, MIT), je mit `_dark`-Variante. Das Streifen-Icon des ToolWindows ist davon
+Die Baum-Icons kommen als eigene SVG-Ressourcen aus `src/main/resources/icons/` je mit
+`_dark`-Variante. Das Streifen-Icon des ToolWindows ist davon
 ausgenommen: Dort steht seit REQ-005 der Elefant des Plugins als PNG in 13 und 26 px, weil die
 Vorlage ein Bild und keine Vektorgrafik ist; eine `_dark`-Variante gibt es nicht, das farbige
 Icon passt in beide Themes.
