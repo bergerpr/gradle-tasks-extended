@@ -2,7 +2,7 @@
 id: REQ-090
 titel: Enter in der Schnellsuche fuehrt den gefundenen Task direkt aus
 kategorie: interaktion
-verifiziert: konstruktiv
+verifiziert: manuell
 betrifft:
   - src/main/kotlin/de/berger/gradletasksview/ui/GradleTasksTree.kt
 quelle: Benutzerbericht "Bei der Schnellsuche muss man zweimal Enter druecken"
