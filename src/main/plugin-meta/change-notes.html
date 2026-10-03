@@ -11,8 +11,7 @@
   <li><b>Enter in the speed search runs the task it found</b> right away and closes the search.
       It used to close the search first, so a second Enter was needed.</li>
   <li><b>The tree uses the IDE's own icons</b> &mdash; the same ones as the built-in Gradle view.
-      The plugin no longer ships third-party icon files. Icons you set in the YAML configuration
-      still take precedence.</li>
+      Icons you set in the YAML configuration still take precedence.</li>
 </ul>
 
 <b>0.3.1</b>
@@ -43,8 +42,6 @@
   <li><b>The gear is a menu</b> with <em>Configuration</em> and <em>Reload</em>. Reload re-reads
       both YAML files and the icons directory and rebuilds the view, so edited configuration and
       newly added icon files no longer need the project to be reloaded.</li>
-  <li><b>Task icons are grey</b> instead of green, like the rest of the icon set. The tree is a
-      list to browse, not a row of start buttons.</li>
   <li><b>Fixed: task names and duplicates.</b> The platform reports submodule tasks under their
       qualified name and hangs every module's tasks on its parent as inherited aggregates. Rows
       were therefore labelled <em>:lib:printLibGui</em>, identically named tasks of different

@@ -6,8 +6,8 @@ import javax.swing.Icon
 
 /**
  * Die eingebauten Baum-Icons - durchweg Icons der Plattform, dieselben wie in der originalen
- * Gradle-Ansicht der IDE (ADR-026). Das Plugin liefert dafuer keine eigenen Dateien mit, also
- * auch keine fremde Lizenz; Hell/Dunkel und New UI waehlt die Plattform selbst.
+ * Gradle-Ansicht der IDE (ADR-026). Das Plugin liefert dafuer keine eigenen Dateien mit;
+ * Hell/Dunkel und New UI waehlt die Plattform selbst.
  *
  * Ein in `default.yaml`/`custom.yaml` konfiguriertes Icon hat Vorrang; diese hier sind nur der
  * Rueckfall.

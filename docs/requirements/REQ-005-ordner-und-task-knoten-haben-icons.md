@@ -20,7 +20,7 @@ Gradle-Ansicht das Gruppen-Icon.
 
 Alle diese Icons sind die der originalen Gradle-Ansicht und kommen von der Plattform
 (`ExternalSystemIcons.Task`, `AllIcons.Nodes.ConfigFolder`, `AllIcons.Nodes.Module`); das
-Plugin liefert dafuer keine eigenen Dateien und damit auch keine fremde Lizenz mit (ADR-026).
+Plugin liefert dafuer keine eigenen Dateien mit (ADR-026).
 Ein ueber die YAML-Konfiguration vergebenes Icon hat Vorrang (REQ-071).
 
 ## Streifen-Icon des ToolWindows
