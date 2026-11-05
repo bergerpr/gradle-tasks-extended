@@ -60,7 +60,7 @@ dependencies {
 }
 
 kotlin {
-    // Die Zielplattform 2026.2 laeuft auf Java 25 und erwartet dieselbe Bytecode-Version von
+    // Die Zielplattform 2026.3 laeuft auf Java 25 und erwartet dieselbe Bytecode-Version von
     // Plugins - `verifyPluginProjectConfiguration` meldet jede Abweichung. Setzt Java- und
     // Kotlin-Ziel gemeinsam, deshalb kein separates `compilerOptions.jvmTarget`.
     jvmToolchain(25)

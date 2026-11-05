@@ -29,10 +29,10 @@ object GradleTasksBuildInfo {
 
     val pluginId: String get() = value("pluginId")
 
-    /** Kleinste unterstuetzte IDE-Build-Nummer, z. B. `262`. */
+    /** Kleinste unterstuetzte IDE-Build-Nummer, z. B. `263`. */
     val sinceBuild: String get() = value("sinceBuild")
 
-    /** Produktcode und Version der Plattform, gegen die uebersetzt wurde, z. B. `IU 2026.2`. */
+    /** Produktcode und Version der Plattform, gegen die uebersetzt wurde, z. B. `IU 2026.3`. */
     val targetPlatform: String get() = value("targetPlatform")
 
     /** Herausgeber aus `gradle.properties`, identisch mit `<vendor>` in der `plugin.xml`. */

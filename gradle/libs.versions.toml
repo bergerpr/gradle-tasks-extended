@@ -10,17 +10,17 @@
 # `platformType` - Letzteres ist ein Produktcode ("IU" = IntelliJ IDEA Ultimate), keine Version.
 
 [versions]
-# Folgt der Kotlin-Linie der Ziel-IDE: 2026.2 buendelt 2.4.0, und das Plugin bringt wegen
+# Folgt der Kotlin-Linie der Ziel-IDE: 2026.3 buendelt 2.4.21, und das Plugin bringt wegen
 # `kotlin.stdlib.default.dependency=false` keine eigene Stdlib mit (siehe REQ-050).
 kotlin = "2.4.10"
 
 # Version des IntelliJ Platform Gradle Plugins (Build-Werkzeug), NICHT der Ziel-IDE.
 # Benoetigt Gradle >= 9.0, siehe docs/INTEGRATION_STRATEGY.md.
-intellijPlatformGradlePlugin = "2.18.1"
+intellijPlatformGradlePlugin = "2.20.0"
 
 # Version der Ziel-IDE, gegen die kompiliert und die per `runIde` gestartet wird.
 # Zusammen mit `platformType` aus gradle.properties ergibt das die IDE-Abhaengigkeit.
-intellijIdea = "2026.2"
+intellijIdea = "2026.3"
 
 snakeyaml = "2.6"
 junit = "5.11.0"

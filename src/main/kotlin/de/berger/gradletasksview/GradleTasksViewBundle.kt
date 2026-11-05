@@ -5,7 +5,7 @@ import org.jetbrains.annotations.PropertyKey
 
 private const val BUNDLE = "messages.GradleTasksViewBundle"
 
-object GradleTasksViewBundle : DynamicBundle(BUNDLE) {
+object GradleTasksViewBundle : DynamicBundle(GradleTasksViewBundle::class.java, BUNDLE) {
 
     @JvmStatic
     fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any): String =

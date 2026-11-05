@@ -62,9 +62,9 @@ Run a single test class/method the normal Gradle way, e.g.:
 ./gradlew test --tests "de.berger.gradletasksview.model.TaskTreeBuilderTest"
 ```
 
-Toolchain: Kotlin, JVM target 25 (the target platform 2026.2 runs on Java 25), target platform
+Toolchain: Kotlin, JVM target 25 (the target platform 2026.3 runs on Java 25), target platform
 `IU` (IntelliJ IDEA Ultimate). Requires Gradle >= 9.0 (wrapper pinned to 9.7.1) because of
-IntelliJ Platform Gradle Plugin 2.18.1.
+IntelliJ Platform Gradle Plugin 2.20.0.
 
 ### Dependency versions
 

@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.components.service
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import de.berger.gradletasksview.GradleTasksViewBundle
@@ -124,6 +124,9 @@ class GradleTaskShowConfigHelpAction : AnAction(
  * Oeffnet eine Datei im Editor bzw. ein Verzeichnis im Dateimanager. Die Aufloesung laeuft
  * ueber `refreshAndFindFileByNioPath`, weil die Datei gerade erst angelegt worden sein kann
  * und das virtuelle Dateisystem sie sonst noch nicht kennt.
+ *
+ * Geoeffnet wird ueber `OpenFileDescriptor.navigate`: `FileEditorManager.openFile` ist seit
+ * 2026.3 deprecated, und sein Ersatz `requestOpenFile` ist `@ApiStatus.Experimental`.
  */
 internal fun openInEditor(project: Project, file: File) {
     if (file.isDirectory) {
@@ -131,5 +134,5 @@ internal fun openInEditor(project: Project, file: File) {
         return
     }
     val virtualFile = VirtualFileManager.getInstance().refreshAndFindFileByNioPath(file.toPath()) ?: return
-    FileEditorManager.getInstance(project).openFile(virtualFile, true)
+    OpenFileDescriptor(project, virtualFile).navigate(true)
 }
