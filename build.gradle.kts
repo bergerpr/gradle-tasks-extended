@@ -256,6 +256,32 @@ sourceSets["main"].resources.srcDir(buildInfoDir)
 tasks.named("processResources") { dependsOn(generateBuildInfo) }
 
 // ---------------------------------------------------------------------------------------------
+// Lizenz und Hinweise im Plugin-Jar (ADR-027)
+//
+// Apache 2.0 verlangt bei Weitergabe eine Kopie des Lizenztexts - fuer den eigenen Code wie fuer
+// das mitgelieferte SnakeYAML, dessen Jar keinen enthaelt. LICENSE und NOTICE kommen
+// unveraendert aus dem Wurzelverzeichnis, THIRD-PARTY-NOTICES.txt bekommt die SnakeYAML-Version
+// aus dem Version Catalog, damit sie nach einem Update nicht veraltet.
+// ---------------------------------------------------------------------------------------------
+
+val legalDir = layout.buildDirectory.dir("generated/legal")
+
+val generateLegalFiles = tasks.register<Sync>("generateLegalFiles") {
+    group = "build"
+    description = "Legt LICENSE, NOTICE und THIRD-PARTY-NOTICES.txt fuer META-INF des Plugin-Jars an."
+    val snakeyamlVersion = libs.versions.snakeyaml.get()
+    inputs.property("snakeyamlVersion", snakeyamlVersion)
+    from("LICENSE", "NOTICE")
+    from("src/main/legal") {
+        filesMatching("THIRD-PARTY-NOTICES.txt") { expand("snakeyamlVersion" to snakeyamlVersion) }
+    }
+    into(legalDir.map { it.dir("META-INF") })
+}
+
+sourceSets["main"].resources.srcDir(legalDir)
+tasks.named("processResources") { dependsOn(generateLegalFiles) }
+
+// ---------------------------------------------------------------------------------------------
 // Versions-Updates fuer gradle/libs.versions.toml
 //
 //   ./gradlew dependencyUpdates

@@ -78,6 +78,11 @@ target platform, git commit, build time) into the generated resources; the plugi
 reads it because every platform API for a plugin's own descriptor is `@ApiStatus.Internal`
 (REQ-080). Its build timestamp is deliberately not a task input, so the jar stays cacheable.
 
+The project is licensed under Apache 2.0 (`LICENSE`, `NOTICE`, ADR-027). `generateLegalFiles`
+copies both into the jar's `META-INF/` together with `THIRD-PARTY-NOTICES.txt`, generated from
+`src/main/legal/` with the SnakeYAML version from the catalog. A new bundled library needs an
+entry there.
+
 `gradle.properties` keeps only what is not a dependency: `pluginGroup`, `pluginName`,
 `pluginVersion`, `pluginSinceBuild`, and `platformType` (`IU` — a product code, not a version).
 

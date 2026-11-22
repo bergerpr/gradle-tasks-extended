@@ -54,3 +54,10 @@ src/main/kotlin/de/berger/gradletasksview/
   ui/           JTree, Renderer, SpeedSearch, Refresher
   execution/    Task-Ausfuehrung ueber ExternalSystemUtil
 ```
+
+## Lizenz
+
+[Apache License 2.0](LICENSE), Hinweise in [NOTICE](NOTICE). Der Code ist weitgehend mit
+Claude Code (Anthropic) entstanden; die `Co-Authored-By`-Zeilen der Commits zeigen, wo.
+Das Plugin-Jar traegt `LICENSE`, `NOTICE` und `THIRD-PARTY-NOTICES.txt` (SnakeYAML, ebenfalls
+Apache 2.0) unter `META-INF/` - siehe ADR-027.

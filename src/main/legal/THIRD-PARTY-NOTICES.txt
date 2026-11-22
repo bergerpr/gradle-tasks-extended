@@ -1,0 +1,6 @@
+Gradle Tasks Extended bundles the following third-party library.
+
+SnakeYAML ${snakeyamlVersion}
+  Source:  https://codeberg.org/snakeyaml/snakeyaml
+  License: Apache License, Version 2.0 - the same text as META-INF/LICENSE in this jar.
+  The project ships no NOTICE file of its own.
