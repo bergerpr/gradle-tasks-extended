@@ -63,8 +63,8 @@ Run a single test class/method the normal Gradle way, e.g.:
 ```
 
 Toolchain: Kotlin, JVM target 25 (the target platform 2026.3 runs on Java 25), target platform
-`IU` (IntelliJ IDEA Ultimate). Requires Gradle >= 9.0 (wrapper pinned to 9.7.1) because of
-IntelliJ Platform Gradle Plugin 2.20.0.
+`IU` (IntelliJ IDEA Ultimate). Requires Gradle >= 9.0 (wrapper pinned to 9.9.2) because of
+IntelliJ Platform Gradle Plugin 2.20.1.
 
 ### Dependency versions
 
@@ -324,7 +324,7 @@ the next manual expand). Backing them up is not even reliable: a running sandbox
 `.idea/gradleTasksView.xml` on exit. Excluded is `gradle/gradle_tasks_extended/default.yaml` — the
 team-wide, version-controlled default the plugin never overwrites.
 
-A still-running sandbox IDE keeps `snakeyaml-2.6.jar` locked inside the sandbox `plugins/` directory,
+A still-running sandbox IDE keeps `snakeyaml-2.7.jar` locked inside the sandbox `plugins/` directory,
 which makes `prepareSandbox` — and with it `buildPlugin` and `runIde` — fail with a copy error. Kill the
 previous sandbox process before rebuilding.
 

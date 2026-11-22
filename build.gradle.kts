@@ -279,7 +279,7 @@ tasks.named("processResources") { dependsOn(generateBuildInfo) }
 // OFFENGELEGT: Genau dieser `Task.project`-Zugriff ist eine von Gradle abgekuendigte API und
 // wird "mit Gradle 10 zu einem Fehler". Die Abkuendigung stammt NICHT aus diesem Buildskript -
 // `./gradlew test composedJar --warning-mode all` meldet null Deprecations -, sondern aus dem
-// Fremd-Plugin `nl.littlerobots.version-catalog-update` (hier 1.1.1, die aktuelle Version; das
+// Fremd-Plugin `nl.littlerobots.version-catalog-update` (hier 1.1.2, die aktuelle Version; das
 // Plugin selbst ist nicht abgekuendigt). Vor einem Wechsel auf Gradle 10 muss daher geprueft
 // werden, ob eine bereinigte Version vorliegt - andernfalls entfaellt das automatische
 // Zurueckschreiben und der Katalog wird anhand des `dependencyUpdates`-Berichts von Hand

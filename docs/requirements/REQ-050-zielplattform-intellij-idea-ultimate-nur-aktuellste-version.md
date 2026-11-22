@@ -21,10 +21,10 @@ veralteten API zu bleiben.
 
 - Die "Unified IntelliJ IDEA"-Aenderung (ab 2025.3 keine getrennte Community-/Ultimate-
   Distribution mehr) aendert nichts an der Build-Konfiguration: `IntellijIdeaUltimate` bzw.
-  `intellijIdeaUltimate(version)` existieren im IntelliJ Platform Gradle Plugin 2.20.0
+  `intellijIdeaUltimate(version)` existieren im IntelliJ Platform Gradle Plugin 2.20.1
   unveraendert als Zielplattform-Typ.
-- Das IntelliJ Platform Gradle Plugin 2.20.0 benoetigt **Gradle >= 9.0** - nicht 8.13, wie
-  aeltere Dokumentation vereinzelt behauptet. Der Projekt-Wrapper ist auf 9.7.1 fixiert.
+- Das IntelliJ Platform Gradle Plugin 2.20.1 benoetigt **Gradle >= 9.0** - nicht 8.13, wie
+  aeltere Dokumentation vereinzelt behauptet. Der Projekt-Wrapper ist auf 9.9.2 fixiert.
 - Die JVM-Toolchain folgt der Zielplattform: 2026.3 laeuft auf **Java 25**, das Projekt setzt
   daher `jvmToolchain(25)`. Weicht sie ab, meldet `./gradlew verifyPluginProjectConfiguration`
   das als "Java sourceCompatibility too low for target platform". Weil es keine

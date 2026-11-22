@@ -12,22 +12,22 @@
 [versions]
 # Folgt der Kotlin-Linie der Ziel-IDE: 2026.3 buendelt 2.4.21, und das Plugin bringt wegen
 # `kotlin.stdlib.default.dependency=false` keine eigene Stdlib mit (siehe REQ-050).
-kotlin = "2.4.10"
+kotlin = "2.4.21"
 
 # Version des IntelliJ Platform Gradle Plugins (Build-Werkzeug), NICHT der Ziel-IDE.
 # Benoetigt Gradle >= 9.0, siehe docs/INTEGRATION_STRATEGY.md.
-intellijPlatformGradlePlugin = "2.20.0"
+intellijPlatformGradlePlugin = "2.20.1"
 
 # Version der Ziel-IDE, gegen die kompiliert und die per `runIde` gestartet wird.
 # Zusammen mit `platformType` aus gradle.properties ergibt das die IDE-Abhaengigkeit.
 intellijIdea = "2026.3"
 
-snakeyaml = "2.6"
-junit = "5.11.0"
+snakeyaml = "2.7"
+junit = "6.1.3"
 
 # Werkzeuge fuer Versions-Updates des Katalogs selbst, siehe [plugins] unten.
-benManesVersions = "0.61.0"
-versionCatalogUpdate = "1.1.1"
+benManesVersions = "0.67.0"
+versionCatalogUpdate = "1.1.2"
 
 [libraries]
 # Fuer das YAML-basierte Expand/Collapse-Konfigurationssystem, siehe persistence/GroupExpandYaml.kt.

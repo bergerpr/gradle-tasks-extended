@@ -13,7 +13,7 @@ Erzeugt eine ZIP-Datei unter `build/distributions/gradle-tasks-extended-<version
 Sie enthaelt alles, was das Plugin braucht: das eigene Jar und SnakeYAML.
 
 Eine **laufende Sandbox-IDE muss vorher beendet werden** - sie haelt
-`snakeyaml-2.6.jar` im Sandbox-Verzeichnis gesperrt, woran `prepareSandbox` und damit
+`snakeyaml-2.7.jar` im Sandbox-Verzeichnis gesperrt, woran `prepareSandbox` und damit
 `buildPlugin` scheitert.
 
 ## 1a. Vor einem Release
