@@ -158,6 +158,7 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         customState.settings.showModules ?: defaultState.settings.showModules ?: false
 
     fun setShowModules(showModules: Boolean) {
+        reloadIfChanged()
         // Nur festhalten, was von der Vorgabe abweicht - siehe [setExpanded]. Kopiert wird
         // der bestehende Einstellungsblock, damit das Umschalten nicht die daneben stehende
         // Einstellung mitloescht.
@@ -178,6 +179,7 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
         customState.settings.showInheritedTasks ?: defaultState.settings.showInheritedTasks ?: true
 
     fun setShowInheritedTasks(showInheritedTasks: Boolean) {
+        reloadIfChanged()
         val fallback = defaultState.settings.showInheritedTasks ?: true
         customState = customState.copy(
             settings = customState.settings.copy(
@@ -236,6 +238,7 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
      * genau dann ein, wenn eine allgemeinere Regel dagegensteht.
      */
     fun setHidden(key: TaskViewConfigKey, hidden: Boolean) {
+        reloadIfChanged()
         val withoutOwnEntry = isHidden(key, skipOwnCustomEntry = true)
         customState = if (hidden == withoutOwnEntry) {
             customState.withNode(key) { it.copy(hidden = null) }.withoutEmptyEntries()
@@ -364,6 +367,7 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
      * Auf-/Zuklappen eine in `custom.yaml` gepflegte Icon-Zuordnung loeschen.
      */
     fun setExpanded(key: TaskViewConfigKey, expanded: Boolean) {
+        reloadIfChanged()
         val withoutOwnEntry = resolve(key, skipCustomEntry = true) { it.expanded } ?: true
         customState = if (expanded == withoutOwnEntry) {
             customState.withNode(key) { it.copy(expanded = null) }.withoutEmptyEntries()
@@ -429,6 +433,12 @@ class GradleTasksViewConfigStore(private val project: Project, private val cs: C
      * Liest beide Dateien neu ein, falls sich ihr Zeitstempel geaendert hat. Dadurch wirkt eine
      * von Hand editierte `default.yaml` beim naechsten Refresh der Ansicht, ohne dass die IDE
      * neu gestartet werden muss.
+     *
+     * Jede Aenderung an `custom.yaml` (`setExpanded`, `setHidden`, `setShowModules`,
+     * `setShowInheritedTasks`) ruft das zuerst auf: Sie schreibt den Zustand im Speicher
+     * vollstaendig zurueck, und war die Datei seit dem letzten Refresh von Hand geaendert
+     * worden, haette schon ein einziges Auf- oder Zuklappen diese Aenderung ueberschrieben
+     * (REQ-076).
      */
     fun reloadIfChanged() {
         if (pendingWrites.get() > 0) return

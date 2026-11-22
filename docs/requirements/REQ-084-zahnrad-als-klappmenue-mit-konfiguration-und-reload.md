@@ -46,3 +46,11 @@ wegwerfen.
 Laeuft in diesem Moment ein Schreibvorgang auf `custom.yaml`, wird nur der Icon-Cache geleert
 und **nicht** neu eingelesen - der Zustand im Speicher ist dann neuer als der auf der Platte,
 und ein Neueinlesen wuerde die gerade getaetigte Aenderung verwerfen.
+
+## Hand-Aenderungen gehen beim naechsten Klick nicht verloren
+
+Jede Aenderung an `custom.yaml` aus der Oberflaeche - Auf-/Zuklappen, Ausblenden, die
+Schalter fuer Modulebene und geerbte Tasks - ruft vorher `reloadIfChanged`. Geschrieben wird
+naemlich immer der **ganze** Zustand im Speicher. Ohne diesen Abgleich ueberschrieb ein
+einziges Auf- oder Zuklappen eine von Hand geaenderte `custom.yaml`, solange seit der
+Aenderung kein Refresh gelaufen war - nach einem "Reset to Default" etwa mit `{}`.

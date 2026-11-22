@@ -1,6 +1,13 @@
 <!-- Reiter "What's New" in Einstellungen > Plugins (REQ-086). Neueste Version zuerst;
      patchPluginXml traegt den Inhalt beim Bauen in die plugin.xml ein. -->
 
+<b>0.3.4</b>
+<ul>
+  <li><b>Fixed: hand edits to <em>custom.yaml</em> could be lost.</b> Expanding or collapsing a
+      node wrote the plugin's in-memory state back to the file, so an edit made since the last
+      refresh was overwritten. The file is now re-read before every change.</li>
+</ul>
+
 <b>0.3.3</b>
 <ul>
   <li><b>Runs on IntelliJ IDEA 2026.3.</b> The plugin is now built against 2026.3 and requires
