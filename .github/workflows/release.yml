@@ -3,7 +3,7 @@
 # Ausgeloest durch ein Tag "v<pluginVersion>", z. B. v0.3.4. Baut, testet und verifiziert das
 # Plugin und haengt ZIP und updatePlugins.xml an ein GitHub-Release. Die IDE findet neue Fassungen
 # ueber die stabile Adresse
-#   https://github.com/<owner>/<repo>/releases/latest/download/updatePlugins.xml
+#   https://github.com/bergerpr/gradle-tasks-extended/releases/latest/download/updatePlugins.xml
 # Geheimnisse braucht es keine ausser dem automatischen GITHUB_TOKEN.
 #
 # Bewusst ohne gradle/actions/setup-gradle: dessen Cache-Teil steht seit v6 unter einer

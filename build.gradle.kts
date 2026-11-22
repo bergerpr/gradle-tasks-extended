@@ -291,7 +291,7 @@ tasks.named("processResources") { dependsOn(generateLegalFiles) }
 // Quellen wie patchPluginXml - nichts davon wird von Hand gepflegt.
 //
 // Die Download-Adresse braucht das GitHub-Repository: `-PpluginRepositoryUrl=https://github.com/
-// <owner>/<repo>`. Der Release-Workflow setzt sie aus `github.repository`; lokal ist die Aufgabe
+// bergerpr/gradle-tasks-extended`. Der Release-Workflow setzt sie aus `github.repository`; lokal ist die Aufgabe
 // nur zum Ansehen des Ergebnisses gedacht.
 // ---------------------------------------------------------------------------------------------
 
@@ -316,7 +316,7 @@ abstract class GenerateUpdatePluginsXml : DefaultTask() {
     fun generate() {
         val repo = repositoryUrl.get().trimEnd('/')
         require(repo.isNotEmpty()) {
-            "pluginRepositoryUrl fehlt - z. B. -PpluginRepositoryUrl=https://github.com/<owner>/<repo>"
+            "pluginRepositoryUrl fehlt - z. B. -PpluginRepositoryUrl=https://github.com/bergerpr/gradle-tasks-extended"
         }
         val version = pluginVersion.get()
         val downloadUrl = "$repo/releases/download/v$version/${zipFileName.get()}"

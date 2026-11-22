@@ -14,7 +14,7 @@ Ein Tag `v<pluginVersion>` startet den Workflow `release.yml`: Er baut, testet u
 verifiziert das Plugin und haengt die ZIP und eine `updatePlugins.xml` an ein GitHub-Release.
 Nutzer tragen einmal
 
-    https://github.com/<owner>/<repo>/releases/latest/download/updatePlugins.xml
+    https://github.com/bergerpr/gradle-tasks-extended/releases/latest/download/updatePlugins.xml
 
 als eigenes Plugin-Repository in der IDE ein und bekommen neue Fassungen danach wie jedes
 andere Plugin-Update. Ohne eingetragene Quelle meldet eine neuere IDE fuer ein per Datei

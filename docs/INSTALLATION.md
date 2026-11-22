@@ -9,7 +9,7 @@ installieren.
 
 1. **Settings > Plugins**, Zahnrad oben > **Manage Plugin Repositories...**
 2. Mit **+** die Adresse eintragen:
-   `https://github.com/<owner>/<repo>/releases/latest/download/updatePlugins.xml`
+   `https://github.com/bergerpr/gradle-tasks-extended/releases/latest/download/updatePlugins.xml`
 3. Im Reiter **Marketplace** nach "Gradle Tasks Extended" suchen und installieren.
 
 Danach bietet die IDE neue Fassungen an wie bei jedem anderen Plugin. War das Plugin bisher
@@ -62,7 +62,7 @@ Kompatibilitaetsangabe selbst ist davon unabhaengig und steht als `since-build` 
 
 `signPlugin` und `publishPlugin` sind dagegen bewusst nicht eingerichtet: Beides gehoert zum
 Marketplace-Vertrieb, den es hier nicht gibt (REQ-051). Die `updatePlugins.xml` fuer das eigene
-Repository erzeugt `./gradlew generateUpdatePluginsXml -PpluginRepositoryUrl=https://github.com/<owner>/<repo>`
+Repository erzeugt `./gradlew generateUpdatePluginsXml -PpluginRepositoryUrl=https://github.com/bergerpr/gradle-tasks-extended`
 neben die ZIP; im Release-Workflow geschieht das automatisch.
 
 ## 2. Installation in IntelliJ IDEA Ultimate
