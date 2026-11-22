@@ -117,7 +117,8 @@ intellijPlatform {
     }
 
     // Kein Marketplace-Vertrieb -> kein publishPlugin{} / kein signPlugin{} Setup.
-    // Verteilung erfolgt ausschliesslich per "Install Plugin from Disk" (siehe docs/INSTALLATION.md).
+    // Verteilung ueber GitHub-Releases als eigenes Plugin-Repository (generateUpdatePluginsXml
+    // weiter unten, REQ-051, ADR-028), lokal weiterhin per "Install Plugin from Disk").
 
     // `./gradlew verifyPlugin` laesst den IntelliJ Plugin Verifier ueber die gebaute ZIP laufen
     // und meldet Aufrufe entfernter oder interner API. Gegen WELCHE IDEs geprueft wird, muss
@@ -280,6 +281,82 @@ val generateLegalFiles = tasks.register<Sync>("generateLegalFiles") {
 
 sourceSets["main"].resources.srcDir(legalDir)
 tasks.named("processResources") { dependsOn(generateLegalFiles) }
+
+// ---------------------------------------------------------------------------------------------
+// updatePlugins.xml fuer das eigene Plugin-Repository (REQ-051, ADR-028)
+//
+// Die IDE fragt eine eingetragene Repository-URL nach einer XML mit <plugin>-Eintraegen ab
+// (gelesen von RepositoryContentHandler der Plattform: Attribute id/url/version, darunter
+// idea-version, name, vendor, description, change-notes). Alle Werte stammen aus denselben
+// Quellen wie patchPluginXml - nichts davon wird von Hand gepflegt.
+//
+// Die Download-Adresse braucht das GitHub-Repository: `-PpluginRepositoryUrl=https://github.com/
+// <owner>/<repo>`. Der Release-Workflow setzt sie aus `github.repository`; lokal ist die Aufgabe
+// nur zum Ansehen des Ergebnisses gedacht.
+// ---------------------------------------------------------------------------------------------
+
+abstract class GenerateUpdatePluginsXml : DefaultTask() {
+    @get:Input abstract val pluginId: Property<String>
+    @get:Input abstract val pluginName: Property<String>
+    @get:Input abstract val pluginVersion: Property<String>
+    @get:Input abstract val sinceBuild: Property<String>
+    @get:Input abstract val pluginVendor: Property<String>
+    @get:Input abstract val pluginDescription: Property<String>
+    @get:Input abstract val changeNotes: Property<String>
+    @get:Input abstract val repositoryUrl: Property<String>
+    @get:Input abstract val zipFileName: Property<String>
+    @get:OutputFile abstract val outputFile: RegularFileProperty
+
+    private fun attr(value: String) = value
+        .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
+
+    private fun cdata(value: String) = "<![CDATA[" + value.replace("]]>", "]]]]><![CDATA[>") + "]]>"
+
+    @TaskAction
+    fun generate() {
+        val repo = repositoryUrl.get().trimEnd('/')
+        require(repo.isNotEmpty()) {
+            "pluginRepositoryUrl fehlt - z. B. -PpluginRepositoryUrl=https://github.com/<owner>/<repo>"
+        }
+        val version = pluginVersion.get()
+        val downloadUrl = "$repo/releases/download/v$version/${zipFileName.get()}"
+        val file = outputFile.get().asFile
+        file.parentFile.mkdirs()
+        file.writeText(
+            buildString {
+                appendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+                appendLine("<!-- Erzeugt von der Gradle-Aufgabe generateUpdatePluginsXml - nicht von Hand bearbeiten. -->")
+                appendLine("<plugins>")
+                appendLine("  <plugin id=\"${attr(pluginId.get())}\" url=\"${attr(downloadUrl)}\" version=\"${attr(version)}\">")
+                appendLine("    <idea-version since-build=\"${attr(sinceBuild.get())}\"/>")
+                appendLine("    <name>${attr(pluginName.get())}</name>")
+                appendLine("    <vendor>${attr(pluginVendor.get())}</vendor>")
+                appendLine("    <description>${cdata(pluginDescription.get())}</description>")
+                appendLine("    <change-notes>${cdata(changeNotes.get())}</change-notes>")
+                appendLine("  </plugin>")
+                appendLine("</plugins>")
+            },
+            Charsets.UTF_8
+        )
+    }
+}
+
+tasks.register<GenerateUpdatePluginsXml>("generateUpdatePluginsXml") {
+    group = "distribution"
+    description = "Schreibt updatePlugins.xml fuer das eigene Plugin-Repository neben die Plugin-ZIP."
+    pluginId = providers.gradleProperty("pluginGroup")
+    pluginName = providers.gradleProperty("pluginName")
+    pluginVersion = providers.gradleProperty("pluginVersion")
+    sinceBuild = providers.gradleProperty("pluginSinceBuild")
+    pluginVendor = providers.gradleProperty("pluginVendor")
+    pluginDescription = providers.fileContents(layout.projectDirectory.file("src/main/plugin-meta/description.html"))
+        .asText.map { it.substringAfter("-->").trim() }
+    changeNotes = providers.fileContents(layout.projectDirectory.file("src/main/plugin-meta/change-notes.html"))
+        .asText.map { it.substringAfter("-->").trim() }
+    repositoryUrl = providers.gradleProperty("pluginRepositoryUrl").orElse("")
+    zipFileName = tasks.named<Zip>("buildPlugin").flatMap { it.archiveFileName }
+    outputFile = layout.buildDirectory.file("distributions/updatePlugins.xml")
+}
 
 // ---------------------------------------------------------------------------------------------
 // Versions-Updates fuer gradle/libs.versions.toml

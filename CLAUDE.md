@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"Gradle Tasks Extended" is a private IntelliJ IDEA Ultimate plugin (no Marketplace distribution) that
+"Gradle Tasks Extended" is an IntelliJ IDEA Ultimate plugin (no Marketplace distribution) that
 adds a standalone ToolWindow for browsing/running Gradle tasks, with three view modes:
 
 - `Default` — a rebuild of the IDE's original Gradle view: module level, a `Tasks` node per module,
@@ -30,7 +30,10 @@ compacted-away intermediate node has no effect (REQ-004).
 - Verified platform APIs, root-caused bugs from manual test sessions, and every deliberate deviation from
   the original spec live in `docs/decisions/` — check there before re-investigating something that may
   already be diagnosed (`grep -rl "<file>.kt" docs/decisions/`).
-- `docs/INSTALLATION.md` covers local "Install Plugin from Disk" installation (no Marketplace signing/
+- Releases go to GitHub: a `v<pluginVersion>` tag runs `.github/workflows/release.yml`, which attaches
+  the ZIP and `updatePlugins.xml` (`generateUpdatePluginsXml`) to a release; users add
+  `.../releases/latest/download/updatePlugins.xml` as a custom plugin repository (REQ-051, ADR-028).
+- `docs/INSTALLATION.md` covers that and local "Install Plugin from Disk" installation (no Marketplace signing/
   publishing flow exists in this project).
 
 ## Commands

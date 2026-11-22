@@ -8,7 +8,8 @@ Modulgliederung kombinierbar; in `Default` ist sie fest eingebaut.
 Spezifikation, verifizierte Plattform-APIs und Entscheidungen sind in eine durchsuchbare
 Wissensbasis aufgeloest (siehe unten).
 
-Rein privates Projekt, kein Marketplace-Vertrieb (siehe [docs/INSTALLATION.md](docs/INSTALLATION.md)).
+Kein Marketplace-Vertrieb: Releases und Updates kommen ueber ein eigenes Plugin-Repository auf
+GitHub (siehe [docs/INSTALLATION.md](docs/INSTALLATION.md)).
 
 ## Build
 

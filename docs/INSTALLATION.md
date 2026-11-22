@@ -1,7 +1,28 @@
-# Installation (privat, ohne Marketplace)
+# Installation (ohne Marketplace)
 
-Dieses Plugin wird **nicht** ueber den JetBrains Marketplace vertrieben, sondern
-ausschliesslich lokal per "Install Plugin from Disk" installiert.
+Dieses Plugin wird **nicht** ueber den JetBrains Marketplace vertrieben. Fertige Fassungen
+liegen als GitHub-Releases bereit und kommen ueber ein eigenes Plugin-Repository in die IDE
+(REQ-051, ADR-028); lokale Staende lassen sich weiterhin per "Install Plugin from Disk"
+installieren.
+
+## 0. Repository eintragen (empfohlen)
+
+1. **Settings > Plugins**, Zahnrad oben > **Manage Plugin Repositories...**
+2. Mit **+** die Adresse eintragen:
+   `https://github.com/<owner>/<repo>/releases/latest/download/updatePlugins.xml`
+3. Im Reiter **Marketplace** nach "Gradle Tasks Extended" suchen und installieren.
+
+Danach bietet die IDE neue Fassungen an wie bei jedem anderen Plugin. War das Plugin bisher
+per Datei installiert, fragt eine neuere IDE "Cannot update plugins - ... Choose where to
+get updates from": dort die eingetragene Quelle waehlen, oder das Plugin einmal
+deinstallieren und aus dem Repository neu installieren.
+
+## Release anlegen
+
+`pluginVersion` in `gradle.properties` anheben, committen, Tag `v<pluginVersion>` setzen und
+pushen. Der Workflow `.github/workflows/release.yml` baut, testet und verifiziert und legt das
+Release mit ZIP und `updatePlugins.xml` an. Ein Tag, der nicht zu `pluginVersion` passt,
+bricht ab.
 
 ## 1. Build
 
@@ -40,7 +61,9 @@ Kompatibilitaetsangabe selbst ist davon unabhaengig und steht als `since-build` 
 `plugin.xml` (aus `pluginSinceBuild`); ein `until-build` gibt es bewusst nicht (REQ-050).
 
 `signPlugin` und `publishPlugin` sind dagegen bewusst nicht eingerichtet: Beides gehoert zum
-Marketplace-Vertrieb, den es hier nicht gibt (REQ-051).
+Marketplace-Vertrieb, den es hier nicht gibt (REQ-051). Die `updatePlugins.xml` fuer das eigene
+Repository erzeugt `./gradlew generateUpdatePluginsXml -PpluginRepositoryUrl=https://github.com/<owner>/<repo>`
+neben die ZIP; im Release-Workflow geschieht das automatisch.
 
 ## 2. Installation in IntelliJ IDEA Ultimate
 

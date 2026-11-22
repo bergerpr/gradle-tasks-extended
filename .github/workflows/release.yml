@@ -1,0 +1,63 @@
+# Release eines Plugin-Stands (REQ-051, ADR-028).
+#
+# Ausgeloest durch ein Tag "v<pluginVersion>", z. B. v0.3.4. Baut, testet und verifiziert das
+# Plugin und haengt ZIP und updatePlugins.xml an ein GitHub-Release. Die IDE findet neue Fassungen
+# ueber die stabile Adresse
+#   https://github.com/<owner>/<repo>/releases/latest/download/updatePlugins.xml
+# Geheimnisse braucht es keine ausser dem automatischen GITHUB_TOKEN.
+#
+# Bewusst ohne gradle/actions/setup-gradle: dessen Cache-Teil steht seit v6 unter einer
+# proprietaeren Lizenz, und ein Release-Lauf pro Version braucht keinen Build-Cache.
+# setup-java cached die Gradle-Abhaengigkeiten.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: corretto
+          java-version: "25"
+          cache: gradle
+
+      - name: Tag passt zu pluginVersion
+        run: |
+          version=$(sed -n 's/^pluginVersion=//p' gradle.properties | tr -d '\r')
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} passt nicht zu pluginVersion=${version}"
+            exit 1
+          fi
+
+      - name: Bauen, testen, verifizieren
+        run: >
+          ./gradlew clean test buildPlugin verifyPlugin generateUpdatePluginsXml
+          -PpluginRepositoryUrl=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Release anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo_url="${{ github.server_url }}/${{ github.repository }}"
+          cat > release-notes.md <<EOF
+          Install once via **Settings > Plugins > gear > Manage Plugin Repositories** and add
+
+              ${repo_url}/releases/latest/download/updatePlugins.xml
+
+          The IDE then offers new versions like any other plugin update. What's new in this
+          version is shown on the plugin's *What's New* tab.
+          EOF
+          gh release create "${GITHUB_REF_NAME}" \
+            build/distributions/*.zip \
+            build/distributions/updatePlugins.xml \
+            --title "Gradle Tasks Extended ${GITHUB_REF_NAME#v}" \
+            --notes-file release-notes.md
