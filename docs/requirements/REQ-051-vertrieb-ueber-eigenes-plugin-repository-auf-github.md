@@ -7,7 +7,7 @@ betrifft:
   - docs/INSTALLATION.md
   - build.gradle.kts
   - .github/workflows/release.yml
-quelle: Plan.md, "Projekt-Rahmenbedingungen"; OPEN-011 (Update-Quelle, 2026-11-22)
+quelle: Plan.md, "Projekt-Rahmenbedingungen"; Entscheidung des Benutzers, 2026-11-22
 ---
 
 Ein Tag `v<pluginVersion>` startet den Workflow `release.yml`: Er baut, testet und

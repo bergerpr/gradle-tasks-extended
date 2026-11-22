@@ -5,7 +5,7 @@ betrifft:
   - build.gradle.kts
   - .github/workflows/release.yml
   - docs/INSTALLATION.md
-quelle: OPEN-011, Abschnitt "Update-Quelle" (Meldung "Cannot update plugins", 2026-11-22)
+quelle: Meldung "Cannot update plugins" der IDE, Entscheidung des Benutzers, 2026-11-22
 ---
 
 Neuere IDE-Fassungen fragen bei einem Plugin ohne bekannte Herkunft - jedes per "Install
@@ -35,5 +35,5 @@ ueber `raw.githubusercontent.com` ausgeliefert; Workflow und Aufgabe bleiben, nu
 Ablageort aendert sich.
 
 Verworfen: Marketplace (REQ-051), ein privates Repo (Release-Dateien verlangen eine Anmeldung,
-die eigene Repository-Abfrage der IDE hat keine), ein eigener Server (OPEN-011, Abschnitt
-"Entscheidungen").
+die eigene Repository-Abfrage der IDE hat keine), ein eigener Server (weiterer
+oeffentlicher Dienst mit Pflege und Sicherung, fuer ein einzelnes Plugin ohne Gewinn).

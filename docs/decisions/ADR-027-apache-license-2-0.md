@@ -7,7 +7,7 @@ betrifft:
   - src/main/legal/THIRD-PARTY-NOTICES.txt
   - build.gradle.kts
   - elefant.png
-quelle: OPEN-011, Abschnitt "Lizenz" (Entscheidung des Benutzers, 2026-11-22)
+quelle: Entscheidung des Benutzers, 2026-11-22
 ---
 
 Code, Dokumentation und Bilder des Repositories stehen unter der **Apache License 2.0**.
