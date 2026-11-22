@@ -11,6 +11,10 @@ Wissensbasis aufgeloest (siehe unten).
 Kein Marketplace-Vertrieb: Releases und Updates kommen ueber ein eigenes Plugin-Repository auf
 GitHub (siehe [docs/INSTALLATION.md](docs/INSTALLATION.md)).
 
+> **Mit KI entstanden:** Code, Tests und Dokumentation hat Claude Code (Anthropic) geschrieben,
+> das Logo hat das Bildmodell von OpenAI erzeugt. Anforderungen, Entscheidungen, Tests in der
+> IDE und die Screenshots stammen vom Projektinhaber.
+
 ## Build
 
 ```bash
@@ -58,8 +62,7 @@ src/main/kotlin/de/berger/gradletasksview/
 
 ## Lizenz
 
-[Apache License 2.0](LICENSE), Hinweise in [NOTICE](NOTICE). Der Code ist weitgehend mit
-Claude Code (Anthropic) entstanden; die `Co-Authored-By`-Zeilen der Commits zeigen, wo.
-Das Elefanten-Logo ist mit dem Bildmodell von OpenAI (`gpt-image`) erzeugt.
+[Apache License 2.0](LICENSE), Hinweise in [NOTICE](NOTICE). Zur Entstehung mit KI siehe oben;
+die `Co-Authored-By`-Zeilen der Commits zeigen die Beteiligung von Claude Code im Einzelnen.
 Das Plugin-Jar traegt `LICENSE`, `NOTICE` und `THIRD-PARTY-NOTICES.txt` (SnakeYAML, ebenfalls
 Apache 2.0) unter `META-INF/` - siehe ADR-027.
