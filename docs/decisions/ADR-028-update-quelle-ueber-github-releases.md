@@ -29,10 +29,9 @@ Download-URL in der XML zeigt auf die ZIP genau dieses Release. So gibt es keine
 `gh release create` mit dem automatischen `GITHUB_TOKEN`. Ohne `gradle/actions/setup-gradle`,
 dessen Cache-Teil seit v6 proprietaer lizenziert ist; `setup-java` cached die Abhaengigkeiten.
 
-**Ungeprueft bis zum ersten echten Release:** ob der Plugin-Manager der Umleitung von
-`releases/latest/download` folgt. Faellt das durch, wandert die XML in den Zweig `main` und wird
-ueber `raw.githubusercontent.com` ausgeliefert; Workflow und Aufgabe bleiben, nur der
-Ablageort aendert sich.
+**Geprueft mit dem ersten Release `v0.3.4` (2026-11-22):** Der Plugin-Manager folgt der
+Umleitung von `releases/latest/download` - Repository eingetragen, Update in der IDE angeboten
+und installiert.
 
 Verworfen: Marketplace (REQ-051), ein privates Repo (Release-Dateien verlangen eine Anmeldung,
 die eigene Repository-Abfrage der IDE hat keine), ein eigener Server (weiterer
