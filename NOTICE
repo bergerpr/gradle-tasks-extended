@@ -2,3 +2,7 @@ Gradle Tasks Extended
 Copyright 2026 the Gradle Tasks Extended authors
 
 Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The elephant logo (elefant.png, src/main/resources/images/elefant*.png and the tool window
+icon derived from it) was generated with OpenAI's image model gpt-image. The original file
+carries the C2PA provenance manifest signed by OpenAI.

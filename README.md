@@ -59,5 +59,6 @@ src/main/kotlin/de/berger/gradletasksview/
 
 [Apache License 2.0](LICENSE), Hinweise in [NOTICE](NOTICE). Der Code ist weitgehend mit
 Claude Code (Anthropic) entstanden; die `Co-Authored-By`-Zeilen der Commits zeigen, wo.
+Das Elefanten-Logo ist mit dem Bildmodell von OpenAI (`gpt-image`) erzeugt.
 Das Plugin-Jar traegt `LICENSE`, `NOTICE` und `THIRD-PARTY-NOTICES.txt` (SnakeYAML, ebenfalls
 Apache 2.0) unter `META-INF/` - siehe ADR-027.

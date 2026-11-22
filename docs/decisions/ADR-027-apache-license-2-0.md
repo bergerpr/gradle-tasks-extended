@@ -6,6 +6,7 @@ betrifft:
   - NOTICE
   - src/main/legal/THIRD-PARTY-NOTICES.txt
   - build.gradle.kts
+  - elefant.png
 quelle: OPEN-011, Abschnitt "Lizenz" (Entscheidung des Benutzers, 2026-11-22)
 ---
 
@@ -26,6 +27,12 @@ SnakeYAML-Jar enthaelt keine. Die Gradle-Aufgabe `generateLegalFiles` legt desha
 entsteht aus `src/main/legal/` mit der SnakeYAML-Version aus dem Version Catalog, damit sie
 nach einem Update nicht veraltet. SnakeYAML fuehrt keine eigene NOTICE-Datei (Repository auf
 Codeberg und Jar am 2026-11-22 nachgesehen), es gibt also nichts weiterzureichen.
+
+**Das Logo** (`elefant.png`, `images/elefant*.png`, `icons/toolWindowElefant*.png`) ist mit
+OpenAI `gpt-image` erzeugt - belegt durch das C2PA-Zertifikat im `caBX`-Block der Datei. Die
+Nutzungsbedingungen von OpenAI uebertragen die Rechte am Output dem Nutzer und verbieten nur,
+ihn als menschengemacht auszugeben; deshalb steht die Herkunft in `NOTICE`. Das Bild faellt
+unter dieselbe Lizenz wie der Rest.
 
 Kein Lizenzhinweis in `plugin.xml` oder der Overview: Die Lizenz betrifft die Weitergabe,
 nicht die Benutzung in der IDE.
